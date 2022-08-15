@@ -13,7 +13,7 @@ parser.add_argument('--selections', nargs="*", type=str, default="backbone and s
 parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data extraction")
 
 class PersistentHomology(object):
-    def __init__(self, args: argpase.ArgumentParser):
+    def __init__(self, args: argparse.ArgumentParser):
         pdbs = args.pdbs
         selections = args.selections
         get_cartesian = args.get_cartesian
