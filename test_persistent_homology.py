@@ -16,7 +16,7 @@ def load_mmtf(pdbs: List[str]):
     return us
   
 def get_atomgroups(mda_universes: List[mda.Universe], selections: List[str] = "backbone and segid A"):
-    if len(selection) == 1: 
+    if len(selections) == 1: 
         print("there is one atom selection criteria...")
         selections = selections * len(mda_universes) #proliferate selection of elements same as pdb lists 
     else: 
