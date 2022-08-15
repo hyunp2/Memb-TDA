@@ -56,7 +56,6 @@ class PersistentHomology(object):
         return Rs
 
     @staticmethod
-    @functools.lru_cache(maxsize=None)
     def get_wassersteins(ripser_objects: List[ripser.ripser]):
         assert len(ripser_objects) >= 2, "for Wasserstein, it must have more than two Ripser objects!"
         ripser_pair = list(itertools.combinations(ripser_objects, 2))
