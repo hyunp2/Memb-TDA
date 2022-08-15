@@ -14,13 +14,15 @@ parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data e
 
 class PersistentHomology(object):
     def __init__(self, args: argparse.ArgumentParser):
-        pdbs = args.pdbs
-        selections = args.selections
-        get_cartesian = args.get_cartesian
+#         pdbs = args.pdbs
+#         selections = args.selections
+#         get_cartesian = args.get_cartesian
         
-        self.pdbs = pdbs
-        self.selections = selections
-        self.get_cartesian = get_cartesian
+        [setattr(self, key, val) for key, val in args.__dict__.items()]
+        
+#         self.pdbs = pdbs
+#         self.selections = selections
+#         self.get_cartesian = get_cartesian
 
     @staticmethod
     def load_mmtf(pdbs: List[str]):
