@@ -25,13 +25,11 @@ class PersistentHomology(object):
 #         self.get_cartesian = get_cartesian
 
     @staticmethod
-    @functools.lru_cache(maxsize=None)
     def load_mmtf(pdbs: List[str]):
         us = list(map(lambda pdb: mda.fetch_mmtf(pdb), pdbs)) #List of universes
         return us
     
     @staticmethod
-    @functools.lru_cache(maxsize=None)
     def get_atomgroups(mda_universes: List[mda.Universe], selections: List[str] = "backbone and segid A"):
         if len(selections) == 1: 
             print("there is one atom selection criteria...; Applying the same selection for all molecules!")
@@ -43,7 +41,6 @@ class PersistentHomology(object):
         return ags
     
     @staticmethod
-    @functools.lru_cache(maxsize=None)
     def birth_and_death(mda_universes_or_atomgroups: Union[List[mda.Universe], List[mda.AtomGroup]], get_cartesian: bool = True, selections: List[str] = "backbone and segid A"):
         if isinstance(mda_universes_or_atomgroups[0], mda.Universe):
             ags = get_atomgroups(mda_universes_or_atomgroups, selections)
