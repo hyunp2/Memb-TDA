@@ -17,7 +17,7 @@ def load_mmtf(pdbs: List[str]):
   
 def get_atomgroups(mda_universes: List[mda.Universe], selections: List[str] = "backbone and segid A"):
     if len(selections) == 1: 
-        print("there is one atom selection criteria...")
+        print("there is one atom selection criteria...; Applying the same selection for all molecules!")
         selections = selections * len(mda_universes) #proliferate selection of elements same as pdb lists 
     else: 
         assert len(selections) == len(mda_universes), "number of Universes and selections should match!"
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     ags = get_atomgroups(us, args.selections)
     Rs = birth_and_death(ags, args.get_cartesian, args.selections)
     wdists = get_wassersteins(Rs)
-    
+    print(Rs, wdists)
 
     
     
