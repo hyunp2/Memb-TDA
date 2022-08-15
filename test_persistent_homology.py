@@ -9,7 +9,7 @@ import itertools
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
 parser.add_argument('--selections', nargs="*", type=str, default="backbone and segid A")
-parser.add_argument('--get_cartesian', type=bool, default=True, "MDA data extraction")
+parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data extraction")
 
 def load_mmtf(pdbs: List[str]):
     us = list(map(lambda pdb: mda.fetch_mmtf(pdb), pdbs)) #List of universes
