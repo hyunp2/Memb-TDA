@@ -44,14 +44,15 @@ class PersistentHomology(object):
         return prot_traj
     
     @staticmethod
-    def load_traj(pdb: str, psf: str, trajs: List[str], selections: str):
+    def load_traj(pdb: str, psf: str, trajs: List[str], selections: List[str]):
         assert (pdb is not None) or (psf is not None), "At least either PDB of PSF should be provided..."
         assert trajs is not None, "DCD(s) must be provided"
         top = pdb if (pdb is not None) else psf
         universe = mda.Universe(top, *trajs)
         reference = mda.Universe(top)
         print("MDA Universe is created")
-
+        
+        selections = selections[0]
         prot_traj = PersistentHomology.traj_preprocessing(universe, reference, selections)
         print("Aligned MDA Universe is RETURNED!")
 
@@ -113,7 +114,7 @@ class PersistentHomology(object):
     
     @property
     def calculate_wdists_trajs(self, ):
-        reference, prot_traj = self.load_traj(self.pdbs)
+        reference, prot_traj = self.load_traj(self.pdb, self.psf, self.trajs, self.selections)
         ags_ref = self.get_atomgroups(reference, self.selections)
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
         traj_flag = (self.trajs is not None)
@@ -130,7 +131,7 @@ if __name__ == "__main__":
 #     Rs = birth_and_death(ags, args.get_cartesian, args.selections)
 #     wdists = get_wassersteins(Rs)
     ph = PersistentHomology(args)
-    us, ags, Rs, wdists = ph.calculate_wdists
+    us, ags, Rs, wdists = ph.calculate_wdists_pdbs
     print(Rs, wdists)
 
     
