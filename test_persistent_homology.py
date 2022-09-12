@@ -38,6 +38,7 @@ class PersistentHomology(object):
     @staticmethod
     def traj_preprocessing(prot_traj, prot_ref, align_selection):
         box_dim = prot_traj.trajectory.ts.dimensions 
+        print(box_dim, prot_traj, prot_ref, align_selection)
         transform = transformations.boxdimensions.set_dimensions(box_dim)
         prot_traj.trajectory.add_transformations(transform)
         AlignTraj(prot_traj, prot_ref, select=align_selection, in_memory=True).run()
@@ -51,7 +52,7 @@ class PersistentHomology(object):
         universe = mda.Universe(top, *trajs)
         reference = mda.Universe(top)
         print("MDA Universe is created")
-        print(top, universe,reference)
+#         print(top, universe,reference)
         selections = selections[0]
         prot_traj = PersistentHomology.traj_preprocessing(universe, reference, selections)
         print("Aligned MDA Universe is RETURNED!")
