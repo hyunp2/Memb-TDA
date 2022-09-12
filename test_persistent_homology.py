@@ -96,7 +96,7 @@ class PersistentHomology(object):
         else:
             raise NotImplementedError("Not implemented for non-positional information!")
         
-        print(information)
+#         print(information)
         Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
         return Rs
 
@@ -125,7 +125,7 @@ class PersistentHomology(object):
         ags_ref = self.get_atomgroups(reference, self.selections)
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
         traj_flag = (self.trajs is not None)
-#         Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
+        Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
         Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag)
         Rs = Rs_ref + Rs_trajs 
         wdists = self.get_wassersteins(Rs, traj_flag)
