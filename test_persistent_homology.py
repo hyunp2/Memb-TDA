@@ -51,7 +51,7 @@ class PersistentHomology(object):
         universe = mda.Universe(top, *trajs)
         reference = mda.Universe(top)
         print("MDA Universe is created")
-        
+        print(top, universe,reference)
         selections = selections[0]
         prot_traj = PersistentHomology.traj_preprocessing(universe, reference, selections)
         print("Aligned MDA Universe is RETURNED!")
