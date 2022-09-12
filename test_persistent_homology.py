@@ -10,6 +10,7 @@ from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
 import functools
 import numpy as np
+import torch
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
