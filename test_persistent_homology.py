@@ -122,7 +122,7 @@ class PersistentHomology(object):
         ags_ref = self.get_atomgroups(reference, self.selections)
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
         traj_flag = (self.trajs is not None)
-        Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
+#         Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
         Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag)
         Rs = Rs_ref + Rs_trajs 
         wdists = self.get_wassersteins(Rs, traj_flag)
