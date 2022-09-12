@@ -89,7 +89,9 @@ class PersistentHomology(object):
             prot_traj = ags[0].universe #back to universe
             coords = AnalysisFromFunction(lambda ag: ag.positions.copy(),
                                    prot_traj.atoms.select_atoms(selections[0])).run().results['timeseries'] #B,L,3
-            information = np.split(coords, indices_or_sections=coords.shape[0], axis=0) #[(L,3)] * B
+            information = torch.from_numpy(coords).unbind(dim=0) #List of (L,3) Tensors
+            information = list(map(lambda inp: inp.detach().cpu().numpy(), information )) #List of (L,3) Arrays
+#             information = np.split(coords, indices_or_sections=coords.shape[0], axis=0) #[(L,3)] * B
         else:
             raise NotImplementedError("Not implemented for non-positional information!")
         
