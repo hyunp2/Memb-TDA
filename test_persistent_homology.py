@@ -92,7 +92,8 @@ class PersistentHomology(object):
             information = np.split(coords, indices_or_sections=coords.shape[0], axis=0) #[(L,3)] * B
         else:
             raise NotImplementedError("Not implemented for non-positional information!")
-
+        
+        print(information)
         Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
         return Rs
 
