@@ -9,6 +9,7 @@ from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
 import functools
+import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
