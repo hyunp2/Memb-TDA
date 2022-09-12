@@ -65,6 +65,7 @@ class PersistentHomology(object):
                 print("there is one atom selection criteria...; Applying the same selection for all molecules!")
                 selections = selections * len(mda_universes) #proliferate selection of elements same as pdb lists 
             else: 
+                print(selections, mda_universes)
                 assert len(selections) == len(mda_universes), "number of Universes and selections should match!"
 
             ags = list(map(lambda u, sel: u.select_atoms(sel), mda_universes, selections ))
