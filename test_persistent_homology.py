@@ -86,7 +86,7 @@ class PersistentHomology(object):
         elif get_cartesian and len(ags) == 1 and traj_flag:
             prot_traj = ags[0].universe #back to universe
             coords = AnalysisFromFunction(lambda ag: ag.positions.copy(),
-                                   prot_traj.atoms.select_atoms(selections[0])).run().results['timeseries']
+                                   prot_traj.atoms.select_atoms(selections[0])).run().results['timeseries'] #B,L,3
             information = np.split(coords, indices_or_sections=coords.shape[0], axis=0) #[(L,3)] * B
         else:
             raise NotImplementedError("Not implemented for non-positional information!")
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 #     Rs = birth_and_death(ags, args.get_cartesian, args.selections)
 #     wdists = get_wassersteins(Rs)
     ph = PersistentHomology(args)
-    us, ags, Rs, wdists = ph.calculate_wdists_pdbs
+    us, ags, Rs, wdists = ph.calculate_wdists_trajs
     print(Rs, wdists)
 
     
