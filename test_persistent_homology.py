@@ -113,8 +113,10 @@ class PersistentHomology(object):
 #         print(information)
         print("Ripser for DGMS...")
         if not multiprocessing:
+            print("Normal Ripser...")
             Rs = persistent_diagram(information)
         else:
+            print("Multiprocessing Ripser...")
             with mp.Pool() as pool:
                 Rs = pool.map(functools.partial(persistent_diagram, multiprocessing=multiprocessing), information)
         return Rs
