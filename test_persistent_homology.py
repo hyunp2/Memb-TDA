@@ -147,8 +147,8 @@ class PersistentHomology(object):
             Rs_zips = [(summary.R, summary.R_total) for summary in summaries]
             Rs_zip_flats = list(zip(*Rs_zips))
             print(len(Rs_zip_flats))
-            Rs = Rs_zip_flats[0]
-            Rs_total = Rs_zip_flats[1]
+            Rs = list(Rs_zip_flats[0])
+            Rs_total = list(Rs_zip_flats[1])
         return Rs, Rs_total
 
 
@@ -216,7 +216,7 @@ class PersistentHomology(object):
 #             np.save(os.path.join(self.data_dir, self.filename), Rs)
             f = open(os.path.join(self.data_dir, self.filename), "wb")
             pickle.dump(Rs_total, f)    
-        print(Rs[1])
+        print(len(Rs))
         wdists = self.get_wassersteins(Rs, traj_flag)
         wdist_pairs = self.get_wassersteins_pairwise(Rs)
         
