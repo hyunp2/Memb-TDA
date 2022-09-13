@@ -141,9 +141,11 @@ class PersistentHomology(object):
 #                 Rs = pool.map(persistent_diagram_mp, information)
             maxdims = [maxdim] * len(information)
             futures = [persistent_diagram_mp.remote(i, maxdim) for i, maxdim in zip(information, maxdims)]
-            summary = ray.get(futures)
-            Rs = summary.Rs
-            Rs_total = summary.Rs_total
+            summaries = ray.get(futures)
+            Rs_zips = [(summary.Rs, summary.Rs_total) for summary in summaries]
+            Rs_zip_flats = list(zip(Rs_zips))
+            Rs = Rs_zip_flats[0]
+            Rs_total = Rs_zip_flats[1]
         return Rs, Rs_total
 
 
