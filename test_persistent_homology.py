@@ -149,7 +149,7 @@ class PersistentHomology(object):
         traj_flag = (self.trajs is not None)
         Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
         print("Rs for Ref done...")
-        Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multiprocessing)
+        Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip)
         print("Rs for Trajs done...")
         Rs = Rs_ref + Rs_trajs 
         wdists = self.get_wassersteins(Rs, traj_flag)
