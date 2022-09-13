@@ -108,7 +108,7 @@ class PersistentHomology(object):
             wdists = list(map(lambda pair: persim.wasserstein(*pair), ripser_pair ))
             return wdists
         else:
-            wdists = list(map(lambda pair: functols.partial(persim.wasserstein, dgm1=ripser_objects[0])(dgm2 = pair), ripser_objects[slice(1, None)] ))
+            wdists = list(map(lambda pair: functools.partial(persim.wasserstein, dgm1=ripser_objects[0])(dgm2 = pair), ripser_objects[slice(1, None)] ))
             return wdists
             
     @property
