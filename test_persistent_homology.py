@@ -145,8 +145,8 @@ class PersistentHomology(object):
 #             print(summaries)
             Rs_zips = [(summary.R, summary.R_total) for summary in summaries]
             Rs_zip_flats = list(zip(Rs_zips))
-            Rs = list(Rs_zip_flats[0])
-            Rs_total = list(Rs_zip_flats[1])
+            Rs = Rs_zip_flats[0]
+            Rs_total = Rs_zip_flats[1]
         return Rs, Rs_total
 
 
