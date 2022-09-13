@@ -227,7 +227,7 @@ class PersistentHomology(object):
         wdist_pair_list = []
         
         for maxdim in tqdm.tqdm(range(self.maxdim + 1)):
-            print(cf.green("Calculating Wasserstein..."))
+            print(cf.green(f"Calculating Wasserstein for dimension {maxdim}..."))
             Rs = list(map(lambda inp: inp[maxdim], Rs_total )) #List of array; maxdim chooses which PH dim!
             wdists = self.get_wassersteins(Rs, traj_flag)
             wdist_pairs = self.get_wassersteins_pairwise(Rs)
