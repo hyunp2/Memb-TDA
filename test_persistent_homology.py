@@ -116,7 +116,7 @@ class PersistentHomology(object):
             Rs = persistent_diagram(information)
         else:
             with mp.Pool() as pool:
-                Rs = pool.map(persistent_diagram, information)
+                Rs = pool.map(functools.partial(persistent_diagram, multiprocessing=multiprocessing), information)
         return Rs
 
     @staticmethod
