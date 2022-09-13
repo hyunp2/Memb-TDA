@@ -115,11 +115,13 @@ class PersistentHomology(object):
         if not multip:
             print("Normal Ripser...")
             Rs = persistent_diagram(information)
+            return Rs
+#         else:
+#             print("Multiprocessing Ripser...")
+#             with mp.Pool() as pool:
+#                 Rs = pool.map(functools.partial(persistent_diagram, multip=multip), information)
         else:
-            print("Multiprocessing Ripser...")
-            with mp.Pool() as pool:
-                Rs = pool.map(functools.partial(persistent_diagram, multip=multip), information)
-        return Rs
+            return information
 
     @staticmethod
     def get_wassersteins(ripser_objects: List[ripser.ripser], traj_flag: bool=False):
@@ -170,10 +172,20 @@ if __name__ == "__main__":
     traj_flag = (ph.trajs is not None)
     Rs_ref = ph.birth_and_death(ags_ref, ph.get_cartesian, ph.selections, traj_flag)
     print("Rs for Ref done...")
-    Rs_trajs = ph.birth_and_death(ags_trajs, ph.get_cartesian, ph.selections, traj_flag, ph.multip)
-    print("Rs for Trajs done...")
+    
+    if not ph.multip:
+        Rs_trajs = ph.birth_and_death(ags_trajs, ph.get_cartesian, ph.selections, traj_flag, ph.multip)
+        print("Rs for Trajs done...")
+    else:
+        information = ph.birth_and_death(ags_trajs, ph.get_cartesian, ph.selections, traj_flag, ph.multip)
+        print("Multiprocessing Ripser...")
+        with mp.Pool() as pool:
+            Rs_trajs = pool.map(functools.partial(persistent_diagram, multip=ph.multip), information)
+        print("Rs for Trajs done...")
+        
     Rs = Rs_ref + Rs_trajs 
     wdists = ph.get_wassersteins(Rs, traj_flag)
+    print("Done!")
     
 # u_open = mda.fetch_mmtf('3CLN')
 # u_inter = mda.fetch_mmtf('1CFD')
