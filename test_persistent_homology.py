@@ -64,11 +64,11 @@ class PersistentHomology(object):
         return prot_traj
     
     @staticmethod
-    def load_traj(pdb: str, psf: str, trajs: List[str], selections: List[str]):
+    def load_traj(data_dir: str, pdb: str, psf: str, trajs: List[str], selections: List[str]):
         assert (pdb is not None) or (psf is not None), "At least either PDB of PSF should be provided..."
         assert trajs is not None, "DCD(s) must be provided"
         top = pdb if (pdb is not None) else psf
-        top = os.path.join(self.data_dir, top)
+        top = os.path.join(data_dir, top)
         trajs = list(map(lambda inp: os.path.join(self.data_dir, inp), trajs ))
         universe = mda.Universe(top, *trajs)
         reference = mda.Universe(top)
@@ -163,7 +163,7 @@ class PersistentHomology(object):
         s = time.time()
         print(self.__dict__)
         
-        reference, prot_traj = self.load_traj(self.pdb, self.psf, self.trajs, self.selections)
+        reference, prot_traj = self.load_traj(self.data_dir, self.pdb, self.psf, self.trajs, self.selections)
         ags_ref = self.get_atomgroups(reference, self.selections)
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
         traj_flag = (self.trajs is not None)
