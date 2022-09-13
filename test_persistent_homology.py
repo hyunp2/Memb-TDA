@@ -22,20 +22,21 @@ parser.add_argument('--data_dir', type=str, default="/Scr/hyunpark/Monster/vaega
 parser.add_argument('--pdb', type=str, default=None)
 parser.add_argument('--psf', type=str, default=None)
 parser.add_argument('--trajs', nargs="*", type=str, default=None) #List of dcds
+parser.add_argument('--maxdim', type=int, default=2) #List of dcds
 parser.add_argument('--filename', type=str, default="default.npy") #List of dcds
 parser.add_argument('--selections', nargs="*", type=str, default="backbone and segid A")
 parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data extraction")
 parser.add_argument('--multip', action="store_true", help="enable multiprocessing?")
 
-def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]]):
-    Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
+def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], maxdim: int):
+    Rs = list(map(lambda info: ripser.ripser(info)["dgms"][maxdim], information ))
     return Rs
 
 @ray.remote
-def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]]):
+def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]], maxdim: int):
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
-    R = ripser.ripser(information)["dgms"][1]
+    R = ripser.ripser(information)["dgms"][maxdim]
     return R
 
 class PersistentHomology(object):
@@ -99,7 +100,7 @@ class PersistentHomology(object):
     
     @staticmethod
     def birth_and_death(mda_universes_or_atomgroups: Union[List[mda.Universe], List[mda.AtomGroup]], get_cartesian: bool = True, 
-                        selections: List[str] = "backbone and segid A", traj_flag: bool=False, multip: bool=False):
+                        selections: List[str] = "backbone and segid A", traj_flag: bool=False, multip: bool=False, maxdim: int=2):
         if isinstance(mda_universes_or_atomgroups[0], mda.Universe):
             ags = PersistentHomology.get_atomgroups(mda_universes_or_atomgroups, selections)
         else:
@@ -121,14 +122,15 @@ class PersistentHomology(object):
         print("Ripser for DGMS...")
         if not multip:
             print("Normal Ripser...")
-            Rs = persistent_diagram(information)
+            Rs = persistent_diagram(information, maxdim)
 #         else:
 #             return information
         else:
             print("Multiprocessing Ripser...")
 #             with mp.Pool() as pool:
 #                 Rs = pool.map(persistent_diagram_mp, information)
-            futures = [persistent_diagram_mp.remote(i) for i in information]
+            maxdims = [maxdim] * len(information)
+            futures = [persistent_diagram_mp.remote(i, maxdim) for i, maxdim in zip(information, maxdims)]
             Rs = ray.get(futures)
         return Rs
 
@@ -158,7 +160,7 @@ class PersistentHomology(object):
         
         us = self.load_mmtf(self.pdbs)
         ags = self.get_atomgroups(us, self.selections)
-        Rs = self.birth_and_death(ags, self.get_cartesian, self.selections)
+        Rs = self.birth_and_death(ags, self.get_cartesian, self.selections, self.maxdim)
         wdists = self.get_wassersteins(Rs)
         
         e = time.time()
@@ -184,9 +186,9 @@ class PersistentHomology(object):
 #             Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
             print(f"Loading saved diagrams from {self.filename}...")
         else:
-            Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
+            Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag, False, self.maxdim)
             print("Rs for Ref done...")
-            Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip)
+            Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip, self.maxdim)
             print("Rs for Trajs done...")
             Rs = Rs_ref + Rs_trajs 
             np.save(os.path.join(self.data_dir, self.filename), Rs)
