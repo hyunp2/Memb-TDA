@@ -181,6 +181,7 @@ if __name__ == "__main__":
         information = ph.birth_and_death(ags_trajs, ph.get_cartesian, ph.selections, traj_flag, ph.multip)
         print(information)
         print("Multiprocessing Ripser...")
+        time.sleep(10)
         with mp.Pool() as pool:
             Rs_trajs = pool.map(functools.partial(persistent_diagram, multip=ph.multip), information)
         print("Rs for Trajs done...")
