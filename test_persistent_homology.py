@@ -23,15 +23,15 @@ parser.add_argument('--selections', nargs="*", type=str, default="backbone and s
 parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data extraction")
 parser.add_argument('--multip', action="store_true", help="enable multiprocessing?")
 
-def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], multip: bool=False):
-    if not multip:
-        Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
-        return Rs
-    else:
-        #Definition of information has changed from List[np.ndarray] to np.ndarray
-        #Multiprocessing changes return value from "List of R" to "one R"
-        R = ripser.ripser(information)["dgms"][1]
-        return R
+def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]]):
+    Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
+    return Rs
+
+def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]]):
+    #Definition of information has changed from List[np.ndarray] to np.ndarray
+    #Multiprocessing changes return value from "List of R" to "one R"
+    R = ripser.ripser(information)["dgms"][1]
+    return R
 
 class PersistentHomology(object):
     def __init__(self, args: argparse.ArgumentParser):
@@ -183,7 +183,7 @@ if __name__ == "__main__":
         print("Multiprocessing Ripser...")
 #         time.sleep(10)
         with mp.Pool() as pool:
-            Rs_trajs = pool.map(functools.partial(persistent_diagram, multip=ph.multip), information)
+            Rs_trajs = pool.map(persistent_diagram_mp, information)
         print("Rs for Trajs done...")
         
     Rs = Rs_ref + Rs_trajs 
