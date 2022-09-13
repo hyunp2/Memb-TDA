@@ -29,6 +29,7 @@ parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data e
 parser.add_argument('--multip', action="store_true", help="enable multiprocessing?")
 
 def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], maxdim: int):
+    print(information, maxdim)
     Rs = list(map(lambda info: ripser.ripser(info)["dgms"][maxdim], information ))
     return Rs
 
