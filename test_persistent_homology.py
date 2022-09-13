@@ -141,15 +141,24 @@ class PersistentHomology(object):
             
     @property
     def calculate_wdists_pdbs(self, ):
+        s = time.time()
+        print(self.__dict__)
+        
         us = self.load_mmtf(self.pdbs)
         ags = self.get_atomgroups(us, self.selections)
         Rs = self.birth_and_death(ags, self.get_cartesian, self.selections)
         wdists = self.get_wassersteins(Rs)
+        
+        e = time.time()
+        print(f"Took {e-s} seconds...")
+        print("Done!")
         return us, ags, Rs, wdists
     
     @property
     def calculate_wdists_trajs(self, ):
+        s = time.time()
         print(self.__dict__)
+        
         reference, prot_traj = self.load_traj(self.pdb, self.psf, self.trajs, self.selections)
         ags_ref = self.get_atomgroups(reference, self.selections)
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
@@ -160,6 +169,10 @@ class PersistentHomology(object):
         print("Rs for Trajs done...")
         Rs = Rs_ref + Rs_trajs 
         wdists = self.get_wassersteins(Rs, traj_flag)
+        
+        e = time.time()
+        print(f"Took {e-s} seconds...")
+        print("Done!")
         return [reference, prot_traj], [ags_ref, ags_trajs], Rs, wdists
     
 if __name__ == "__main__":
