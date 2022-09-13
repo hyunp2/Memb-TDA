@@ -21,7 +21,7 @@ parser.add_argument('--psf', type=str, default=None)
 parser.add_argument('--trajs', nargs="*", type=str, default=None) #List of dcds
 parser.add_argument('--selections', nargs="*", type=str, default="backbone and segid A")
 parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data extraction")
-parser.add_argument('--multip', action="store_true", default="enable multiprocessing?")
+parser.add_argument('--multip', action="store_true", help="enable multiprocessing?")
 
 def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], multip: bool=False):
     if not multip:
