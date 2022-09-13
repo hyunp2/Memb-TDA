@@ -38,6 +38,9 @@ def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], maxdim:
     Rs = list(map(lambda rs: rs[maxdim], Rs_total ))
     return Rs, Rs_total
 
+def wasserstein():
+    pass
+
 @ray.remote
 def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]], maxdim: int):
     #Definition of information has changed from List[np.ndarray] to np.ndarray
