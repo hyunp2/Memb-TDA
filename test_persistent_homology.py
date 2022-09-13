@@ -13,6 +13,7 @@ import numpy as np
 import torch
 import multiprocessing as mp
 import time
+import ray
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
@@ -27,6 +28,7 @@ def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]]):
     Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
     return Rs
 
+@ray.remote
 def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]]):
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
@@ -182,8 +184,10 @@ if __name__ == "__main__":
 #         print(information)
         print("Multiprocessing Ripser...")
 #         time.sleep(10)
-        with mp.Pool() as pool:
-            Rs_trajs = pool.map(persistent_diagram_mp, information)
+#         with mp.Pool() as pool:
+#             Rs_trajs = pool.map(persistent_diagram_mp, information)
+        futures = [persistent_diagram_mp.remote(i) for i in information]
+        Rs_trajs = ray.get(futures)
         print("Rs for Trajs done...")
         
     Rs = Rs_ref + Rs_trajs 
