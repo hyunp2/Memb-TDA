@@ -16,6 +16,7 @@ import time
 import ray
 import os
 import pickle
+import collections
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
@@ -43,7 +44,10 @@ def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]], maxd
     #Multiprocessing changes return value from "List of R" to "one R"
     R_total = ripser.ripser(information, maxdim=maxdim)["dgms"]
     R = R_total[maxdim]
-    return R, R_total
+    summary = collections.namedtuple("summary", ["R", "R_total"])
+    summary.R = R
+    summary.R_total = R_total
+    return summary
 
 class PersistentHomology(object):
     def __init__(self, args: argparse.ArgumentParser):
@@ -137,7 +141,9 @@ class PersistentHomology(object):
 #                 Rs = pool.map(persistent_diagram_mp, information)
             maxdims = [maxdim] * len(information)
             futures = [persistent_diagram_mp.remote(i, maxdim) for i, maxdim in zip(information, maxdims)]
-            Rs, Rs_total = ray.get(futures)
+            summary = ray.get(futures)
+            Rs = summary.Rs
+            Rs_total = summary.Rs_total
         return Rs, Rs_total
 
 
