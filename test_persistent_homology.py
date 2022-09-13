@@ -12,6 +12,7 @@ import functools
 import numpy as np
 import torch
 import multiprocessing as mp
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
@@ -152,8 +153,11 @@ if __name__ == "__main__":
 #     Rs = birth_and_death(ags, args.get_cartesian, args.selections)
 #     wdists = get_wassersteins(Rs)
     ph = PersistentHomology(args)
+    s = time.time()
     us, ags, Rs, wdists = ph.calculate_wdists_trajs
-    print(Rs, wdists)
+    e = time.time()
+    print(f"Took {e-s} seconds...")
+#     print(Rs, wdists)
 
     
     
