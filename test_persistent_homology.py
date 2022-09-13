@@ -118,7 +118,7 @@ class PersistentHomology(object):
         else:
             print("Multiprocessing Ripser...")
             with mp.Pool() as pool:
-                Rs = pool.map(functools.partial(persistent_diagram, multiprocessing=multiprocessing), information)
+                Rs = pool.map(functools.partial(persistent_diagram, multip=multip), information)
         return Rs
 
     @staticmethod
