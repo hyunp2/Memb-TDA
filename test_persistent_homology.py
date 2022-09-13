@@ -15,6 +15,7 @@ import multiprocessing as mp
 import time
 import ray
 import os
+import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
@@ -29,18 +30,20 @@ parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data e
 parser.add_argument('--multip', action="store_true", help="enable multiprocessing?")
 
 def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], maxdim: int):
-    print(information, maxdim)
-    test = ripser.ripser(information[0])["dgms"][2]
-    print(test)
-    Rs = list(map(lambda info: ripser.ripser(info)["dgms"][maxdim], information ))
-    return Rs
+#     print(information, maxdim)
+#     test = ripser.ripser(information[0], maxdim=maxdim)["dgms"][2]
+#     print(test)
+    Rs_total = list(map(lambda info: ripser.ripser(info, maxdim=maxdim)["dgms"], information ))
+    Rs = list(map(lambda rs: rs[maxdim], Rs_total ))
+    return Rs, Rs_total
 
 @ray.remote
 def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]], maxdim: int):
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
-    R = ripser.ripser(information)["dgms"][maxdim]
-    return R
+    R_total = ripser.ripser(information, maxdim=maxdim)["dgms"]
+    R = R[maxdim]
+    return R, R_total
 
 class PersistentHomology(object):
     def __init__(self, args: argparse.ArgumentParser):
@@ -125,7 +128,7 @@ class PersistentHomology(object):
         print("Ripser for DGMS...")
         if not multip:
             print("Normal Ripser...")
-            Rs = persistent_diagram(information, maxdim)
+            Rs, Rs_total = persistent_diagram(information, maxdim)
 #         else:
 #             return information
         else:
@@ -134,8 +137,8 @@ class PersistentHomology(object):
 #                 Rs = pool.map(persistent_diagram_mp, information)
             maxdims = [maxdim] * len(information)
             futures = [persistent_diagram_mp.remote(i, maxdim) for i, maxdim in zip(information, maxdims)]
-            Rs = ray.get(futures)
-        return Rs
+            Rs, Rs_total = ray.get(futures)
+        return Rs, Rs_total
 
 
     @staticmethod
@@ -182,20 +185,25 @@ class PersistentHomology(object):
         traj_flag = (self.trajs is not None)
         
         if os.path.exists(os.path.join(self.data_dir, self.filename)):
-            Rs = np.load(os.path.join(self.data_dir, self.filename), allow_pickle=True)
+#             Rs = np.load(os.path.join(self.data_dir, self.filename), allow_pickle=True)
+            f = open(os.path.join(self.data_dir, self.filename), "rb")
+            Rs = pickle.load(f)
 #             print(Rs)
 #             Rs = Rs.astype(np.float64)
 #             Rs_ = torch.from_numpy(Rs).unbind(dim=0)
 #             Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
             print(f"Loading saved diagrams from {self.filename}...")
         else:
-            Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag, False, self.maxdim)
+            Rs_ref, Rs_ref_total = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag, False, self.maxdim)
             print("Rs for Ref done...")
-            Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip, self.maxdim)
+            Rs_trajs, Rs_trajs_total = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip, self.maxdim)
             print("Rs for Trajs done...")
             Rs = Rs_ref + Rs_trajs 
-            np.save(os.path.join(self.data_dir, self.filename), Rs)
-            
+            Rs_total = Rs_ref_total + Rs_trajs_total
+#             np.save(os.path.join(self.data_dir, self.filename), Rs)
+            f = open(os.path.join(self.data_dir, self.filename), "wb")
+            pickle.dump(Rs_total, f)    
+        
         wdists = self.get_wassersteins(Rs, traj_flag)
         wdist_pairs = self.get_wassersteins_pairwise(Rs)
         
