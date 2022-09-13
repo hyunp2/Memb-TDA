@@ -168,6 +168,7 @@ if __name__ == "__main__":
 #     e = time.time()
 #     print(f"Took {e-s} seconds...")
 
+    s = time.time()
     print(ph.__dict__)
     reference, prot_traj = ph.load_traj(ph.pdb, ph.psf, ph.trajs, ph.selections)
     ags_ref = ph.get_atomgroups(reference, ph.selections)
@@ -192,6 +193,10 @@ if __name__ == "__main__":
         
     Rs = Rs_ref + Rs_trajs 
     wdists = ph.get_wassersteins(Rs, traj_flag)
+    
+    print(wdists)
+    e = time.time()
+    print(f"Took {e-s} seconds...")
     print("Done!")
     
 # u_open = mda.fetch_mmtf('3CLN')
