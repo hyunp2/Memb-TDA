@@ -176,18 +176,18 @@ class PersistentHomology(object):
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
         traj_flag = (self.trajs is not None)
         
-        if os.path.exists(os.path.join(self.data_dir, filename)):
-            Rs = np.load(os.path.join(self.data_dir, filename))
+        if os.path.exists(os.path.join(self.data_dir, self.filename)):
+            Rs = np.load(os.path.join(self.data_dir, self.filename))
             Rs_ = torch.from_numpy(Rs).unbind(dim=0)
             Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
-            print(f"Loading saved diagrams from {filename}...")
+            print(f"Loading saved diagrams from {self.filename}...")
         else:
             Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
             print("Rs for Ref done...")
             Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip)
             print("Rs for Trajs done...")
             Rs = Rs_ref + Rs_trajs 
-            np.save(os.path.join(self.data_dir, filename), Rs)
+            np.save(os.path.join(self.data_dir, self.filename), Rs)
             
         wdists = self.get_wassersteins(Rs, traj_flag)
         wdist_pairs = self.get_wassersteins_pairwise(Rs)
