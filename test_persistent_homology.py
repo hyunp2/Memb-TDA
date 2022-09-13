@@ -21,10 +21,10 @@ parser.add_argument('--psf', type=str, default=None)
 parser.add_argument('--trajs', nargs="*", type=str, default=None) #List of dcds
 parser.add_argument('--selections', nargs="*", type=str, default="backbone and segid A")
 parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data extraction")
-parser.add_argument('--multiprocessing', action="store_true", default="enable multiprocessing?")
+parser.add_argument('--multip', action="store_true", default="enable multiprocessing?")
 
-def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], multiprocessing: bool=False):
-    if not multiprocessing:
+def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], multip: bool=False):
+    if not multip:
         Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
         return Rs
     else:
@@ -92,7 +92,7 @@ class PersistentHomology(object):
     
     @staticmethod
     def birth_and_death(mda_universes_or_atomgroups: Union[List[mda.Universe], List[mda.AtomGroup]], get_cartesian: bool = True, 
-                        selections: List[str] = "backbone and segid A", traj_flag: bool=False, multiprocessing: bool=False):
+                        selections: List[str] = "backbone and segid A", traj_flag: bool=False, multip: bool=False):
         if isinstance(mda_universes_or_atomgroups[0], mda.Universe):
             ags = PersistentHomology.get_atomgroups(mda_universes_or_atomgroups, selections)
         else:
@@ -112,7 +112,7 @@ class PersistentHomology(object):
         
 #         print(information)
         print("Ripser for DGMS...")
-        if not multiprocessing:
+        if not multip:
             print("Normal Ripser...")
             Rs = persistent_diagram(information)
 #         else:
@@ -142,6 +142,7 @@ class PersistentHomology(object):
     
     @property
     def calculate_wdists_trajs(self, ):
+        print(self.__dict__)
         reference, prot_traj = self.load_traj(self.pdb, self.psf, self.trajs, self.selections)
         ags_ref = self.get_atomgroups(reference, self.selections)
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
