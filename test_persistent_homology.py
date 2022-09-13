@@ -18,6 +18,8 @@ import os
 import pickle
 import collections
 import warnings
+import curtsies.fmtfuncs as cf
+import tqdm
 
 warnings.simplefilter("ignore")
 
@@ -209,7 +211,7 @@ class PersistentHomology(object):
 #             Rs = Rs.astype(np.float64)
 #             Rs_ = torch.from_numpy(Rs).unbind(dim=0)
 #             Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
-            print(f"Loading saved diagrams from {self.filename}...")
+            print(cf.on_yellow(f"Loading saved diagrams from {self.filename}..."))
         else:
             Rs_ref, Rs_ref_total = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag, False, self.maxdim)
             print("Rs for Ref done...")
@@ -219,11 +221,13 @@ class PersistentHomology(object):
             Rs_total = Rs_ref_total + Rs_trajs_total
             f = open(os.path.join(self.data_dir, self.filename), "wb")
             pickle.dump(Rs_total, f)    
-        
+            print(cf.on_yellow(f"Saving diagrams from {self.filename}..."))
+
         wdist_list = []
         wdist_pair_list = []
         
-        for maxdim in range(self.maxdim):
+        for maxdim in tqdm.tqdm(range(self.maxdim + 1)):
+            print(cf.green("Calculating Wasserstein..."))
             Rs = list(map(lambda inp: inp[maxdim], Rs_total )) #List of array; maxdim chooses which PH dim!
             wdists = self.get_wassersteins(Rs, traj_flag)
             wdist_pairs = self.get_wassersteins_pairwise(Rs)
