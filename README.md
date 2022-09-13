@@ -9,3 +9,5 @@ python -m test_persistent_homology --pdbs 3CLN 1CFD 1L7Z --selections "backbone 
 <code>
 python -m test_persistent_homology --psf /Scr/hyunpark/Monster/vaegan_md_gitlab/data/reference_autopsf.psf --pdb /Scr/hyunpark/Monster/vaegan_md_gitlab/data/reference_autopsf.pdb --trajs /Scr/hyunpark/Monster/vaegan_md_gitlab/data/adk.dcd --selection "backbone"
 </code>
+
+#### (single CPU) 228.51532316207886 seconds... versus (multi CPU) 14.778266191482544 seconds... <br>
