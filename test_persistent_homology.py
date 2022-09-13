@@ -177,7 +177,7 @@ class PersistentHomology(object):
         traj_flag = (self.trajs is not None)
         
         if os.path.exists(os.path.join(self.data_dir, self.filename)):
-            Rs = np.load(os.path.join(self.data_dir, self.filename))
+            Rs = np.load(os.path.join(self.data_dir, self.filename), allow_pickle=True)
             Rs_ = torch.from_numpy(Rs).unbind(dim=0)
             Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
             print(f"Loading saved diagrams from {self.filename}...")
