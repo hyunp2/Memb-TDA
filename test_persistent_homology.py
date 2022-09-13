@@ -69,7 +69,7 @@ class PersistentHomology(object):
         assert trajs is not None, "DCD(s) must be provided"
         top = pdb if (pdb is not None) else psf
         top = os.path.join(data_dir, top)
-        trajs = list(map(lambda inp: os.path.join(self.data_dir, inp), trajs ))
+        trajs = list(map(lambda inp: os.path.join(data_dir, inp), trajs ))
         universe = mda.Universe(top, *trajs)
         reference = mda.Universe(top)
         print("MDA Universe is created")
