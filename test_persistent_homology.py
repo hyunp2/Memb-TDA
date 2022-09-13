@@ -14,6 +14,7 @@ import torch
 import multiprocessing as mp
 import time
 import ray
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
