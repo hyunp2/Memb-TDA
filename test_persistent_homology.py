@@ -178,6 +178,7 @@ class PersistentHomology(object):
         
         if os.path.exists(os.path.join(self.data_dir, self.filename)):
             Rs = np.load(os.path.join(self.data_dir, self.filename), allow_pickle=True)
+            print(Rs)
             Rs = Rs.astype(np.float64)
             Rs_ = torch.from_numpy(Rs).unbind(dim=0)
             Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
