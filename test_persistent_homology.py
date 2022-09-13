@@ -117,13 +117,15 @@ class PersistentHomology(object):
         if not multip:
             print("Normal Ripser...")
             Rs = persistent_diagram(information)
-            return Rs
-        else:
-            return information
 #         else:
-#             print("Multiprocessing Ripser...")
+#             return information
+        else:
+            print("Multiprocessing Ripser...")
 #             with mp.Pool() as pool:
-#                 Rs = pool.map(functools.partial(persistent_diagram, multip=multip), information)
+#                 Rs = pool.map(persistent_diagram_mp, information)
+            futures = [persistent_diagram_mp.remote(i) for i in information]
+            Rs = ray.get(futures)
+        return Rs
 
 
     @staticmethod
@@ -163,11 +165,10 @@ class PersistentHomology(object):
 if __name__ == "__main__":
     args = parser.parse_args()
     ph = PersistentHomology(args)
-#     s = time.time()
-#     us, ags, Rs, wdists = ph.calculate_wdists_trajs
-#     e = time.time()
-#     print(f"Took {e-s} seconds...")
+    _, _, Rs, wdists = ph.calculate_wdists_trajs
+    print(wdists)
 
+    """
     s = time.time()
     print(ph.__dict__)
     reference, prot_traj = ph.load_traj(ph.pdb, ph.psf, ph.trajs, ph.selections)
@@ -198,18 +199,4 @@ if __name__ == "__main__":
     e = time.time()
     print(f"Took {e-s} seconds...")
     print("Done!")
-    
-# u_open = mda.fetch_mmtf('3CLN')
-# u_inter = mda.fetch_mmtf('1CFD')
-# u_closed = mda.fetch_mmtf('1L7Z')
-# Pa1 = u_open.select_atoms("backbone and segid A")
-# Pa2 = u_inter.select_atoms("backbone and segid A")
-# Pa3 = u_closed.select_atoms("backbone and segid A")
-
-# R1 = ripser.ripser(Pa1.atoms.positions)['dgms'][1]
-# R2 = ripser.ripser(Pa2.atoms.positions)['dgms'][1]
-# R3 = ripser.ripser(Pa3.atoms.positions)['dgms'][1]
-
-# print(persim.wasserstein(R1, R2))
-# print(persim.wasserstein(R2, R3))
-# print(persim.wasserstein(R1, R3))
+    """
