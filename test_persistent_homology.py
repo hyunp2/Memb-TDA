@@ -143,9 +143,10 @@ class PersistentHomology(object):
             maxdims = [maxdim] * len(information)
             futures = [persistent_diagram_mp.remote(i, maxdim) for i, maxdim in zip(information, maxdims)]
             summaries = ray.get(futures)
-            print(len(summaries))
+#             print(len(summaries))
             Rs_zips = [(summary.R, summary.R_total) for summary in summaries]
             Rs_zip_flats = list(zip(Rs_zips))
+            print(len(Rs_zip_flats))
             Rs = Rs_zip_flats[0]
             Rs_total = Rs_zip_flats[1]
         return Rs, Rs_total
