@@ -30,6 +30,8 @@ parser.add_argument('--multip', action="store_true", help="enable multiprocessin
 
 def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], maxdim: int):
     print(information, maxdim)
+    test = ripser.ripser(information[0])["dgms"][2]
+    print(test)
     Rs = list(map(lambda info: ripser.ripser(info)["dgms"][maxdim], information ))
     return Rs
 
