@@ -23,9 +23,15 @@ parser.add_argument('--selections', nargs="*", type=str, default="backbone and s
 parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data extraction")
 parser.add_argument('--multiprocessing', action="store_true", default="enable multiprocessing?")
 
-def persistent_diagram(information: List[np.array]):
-    Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
-    return Rs
+def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], multiprocessing: bool=False):
+    if not multiprocessing:
+        Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
+        return Rs
+    else:
+        #Definition of information has changed from List[np.ndarray] to np.ndarray
+        #Multiprocessing changes return value from "List of R" to "one R"
+        R = ripser.ripser(information)["dgms"][1]
+        return R
 
 class PersistentHomology(object):
     def __init__(self, args: argparse.ArgumentParser):
