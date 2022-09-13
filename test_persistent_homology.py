@@ -17,6 +17,9 @@ import ray
 import os
 import pickle
 import collections
+import warnings
+
+warnings.simplefilter("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
@@ -226,7 +229,7 @@ class PersistentHomology(object):
             wdist_pairs = self.get_wassersteins_pairwise(Rs)
             wdist_list.append(wdists)
             wdist_pair_list.append(wdist_pairs)
-        print(len(wdist_list), len(wdist_pairs))
+        print(len(wdists), len(wdist_pairs), len(wdist_list), len(wdist_pair_list))
         
         e = time.time()
         print(f"Took {e-s} seconds...")
