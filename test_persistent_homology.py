@@ -206,19 +206,24 @@ class PersistentHomology(object):
             print(f"Loading saved diagrams from {self.filename}...")
         else:
             Rs_ref, Rs_ref_total = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag, False, self.maxdim)
-#             print(len(Rs_ref), len(Rs_ref_total))
             print("Rs for Ref done...")
             Rs_trajs, Rs_trajs_total = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip, self.maxdim)
-#             print(Rs_trajs, len(Rs_trajs_total))
             print("Rs for Trajs done...")
             Rs = Rs_ref + Rs_trajs 
             Rs_total = Rs_ref_total + Rs_trajs_total
-#             np.save(os.path.join(self.data_dir, self.filename), Rs)
             f = open(os.path.join(self.data_dir, self.filename), "wb")
             pickle.dump(Rs_total, f)    
-        print(len(Rs_total))
-        wdists = self.get_wassersteins(Rs, traj_flag)
-        wdist_pairs = self.get_wassersteins_pairwise(Rs)
+        
+        wdist_list = []
+        wdist_pair_list = []
+        
+        for maxdim in range(self.maxdim):
+            Rs = list(map(lambda inp: inp[maxdim], Rs_total )) #List of array; maxdim chooses which PH dim!
+            wdists = self.get_wassersteins(Rs, traj_flag)
+            wdist_pairs = self.get_wassersteins_pairwise(Rs)
+            wdist_list.append(wdists)
+            wdist_pair_list.append(wdist_pairs)
+        print(len(wdist_list), len(wdist_pairs))
         
         e = time.time()
         print(f"Took {e-s} seconds...")
