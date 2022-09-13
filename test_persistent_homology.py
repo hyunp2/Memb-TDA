@@ -178,10 +178,10 @@ class PersistentHomology(object):
         
         if os.path.exists(os.path.join(self.data_dir, self.filename)):
             Rs = np.load(os.path.join(self.data_dir, self.filename), allow_pickle=True)
-            print(Rs)
-            Rs = Rs.astype(np.float64)
-            Rs_ = torch.from_numpy(Rs).unbind(dim=0)
-            Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
+#             print(Rs)
+#             Rs = Rs.astype(np.float64)
+#             Rs_ = torch.from_numpy(Rs).unbind(dim=0)
+#             Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
             print(f"Loading saved diagrams from {self.filename}...")
         else:
             Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
