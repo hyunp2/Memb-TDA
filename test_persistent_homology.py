@@ -207,7 +207,7 @@ class PersistentHomology(object):
             print(len(Rs_ref), len(Rs_ref_total))
             print("Rs for Ref done...")
             Rs_trajs, Rs_trajs_total = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip, self.maxdim)
-            print(len(Rs_trajs), len(Rs_trajs_total))
+            print(Rs_trajs, len(Rs_trajs_total))
             print("Rs for Trajs done...")
             Rs = Rs_ref + Rs_trajs 
             Rs_total = Rs_ref_total + Rs_trajs_total
