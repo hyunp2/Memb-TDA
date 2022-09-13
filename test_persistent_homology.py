@@ -212,7 +212,7 @@ class PersistentHomology(object):
 #             np.save(os.path.join(self.data_dir, self.filename), Rs)
             f = open(os.path.join(self.data_dir, self.filename), "wb")
             pickle.dump(Rs_total, f)    
-        
+        print(Rs)
         wdists = self.get_wassersteins(Rs, traj_flag)
         wdist_pairs = self.get_wassersteins_pairwise(Rs)
         
