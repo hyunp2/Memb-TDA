@@ -11,6 +11,7 @@ from MDAnalysis import transformations
 import functools
 import numpy as np
 import torch
+import multiprocessing as mp
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
@@ -19,6 +20,11 @@ parser.add_argument('--psf', type=str, default=None)
 parser.add_argument('--trajs', nargs="*", type=str, default=None) #List of dcds
 parser.add_argument('--selections', nargs="*", type=str, default="backbone and segid A")
 parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data extraction")
+parser.add_argument('--multiprocessing', action="store_true", default="enable multiprocessing?")
+
+def persistent_diagram(information: List[np.array]):
+    Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
+    return Rs
 
 class PersistentHomology(object):
     def __init__(self, args: argparse.ArgumentParser):
@@ -78,7 +84,8 @@ class PersistentHomology(object):
             return ag #List[one_AtomGroup]
     
     @staticmethod
-    def birth_and_death(mda_universes_or_atomgroups: Union[List[mda.Universe], List[mda.AtomGroup]], get_cartesian: bool = True, selections: List[str] = "backbone and segid A", traj_flag: bool=False):
+    def birth_and_death(mda_universes_or_atomgroups: Union[List[mda.Universe], List[mda.AtomGroup]], get_cartesian: bool = True, 
+                        selections: List[str] = "backbone and segid A", traj_flag: bool=False, multiprocessing: bool=False):
         if isinstance(mda_universes_or_atomgroups[0], mda.Universe):
             ags = PersistentHomology.get_atomgroups(mda_universes_or_atomgroups, selections)
         else:
@@ -98,7 +105,11 @@ class PersistentHomology(object):
         
 #         print(information)
         print("Ripser for DGMS...")
-        Rs = list(map(lambda info: ripser.ripser(info)["dgms"][1], information ))
+        if not multiprocessing:
+            Rs = persistent_diagram(information)
+        else:
+            with mp.Pool() as pool:
+                Rs = pool.map(persistent_diagram, information)
         return Rs
 
     @staticmethod
