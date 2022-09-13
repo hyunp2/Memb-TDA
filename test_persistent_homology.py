@@ -198,7 +198,7 @@ class PersistentHomology(object):
         if os.path.exists(os.path.join(self.data_dir, self.filename)):
 #             Rs = np.load(os.path.join(self.data_dir, self.filename), allow_pickle=True)
             f = open(os.path.join(self.data_dir, self.filename), "rb")
-            Rs = pickle.load(f)
+            Rs_total = pickle.load(f)
 #             print(Rs)
 #             Rs = Rs.astype(np.float64)
 #             Rs_ = torch.from_numpy(Rs).unbind(dim=0)
@@ -216,7 +216,7 @@ class PersistentHomology(object):
 #             np.save(os.path.join(self.data_dir, self.filename), Rs)
             f = open(os.path.join(self.data_dir, self.filename), "wb")
             pickle.dump(Rs_total, f)    
-        print(len(Rs))
+        print(len(Rs_total))
         wdists = self.get_wassersteins(Rs, traj_flag)
         wdist_pairs = self.get_wassersteins_pairwise(Rs)
         
