@@ -1,6 +1,11 @@
 # Protein-TDA
 
-To get Wasserstein distances, enter below code in bash shell... </br>
+[For multiple PDBs] To get Wasserstein distances, enter below code in bash shell... </br>
 <code>
 python -m test_persistent_homology --pdbs 3CLN 1CFD 1L7Z --selections "backbone and segid A" 
+</code>
+
+[For a reference PDB and trajectories] To get Wasserstein distances, enter below code in bash shell... </br>
+<code>
+python -m test_persistent_homology --psf /Scr/hyunpark/Monster/vaegan_md_gitlab/data/reference_autopsf.psf --pdb /Scr/hyunpark/Monster/vaegan_md_gitlab/data/reference_autopsf.pdb --trajs /Scr/hyunpark/Monster/vaegan_md_gitlab/data/adk.dcd --selection "backbone"
 </code>
