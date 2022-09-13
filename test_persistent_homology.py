@@ -17,6 +17,7 @@ import ray
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pdbs', nargs="*", type=str, default="3CLN")
+parser.add_argument('--data_dir', type=str, default="/Scr/hyunpark/Monster/vaegan_md_gitlab/data")
 parser.add_argument('--pdb', type=str, default=None)
 parser.add_argument('--psf', type=str, default=None)
 parser.add_argument('--trajs', nargs="*", type=str, default=None) #List of dcds
@@ -66,6 +67,8 @@ class PersistentHomology(object):
         assert (pdb is not None) or (psf is not None), "At least either PDB of PSF should be provided..."
         assert trajs is not None, "DCD(s) must be provided"
         top = pdb if (pdb is not None) else psf
+        top = os.path.join(self.data_dir, top)
+        trajs = list(map(lambda inp: os.path.join(self.data_dir, inp), trajs ))
         universe = mda.Universe(top, *trajs)
         reference = mda.Universe(top)
         print("MDA Universe is created")
