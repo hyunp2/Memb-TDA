@@ -161,10 +161,10 @@ class PersistentHomology(object):
 if __name__ == "__main__":
     args = parser.parse_args()
     ph = PersistentHomology(args)
-    s = time.time()
-    us, ags, Rs, wdists = ph.calculate_wdists_trajs
-    e = time.time()
-    print(f"Took {e-s} seconds...")
+#     s = time.time()
+#     us, ags, Rs, wdists = ph.calculate_wdists_trajs
+#     e = time.time()
+#     print(f"Took {e-s} seconds...")
 
     print(ph.__dict__)
     reference, prot_traj = ph.load_traj(ph.pdb, ph.psf, ph.trajs, ph.selections)
@@ -179,9 +179,9 @@ if __name__ == "__main__":
         print("Rs for Trajs done...")
     else:
         information = ph.birth_and_death(ags_trajs, ph.get_cartesian, ph.selections, traj_flag, ph.multip)
-        print(information)
+#         print(information)
         print("Multiprocessing Ripser...")
-        time.sleep(10)
+#         time.sleep(10)
         with mp.Pool() as pool:
             Rs_trajs = pool.map(functools.partial(persistent_diagram, multip=ph.multip), information)
         print("Rs for Trajs done...")
