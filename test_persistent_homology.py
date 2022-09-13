@@ -145,7 +145,7 @@ class PersistentHomology(object):
             summaries = ray.get(futures)
 #             print(len(summaries))
             Rs_zips = [(summary.R, summary.R_total) for summary in summaries]
-            Rs_zip_flats = list(zip(Rs_zips))
+            Rs_zip_flats = list(zip(*Rs_zips))
             print(len(Rs_zip_flats))
             Rs = Rs_zip_flats[0]
             Rs_total = Rs_zip_flats[1]
