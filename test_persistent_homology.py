@@ -157,18 +157,23 @@ class PersistentHomology(object):
     
 if __name__ == "__main__":
     args = parser.parse_args()
-#     us = load_mmtf(args.pdbs)
-#     ags = get_atomgroups(us, args.selections)
-#     Rs = birth_and_death(ags, args.get_cartesian, args.selections)
-#     wdists = get_wassersteins(Rs)
     ph = PersistentHomology(args)
     s = time.time()
     us, ags, Rs, wdists = ph.calculate_wdists_trajs
     e = time.time()
     print(f"Took {e-s} seconds...")
-#     print(Rs, wdists)
 
-    
+    print(ph.__dict__)
+    reference, prot_traj = ph.load_traj(ph.pdb, ph.psf, ph.trajs, ph.selections)
+    ags_ref = ph.get_atomgroups(reference, ph.selections)
+    ags_trajs = ph.get_atomgroups(prot_traj, ph.selections)
+    traj_flag = (ph.trajs is not None)
+    Rs_ref = ph.birth_and_death(ags_ref, ph.get_cartesian, ph.selections, traj_flag)
+    print("Rs for Ref done...")
+    Rs_trajs = ph.birth_and_death(ags_trajs, ph.get_cartesian, ph.selections, traj_flag, ph.multip)
+    print("Rs for Trajs done...")
+    Rs = Rs_ref + Rs_trajs 
+    wdists = ph.get_wassersteins(Rs, traj_flag)
     
 # u_open = mda.fetch_mmtf('3CLN')
 # u_inter = mda.fetch_mmtf('1CFD')
