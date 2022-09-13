@@ -15,4 +15,7 @@ python -m test_persistent_homology --data_dir /Scr/hyunpark/Monster/vaegan_md_gi
 python -m test_persistent_homology --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --selection "backbone" --multip
 </code>
 
+#### For now, use below conda environment
+<code> /Scr/hyunpark/anaconda3/envs/deeplearning/bin/python </code>
+
 #### (single CPU) 228.51532316207886 seconds... versus (multi CPU) 14.778266191482544 seconds... <br>
