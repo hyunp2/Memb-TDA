@@ -22,6 +22,7 @@ parser.add_argument('--data_dir', type=str, default="/Scr/hyunpark/Monster/vaega
 parser.add_argument('--pdb', type=str, default=None)
 parser.add_argument('--psf', type=str, default=None)
 parser.add_argument('--trajs', nargs="*", type=str, default=None) #List of dcds
+parser.add_argument('--filename', type=str, default="default.npy") #List of dcds
 parser.add_argument('--selections', nargs="*", type=str, default="backbone and segid A")
 parser.add_argument('--get_cartesian', type=bool, default=True, help="MDA data extraction")
 parser.add_argument('--multip', action="store_true", help="enable multiprocessing?")
@@ -142,7 +143,14 @@ class PersistentHomology(object):
         else:
             wdists = list(map(lambda pair: functools.partial(persim.wasserstein, dgm1=ripser_objects[0])(dgm2 = pair), ripser_objects[slice(1, None)] ))
             return wdists
-            
+
+    @staticmethod
+    def get_wassersteins_pairwise(ripser_objects: List[ripser.ripser]):
+        firsts = ripser_objects[slice(0,-1)]
+        seconds = ripser_objects[slice(1,None)]
+        wdists = list(map(lambda first, second: persim.wasserstein(dgm1=first, dgm2=second), firsts, seconds ))
+        return wdists
+        
     @property
     def calculate_wdists_pdbs(self, ):
         s = time.time()
@@ -167,23 +175,33 @@ class PersistentHomology(object):
         ags_ref = self.get_atomgroups(reference, self.selections)
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
         traj_flag = (self.trajs is not None)
-        Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
-        print("Rs for Ref done...")
-        Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip)
-        print("Rs for Trajs done...")
-        Rs = Rs_ref + Rs_trajs 
+        
+        if os.path.exists(os.path.join(self.data_dir, filename)):
+            Rs = np.load(os.path.join(self.data_dir, filename))
+            Rs_ = torch.from_numpy(Rs).unbind(dim=0)
+            Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
+            print(f"Loading saved diagrams from {filename}...")
+        else:
+            Rs_ref = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag)
+            print("Rs for Ref done...")
+            Rs_trajs = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip)
+            print("Rs for Trajs done...")
+            Rs = Rs_ref + Rs_trajs 
+            np.save(os.path.join(self.data_dir, filename), Rs)
+            
         wdists = self.get_wassersteins(Rs, traj_flag)
+        wdist_pairs = self.get_wassersteins_pairwise(Rs)
         
         e = time.time()
         print(f"Took {e-s} seconds...")
         print("Done!")
-        return [reference, prot_traj], [ags_ref, ags_trajs], Rs, wdists
+        return [reference, prot_traj], [ags_ref, ags_trajs], Rs, (wdists, wdist_pairs)
     
 if __name__ == "__main__":
     args = parser.parse_args()
     ph = PersistentHomology(args)
     _, _, Rs, wdists = ph.calculate_wdists_trajs
-    print(wdists)
+    print(wdists[0], wdists[1])
 
     """
     s = time.time()
