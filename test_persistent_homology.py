@@ -116,12 +116,13 @@ class PersistentHomology(object):
             print("Normal Ripser...")
             Rs = persistent_diagram(information)
             return Rs
+        else:
+            return information
 #         else:
 #             print("Multiprocessing Ripser...")
 #             with mp.Pool() as pool:
 #                 Rs = pool.map(functools.partial(persistent_diagram, multip=multip), information)
-        else:
-            return information
+
 
     @staticmethod
     def get_wassersteins(ripser_objects: List[ripser.ripser], traj_flag: bool=False):
