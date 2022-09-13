@@ -42,7 +42,7 @@ def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]], maxd
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
     R_total = ripser.ripser(information, maxdim=maxdim)["dgms"]
-    R = R[maxdim]
+    R = R_total[maxdim]
     return R, R_total
 
 class PersistentHomology(object):
