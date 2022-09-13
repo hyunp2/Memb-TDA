@@ -44,6 +44,7 @@ def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]], maxd
     #Multiprocessing changes return value from "List of R" to "one R"
     R_total = ripser.ripser(information, maxdim=maxdim)["dgms"]
     R = R_total[maxdim]
+    
     summary = collections.namedtuple("summary", ["R", "R_total"])
     summary.R = R
     summary.R_total = R_total
@@ -142,7 +143,7 @@ class PersistentHomology(object):
             maxdims = [maxdim] * len(information)
             futures = [persistent_diagram_mp.remote(i, maxdim) for i, maxdim in zip(information, maxdims)]
             summaries = ray.get(futures)
-#             print(summaries)
+            print(len(summaries))
             Rs_zips = [(summary.R, summary.R_total) for summary in summaries]
             Rs_zip_flats = list(zip(Rs_zips))
             Rs = Rs_zip_flats[0]
@@ -204,10 +205,10 @@ class PersistentHomology(object):
             print(f"Loading saved diagrams from {self.filename}...")
         else:
             Rs_ref, Rs_ref_total = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag, False, self.maxdim)
-            print(len(Rs_ref), len(Rs_ref_total))
+#             print(len(Rs_ref), len(Rs_ref_total))
             print("Rs for Ref done...")
             Rs_trajs, Rs_trajs_total = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip, self.maxdim)
-            print(Rs_trajs, len(Rs_trajs_total))
+#             print(Rs_trajs, len(Rs_trajs_total))
             print("Rs for Trajs done...")
             Rs = Rs_ref + Rs_trajs 
             Rs_total = Rs_ref_total + Rs_trajs_total
