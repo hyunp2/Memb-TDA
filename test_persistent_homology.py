@@ -246,8 +246,9 @@ if __name__ == "__main__":
     _, _, Rs, wdists = ph.calculate_wdists_trajs
     #Need to calculate wdists for maxdim
     #print(wdists[0], wdists[1])
-    f0 = open(os.path.join(self.data_dir, "WASSER0"+self.filename), "wb")
-    f1 = open(os.path.join(self.data_dir, "WASSER1"+self.filename), "wb")
+    #Omitted self.filename for now
+    f0 = open(os.path.join(self.data_dir, "wasser0.pickle"), "wb")
+    f1 = open(os.path.join(self.data_dir, "wasser1.pickle"), "wb")
     pickle.dump(wdists[0], f0)    
     pickle.dump(wdists[1], f1)  
     print(cf.on_yellow(f"Saving diagrams from {self.filename}..."))
