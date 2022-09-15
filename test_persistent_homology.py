@@ -249,8 +249,11 @@ if __name__ == "__main__":
     #Omitted self.filename for now
     #f0 = open(os.path.join(self.data_dir, self.filename), "wb")
     #f1 = open(os.path.join(self.data_dir, self.filename), "wb")
-    #pickle.dump(wdists[0], f0)    
-    #pickle.dump(wdists[1], f1)  
+    f0 = open(b"testW0.pickle","wb")
+    f1 = open(b"testW0.pickle","wb")
+    pickle.dump(wdists[0], f0)    
+    pickle.dump(wdists[1], f1)  
+    
     print(cf.on_yellow(f"Saving diagrams from {self.filename}..."))
 
     """
