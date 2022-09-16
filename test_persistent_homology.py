@@ -248,12 +248,13 @@ if __name__ == "__main__":
     ph = PersistentHomology(args)
     _, _, Rs, wdists = ph.calculate_wdists_trajs
     #Need to calculate wdists for maxdim
-    print(wdists[0], wdists[1])
+    #print(wdists[0], wdists[1])
     #Omitted self.filename for now
-    f0 = open(os.path.join(ph.data_dir, "W0"+ph.filename), "wb")
-    f1 = open(os.path.join(ph.data_dir, "W1"+ph.filename), "wb")
-    pickle.dump(wdists[0], f0)    
-    pickle.dump(wdists[1], f1)  
+    for i in len(ph.maxdim):
+        f = open(os.path.join(ph.data_dir, str(i)+ph.filename), "wb")
+        #f1 = open(os.path.join(ph.data_dir, "W1"+ph.filename), "wb")
+        pickle.dump(wdists[i], f)    
+        #pickle.dump(wdists[1], f1)  
     
     print(cf.on_yellow(f"Saving diagrams from {ph.filename}..."))
 
