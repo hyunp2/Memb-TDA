@@ -253,6 +253,7 @@ if __name__ == "__main__":
     for i in range(ph.maxdim+1):
         f = open(os.path.join(ph.data_dir, str(i)+ph.filename), "wb")
         #f1 = open(os.path.join(ph.data_dir, "W1"+ph.filename), "wb")
+        print(len(wdist[i]))
         pickle.dump(wdists[i], f)    
         #pickle.dump(wdists[1], f1)  
     
