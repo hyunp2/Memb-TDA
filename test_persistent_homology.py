@@ -77,7 +77,10 @@ class PersistentHomology(object):
     
     @staticmethod
     def traj_preprocessing(prot_traj, prot_ref, align_selection):
-        box_dim = prot_traj.trajectory.ts.dimensions 
+        if (prot_traj.trajectory.ts.dimensions is not None): 
+            box_dim = prot_traj.trajectory.ts.dimensions
+        else:
+            box_dim = np.array([1,1,1,90,90,90])
 #         print(box_dim, prot_traj.atoms.positions, prot_ref.atoms.positions, align_selection)
         transform = transformations.boxdimensions.set_dimensions(box_dim)
         prot_traj.trajectory.add_transformations(transform)
