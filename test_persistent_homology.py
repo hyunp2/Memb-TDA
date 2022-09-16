@@ -250,7 +250,7 @@ if __name__ == "__main__":
     #Need to calculate wdists for maxdim
     #print(wdists[0], wdists[1])
     #Omitted self.filename for now
-    for i in len(ph.maxdim):
+    for i in range(ph.maxdim+1):
         f = open(os.path.join(ph.data_dir, str(i)+ph.filename), "wb")
         #f1 = open(os.path.join(ph.data_dir, "W1"+ph.filename), "wb")
         pickle.dump(wdists[i], f)    
