@@ -251,10 +251,12 @@ if __name__ == "__main__":
     #print(wdists[0], wdists[1])
     #Omitted self.filename for now
     for i in range(ph.maxdim+1):
-        f = open(os.path.join(ph.data_dir, str(i)+ph.filename), "wb")
+        fd = open(os.path.join(ph.data_dir, "WD"+str(i)+ph.filename), "wb")
+        fp = open(os.path.join(ph.data_dir, "WP"+str(i)+ph.filename), "wb")
         #f1 = open(os.path.join(ph.data_dir, "W1"+ph.filename), "wb")
-        print(len(wdist[i]))
-        pickle.dump(wdists[i], f)    
+        #print(len(wdist[i]))
+        pickle.dump(wdists[i], fd)
+        pickle.dump(wdist_pairs[i], fp)
         #pickle.dump(wdists[1], f1)  
     
     print(cf.on_yellow(f"Saving diagrams from {ph.filename}..."))
