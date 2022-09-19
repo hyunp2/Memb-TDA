@@ -150,7 +150,7 @@ class PersistentHomology(object):
 #         else:
 #             return information
         else:
-            print("Multiprocessing Ripser...")
+            print(f"Multiprocessing Ripser with {os.cpu_count()} CPU cores...")
 #             with mp.Pool() as pool:
 #                 Rs = pool.map(persistent_diagram_mp, information)
             maxdims = [maxdim] * len(information)
@@ -177,6 +177,7 @@ class PersistentHomology(object):
                 wdists = list(map(lambda pair: functools.partial(persim.wasserstein, dgm1=ripser_objects[0])(dgm2 = pair), ripser_objects[slice(1, None)] ))
                 return wdists
             else:
+                print(f"Multiprocessing reference Wasserstein with {os.cpu_count()} CPU cores...")
                 pair1 = ripser_objects[slice(1, None)]
                 pair0 = [ripser_objects[0]] * len(pair1)
                 futures = [wasserstein_mp.remote(p0, p1) for p0, p1 in zip(pair0, pair1)]
@@ -191,6 +192,7 @@ class PersistentHomology(object):
             wdists = list(map(lambda first, second: persim.wasserstein(dgm1=first, dgm2=second), firsts, seconds ))
             return wdists
         else:
+            print(f"Multiprocessing pairwise Wasserstein with {os.cpu_count()} CPU cores...")
             firsts = ripser_objects[slice(0,-1)]
             seconds = ripser_objects[slice(1,None)]
             futures = [wasserstein_mp.remote(p0, p1) for p0, p1 in zip(firsts, seconds)]
