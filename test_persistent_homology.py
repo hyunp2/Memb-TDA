@@ -234,13 +234,13 @@ class PersistentHomology(object):
         
         if os.path.exists(os.path.join(self.data_dir, self.filename)) and os.path.exists(os.path.join(self.data_dir, "WD" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WP" + self.filename)):
             print(cf.on_yellow("All the necessary files exist... Loading PH and Wassersteins..."))
-            f = open(os.path.join(self.data_dir, "PH" + self.filename), "wb")
+            f = open(os.path.join(self.data_dir, "PH" + self.filename), "rb")
             Rs_list = pickle.load(f)
             print(cf.on_yellow(f"Loading diagrams from {"PH" + self.filename}..."))
-            f = open(os.path.join(self.data_dir, "WD" + self.filename), "wb")
+            f = open(os.path.join(self.data_dir, "WD" + self.filename), "rb")
             wdist_list = pickle.load(f)
             print(cf.on_yellow(f"Loading reference Wasserstein from {"WD" + self.filename}..."))
-            f = open(os.path.join(self.data_dir, "WP" + self.filename), "wb")
+            f = open(os.path.join(self.data_dir, "WP" + self.filename), "rb")
             wdist_pair_list = pickle.load(f)            
             print(cf.on_yellow(f"Loading pairwise Wasserstein from {"WP" + self.filename}..."))
         else:
