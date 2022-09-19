@@ -234,6 +234,7 @@ class PersistentHomology(object):
         
         if os.path.exists(os.path.join(self.data_dir, self.filename)) and os.path.exists(os.path.join(self.data_dir, "WD" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WP" + self.filename)):
             print(cf.on_yellow("All the necessary files exist... Loading PH and Wassersteins..."))
+#             filename, extent = self.filename.split(".")
             f = open(os.path.join(self.data_dir, "PH" + self.filename), "rb")
             Rs_list = pickle.load(f)
             print(cf.on_yellow(f"Loading diagrams from {"PH" + self.filename}..."))
