@@ -43,8 +43,10 @@ def persistent_diagram(information: Union[np.ndarray, List[np.ndarray]], maxdim:
     Rs = list(map(lambda rs: rs[maxdim], Rs_total ))
     return Rs, Rs_total
 
-def wasserstein():
-    pass
+@ray.remote
+def wasserstein_mp(pair0: np.ndarray, pair1: np.ndarray):
+    w = persim.wasserstein(pair0, pair1)
+    return w
 
 @ray.remote
 def persistent_diagram_mp(information: Union[np.ndarray, List[np.ndarray]], maxdim: int):
@@ -164,22 +166,36 @@ class PersistentHomology(object):
 
 
     @staticmethod
-    def get_wassersteins(ripser_objects: List[ripser.ripser], traj_flag: bool=False):
+    def get_wassersteins(ripser_objects: List[ripser.ripser], traj_flag: bool=False, multp: bool=False):
         if not traj_flag:
             assert len(ripser_objects) >= 2, "for Wasserstein, it must have more than two Ripser objects!"
             ripser_pair = list(itertools.combinations(ripser_objects, 2))
             wdists = list(map(lambda pair: persim.wasserstein(*pair), ripser_pair ))
             return wdists
         else:
-            wdists = list(map(lambda pair: functools.partial(persim.wasserstein, dgm1=ripser_objects[0])(dgm2 = pair), ripser_objects[slice(1, None)] ))
-            return wdists
+            if not multp:
+                wdists = list(map(lambda pair: functools.partial(persim.wasserstein, dgm1=ripser_objects[0])(dgm2 = pair), ripser_objects[slice(1, None)] ))
+                return wdists
+            else:
+                pair1 = ripser_objects[slice(1, None)]
+                pair0 = [ripser_objects[0]] * len(pair1)
+                futures = [wasserstein_mp.remote(p0, p1) for p0, p1 in zip(pair0, pair1)]
+                wdists = ray.get(futures)
+                return wdists
 
     @staticmethod
-    def get_wassersteins_pairwise(ripser_objects: List[ripser.ripser]):
-        firsts = ripser_objects[slice(0,-1)]
-        seconds = ripser_objects[slice(1,None)]
-        wdists = list(map(lambda first, second: persim.wasserstein(dgm1=first, dgm2=second), firsts, seconds ))
-        return wdists
+    def get_wassersteins_pairwise(ripser_objects: List[ripser.ripser], multp: bool=False):
+        if not multp:
+            firsts = ripser_objects[slice(0,-1)]
+            seconds = ripser_objects[slice(1,None)]
+            wdists = list(map(lambda first, second: persim.wasserstein(dgm1=first, dgm2=second), firsts, seconds ))
+            return wdists
+        else:
+            firsts = ripser_objects[slice(0,-1)]
+            seconds = ripser_objects[slice(1,None)]
+            futures = [wasserstein_mp.remote(p0, p1) for p0, p1 in zip(firsts, seconds)]
+            wdists = ray.get(futures)
+            return wdists        
         
     @property
     def calculate_wdists_pdbs(self, ):
@@ -206,60 +222,76 @@ class PersistentHomology(object):
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
         traj_flag = (self.trajs is not None)
         
-        if os.path.exists(os.path.join(self.data_dir, self.filename)):
-#             Rs = np.load(os.path.join(self.data_dir, self.filename), allow_pickle=True)
-            f = open(os.path.join(self.data_dir, self.filename), "rb")
-            Rs_total = pickle.load(f)
-#             print(Rs)
-#             Rs = Rs.astype(np.float64)
-#             Rs_ = torch.from_numpy(Rs).unbind(dim=0)
-#             Rs = list(map(lambda inp: inp.detach().cpu().numpy(), Rs_))
-            print(cf.on_yellow(f"Loading saved diagrams from {self.filename}..."))
+        if os.path.exists(os.path.join(self.data_dir, self.filename)) and os.path.exists(os.path.join(self.data_dir, "WD" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WP" + self.filename)):
+            print(cf.on_yellow("All the necessary files exist... Skipping PH calculation..."))
         else:
-            Rs_ref, Rs_ref_total = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag, False, self.maxdim)
+            print(cf.on_red("Not all the necessary files exist... Executing PH calculation..."))
+            _, Rs_ref_total = self.birth_and_death(ags_ref, self.get_cartesian, self.selections, traj_flag, False, self.maxdim)
             print("Rs for Ref done...")
-            Rs_trajs, Rs_trajs_total = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip, self.maxdim)
+            _, Rs_trajs_total = self.birth_and_death(ags_trajs, self.get_cartesian, self.selections, traj_flag, self.multip, self.maxdim)
             print("Rs for Trajs done...")
-            Rs = Rs_ref + Rs_trajs 
             Rs_total = Rs_ref_total + Rs_trajs_total
-            f = open(os.path.join(self.data_dir, self.filename), "wb")
-            pickle.dump(Rs_total, f)    
-            print(cf.on_yellow(f"Saving diagrams from {self.filename}..."))
+        
+        if os.path.exists(os.path.join(self.data_dir, self.filename)) and os.path.exists(os.path.join(self.data_dir, "WD" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WP" + self.filename)):
+            print(cf.on_yellow("All the necessary files exist... Loading PH and Wassersteins..."))
+            f = open(os.path.join(self.data_dir, "PH" + self.filename), "wb")
+            Rs_list = pickle.load(f)
+            print(cf.on_yellow(f"Loading diagrams from {"PH" + self.filename}..."))
+            f = open(os.path.join(self.data_dir, "WD" + self.filename), "wb")
+            wdist_list = pickle.load(f)
+            print(cf.on_yellow(f"Loading reference Wasserstein from {"WD" + self.filename}..."))
+            f = open(os.path.join(self.data_dir, "WP" + self.filename), "wb")
+            wdist_pair_list = pickle.load(f)            
+            print(cf.on_yellow(f"Loading pairwise Wasserstein from {"WP" + self.filename}..."))
+        else:
+            print(cf.on_red("Not all the necessary files exist... Saving PH and Wassersteins..."))
+            Rs_list = []
+            wdist_list = []
+            wdist_pair_list = []
+            for maxdim in tqdm.tqdm(range(self.maxdim + 1)):
+                print(cf.green(f"Calculating Wasserstein for dimension {maxdim}..."))
+                Rs = list(map(lambda inp: inp[maxdim], Rs_total )) #List of array; maxdim chooses which PH dim!
+                wdists = self.get_wassersteins(Rs, traj_flag, self.multip) 
+                wdist_pairs = self.get_wassersteins_pairwise(Rs, self.multip)
+                Rs_list.append(Rs) #List of maxdim numbers where each dimension is a length of len(traj)
+                wdist_list.append(wdists) #List of maxdim numbers where each dimension is a length of len(traj)
+                wdist_pair_list.append(wdist_pairs) #List of maxdim numbers where each dimension is a length of len(traj)
+            f = open(os.path.join(self.data_dir, "PH" + self.filename), "wb")
+            pickle.dump(Rs_list, f)   
+            print(cf.on_yellow(f"Saving diagrams from {"PH" + self.filename}..."))
+            f = open(os.path.join(self.data_dir, "WD" + self.filename), "wb")
+            pickle.dump(wdist_list, f) 
+            print(cf.on_yellow(f"Saving reference Wasserstein from {"WD" + self.filename}..."))
+            f = open(os.path.join(self.data_dir, "WP" + self.filename), "wb")
+            pickle.dump(wdist_pair_list, f) 
+            print(cf.on_yellow(f"Saving pairwise Wasserstein from {"WP" + self.filename}..."))
 
-        wdist_list = []
-        wdist_pair_list = []
-        
-        for maxdim in tqdm.tqdm(range(self.maxdim + 1)):
-            print(cf.green(f"Calculating Wasserstein for dimension {maxdim}..."))
-            Rs = list(map(lambda inp: inp[maxdim], Rs_total )) #List of array; maxdim chooses which PH dim!
-            wdists = self.get_wassersteins(Rs, traj_flag)
-            wdist_pairs = self.get_wassersteins_pairwise(Rs)
-            wdist_list.append(wdists)
-            wdist_pair_list.append(wdist_pairs)
-        print(len(wdists), len(wdist_pairs), len(wdist_list), len(wdist_pair_list))
-        
         e = time.time()
         print(f"Took {e-s} seconds...")
         print("Done!")
-        return [reference, prot_traj], [ags_ref, ags_trajs], Rs, (wdists, wdist_pairs)
+        return [reference, prot_traj], [ags_ref, ags_trajs], Rs_list, (wdist_list, wdist_pair_list)
     
 if __name__ == "__main__":
     args = parser.parse_args()
     ph = PersistentHomology(args)
     _, _, Rs, wdists = ph.calculate_wdists_trajs
+    print(cf.on_green(f"Rs is a list of PH diagrams corresponding to a dimension...; e.g. Rs[0] gives list of PH diagrams at dimension=0"))
+    print(cf.on_green(f"""wdists is a tuple of two lists; each list consists of Wasserstein distances corresponding to a dimension...; 
+                      e.g. wdists[0][1] gives a references Wasserstein distances at dimension=1"""))
+    
     #Need to calculate wdists for maxdim
     #print(wdists[0], wdists[1])
     #Omitted self.filename for now
-    for i in range(ph.maxdim+1):
-        fd = open(os.path.join(ph.data_dir, "WD"+str(i)+ph.filename), "wb")
-        fp = open(os.path.join(ph.data_dir, "WP"+str(i)+ph.filename), "wb")
-        #f1 = open(os.path.join(ph.data_dir, "W1"+ph.filename), "wb")
-        #print(len(wdist[i]))
-        pickle.dump(wdists[i], fd)
-        pickle.dump(wdist_pairs[i], fp)
-        #pickle.dump(wdists[1], f1)  
+#     for i in range(ph.maxdim+1):
+#         fd = open(os.path.join(ph.data_dir, "WD"+str(i)+ph.filename), "wb")
+#         fp = open(os.path.join(ph.data_dir, "WP"+str(i)+ph.filename), "wb")
+#         #f1 = open(os.path.join(ph.data_dir, "W1"+ph.filename), "wb")
+#         #print(len(wdist[i]))
+#         pickle.dump(wdists[i], fd)
+#         pickle.dump(wdist_pairs[i], fp)
+#         #pickle.dump(wdists[1], f1)  
     
-    print(cf.on_yellow(f"Saving diagrams from {ph.filename}..."))
+#     print(cf.on_yellow(f"Saving diagrams from {ph.filename}..."))
 
     """
     s = time.time()
