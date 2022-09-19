@@ -224,7 +224,7 @@ class PersistentHomology(object):
         ags_trajs = self.get_atomgroups(prot_traj, self.selections)
         traj_flag = (self.trajs is not None)
         
-        if os.path.exists(os.path.join(self.data_dir, self.filename)) and os.path.exists(os.path.join(self.data_dir, "WD" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WP" + self.filename)):
+        if os.path.exists(os.path.join(self.data_dir, "PH_" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WD_" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WP_" + self.filename)):
             print(cf.on_yellow("All the necessary files exist... Skipping PH calculation..."))
         else:
             print(cf.on_red("Not all the necessary files exist... Executing PH calculation..."))
@@ -234,7 +234,7 @@ class PersistentHomology(object):
             print("Rs for Trajs done...")
             Rs_total = Rs_ref_total + Rs_trajs_total
         
-        if os.path.exists(os.path.join(self.data_dir, self.filename)) and os.path.exists(os.path.join(self.data_dir, "WD" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WP" + self.filename)):
+        if os.path.exists(os.path.join(self.data_dir, "PH_" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WD_" + self.filename)) and os.path.exists(os.path.join(self.data_dir, "WP_" + self.filename)):
             print(cf.on_yellow("All the necessary files exist... Loading PH and Wassersteins..."))
 #             filename, extent = self.filename.split(".")
             f = open(os.path.join(self.data_dir, "PH_" + self.filename), "rb")
