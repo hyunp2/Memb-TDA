@@ -32,7 +32,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torch_geometric.loader import DataLoader #Can this handle DDP? yeah!
 import torch.distributed as dist 
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
-    using_tensor_cores, increase_l2_fetch_granularity, WandbLogger
+    using_tensor_cores, increase_l2_fetch_granularity
 from torch.utils.data import DistributedSampler
 from typing import *
 from topologylayer.nn import RipsLayer
