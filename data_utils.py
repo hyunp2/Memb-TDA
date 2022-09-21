@@ -4,8 +4,8 @@ import collections
 import torch_geometric
 from torch_geometric.data import Data, Dataset
 import pathlib
-roots = pathlib.Path(__file__).parent.parent
-sys.path.append(roots) #append top directory
+# roots = pathlib.Path(__file__).parent.parent
+# sys.path.append(roots) #append top directory
 import persim
 import ripser
 import MDAnalysis as mda
@@ -31,11 +31,10 @@ from torch.utils.data.dataloader import default_collate
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch_geometric.loader import DataLoader #Can this handle DDP? yeah!
 import torch.distributed as dist 
-from train.dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
+from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
     using_tensor_cores, increase_l2_fetch_granularity, WandbLogger
 from torch.utils.data import DistributedSampler
 from typing import *
-from crystals.cgcnn_data_utils import * #get_dataloader func, _get_split_sizes etc.
 from topologylayer.nn import RipsLayer
 
 warnings.simplefilter("ignore")
