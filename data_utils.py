@@ -56,6 +56,19 @@ def get_args():
     args = parser.parse_args()
     return args
 
+def _get_split_sizes(train_frac: float, full_dataset: Dataset) -> Tuple[int, int, int]:
+    """DONE: Need to change split schemes!"""
+    len_full = len(full_dataset)
+    len_train = int(len_full * train_frac)
+    len_test = int(0.1 * len_full)
+    len_val = len_full - len_train - len_test
+    return len_train, len_val, len_test  
+  
+def get_dataloader(dataset: Dataset, shuffle: bool, collate_fn: callable=None, **kwargs):
+    sampler = DistributedSampler(dataset, shuffle=shuffle) if dist.is_initialized() else None
+    loader = DataLoader(dataset, shuffle=(shuffle and sampler is None), sampler=sampler, collate_fn=collate_fn, **kwargs)
+    return loader
+
 def get_coordinates(filenames: List[str]):
     """Logic to return coordinates of files"""
     structure: callable = lambda cif: Structure.from_file(cif).cart_coords
