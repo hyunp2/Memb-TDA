@@ -303,7 +303,7 @@ def alphalayer_computer(batches: Data, maxdim: int):
 
 def alphalayer_computer_coords(coords: torch.Tensor, maxdim: int):
     coords = coords.to(torch.cuda.current_device())
-    ph, _ = persistent_diagram_tensor(pos, maxdim=maxdim)
+    ph, _ = persistent_diagram_tensor(coords, maxdim=maxdim)
     return ph #List[List[torch.Tensor]]  
 
 if __name__ == "__main__":
