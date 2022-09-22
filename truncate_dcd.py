@@ -28,7 +28,7 @@ trajs = list(map(lambda inp: os.path.join(args.data_dir, inp), args.trajs))
 print(psf , trajs)
 u = MDAnalysis.Universe(psf, *trajs)
 protein = u.select_atoms("all")
-with MDAnalysis.Writer("test.dcd", u.atoms.n_atoms) as W:
+with MDAnalysis.Writer(os.path.join(args.data_dir, "test.dcd"), u.atoms.n_atoms) as W:
     for ts in u.trajectory[-200:]:
         W.write(protein)
         
