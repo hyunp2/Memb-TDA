@@ -272,4 +272,4 @@ if __name__ == "__main__":
     # graph_input_list, Rs_total = ph
     # print(graph_input_list[0], Rs_total[0])
 
-    # python -m tda.ph --save_dir ../temp_save_cif --data_dir ../cif --multiprocessing --tensor --filename temp2.pickle
+    # python -m data_utils.ph --save_dir ../temp_save_cif --data_dir ../cif --multiprocessing --tensor --filename temp2.pickle
