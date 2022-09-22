@@ -280,7 +280,7 @@ if __name__ == "__main__":
     dataloader = PH_Featurizer_DataLoader(opt=args)
     print(iter(dataloader.test_dataloader()).next())
     batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
-    batches = batches
+    batches = batches.cuda()
     poses = batches.x
     batch = batches.batch
     phs = []
