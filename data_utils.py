@@ -208,7 +208,14 @@ class PH_Featurizer_Dataset(Dataset):
         Rs_dict = dict()
         for i in range(self.maxdim+1):
             Rs_dict[f"ph{i}"] = torch.from_numpy(Rs[i]).type(torch.float)
-        return Data(x=graph_input, y=torch.tensor([0.]) ,**Rs_dict)
+            
+        Rs_dict_tensor = dict()
+        Rs_list_tensor = persistent_diagram_tensor(graph_input, maxdim=self.maxdim)
+        del Rs_list_tensor[0] #Remove H0
+        for i in range(1, self.maxdim+1):
+            Rs_dict_tensor[f"ph{i}"] = Rs_list_tensor[i-1]
+            
+        return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict_tensor["ph1"], **Rs_dict_tensor)}
     
     def load_traj(self, data_dir: str, pdb: str, psf: str, trajs: List[str], selection: str):
         assert (pdb is not None) or (psf is not None), "At least either PDB of PSF should be provided..."
