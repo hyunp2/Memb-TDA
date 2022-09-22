@@ -83,12 +83,18 @@ def wasserstein(dgm1, dgm2, matching=False):
     D.fill_diagonal_(0)
     D[0:M, 0:N] = DUL
     UR = torch.tensor(float('inf')) * dgm1.new_ones((M, M))
-#     np.fill_diagonal(UR, S[:, 1])
-    UR.fill_diagonal_(S[:,1])
+    UR_numpy = UR.detach().cpu().numpy()
+    S_numpy = S.detach().cpu().numpy()
+    np.fill_diagonal(UR_numpy, S_numpy[:, 1])
+#     UR.fill_diagonal_(S[:,1])
+    UR.data.copy_(torch.from_numpy(UR_numpy).to(dgm1))
     D[0:M, N:N+M] = UR
     UL = torch.tensor(float('inf')) * dgm1.new_ones((N, N))
 #     np.fill_diagonal(UL, T[:, 1])
-    UL.fill_diagonal_(T[:,1])
+    UL_numpy = UL.detach().cpu().numpy()
+    T_numpy = T.detach().cpu().numpy()
+    np.fill_diagonal(UL_numpy, T_numpy[:, 1])
+    UL.data.copy_(torch.from_numpy(UL_numpy).to(dgm1))
     D[M:N+M, 0:N] = UL
 
     # Step 2: Run the hungarian algorithm
