@@ -86,7 +86,7 @@ class PersistentHomology(object):
 #         print(box_dim, prot_traj.atoms.positions, prot_ref.atoms.positions, align_selection)
         transform = transformations.boxdimensions.set_dimensions(box_dim)
         prot_traj.trajectory.add_transformations(transform)
-        AlignTraj(prot_traj, prot_ref, select=align_selection, in_memory=True).run()
+        #AlignTraj(prot_traj, prot_ref, select=align_selection, in_memory=True).run()
         return prot_traj
     
     @staticmethod
