@@ -35,6 +35,7 @@ def wasserstein(dgm1, dgm2, matching=False):
     """
 
 #     S = np.array(dgm1)
+    S = dgm1.clone()
     M = min(S.shape[0], S.numel())
     if S.numel() > 0:
         S = S[torch.isfinite(S[:, 1]), :]
@@ -45,6 +46,7 @@ def wasserstein(dgm1, dgm2, matching=False):
             )
             M = S.shape[0]
 #     T = np.array(dgm2)
+    T = dgm2.clone()
     N = min(T.shape[0], T.numel())
     if T.numel() > 0:
         T = T[torch.isfinite(T[:, 1]), :]
