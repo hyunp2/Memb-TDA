@@ -251,4 +251,4 @@ if __name__ == "__main__":
     testset = iter(dataloader.test_dataloader()).next()["PH"]
     testset_ph = testset.x
     testset_batch = testset.batch
-    model(testset_ph, batch=testset_batch)
+    print(model(testset_ph, batch=testset_batch))
