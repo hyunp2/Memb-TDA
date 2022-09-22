@@ -36,6 +36,7 @@ from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everythin
 from torch.utils.data import DistributedSampler
 from typing import *
 from topologylayer.nn import RipsLayer
+import gc
 
 warnings.simplefilter("ignore")
 warnings.filterwarnings("ignore")
@@ -52,6 +53,10 @@ def get_args():
     parser.add_argument('--pin_memory', type=bool, default=True)  
     parser.add_argument('--num_workers', type=int, default=0)  
     parser.add_argument('--batch_size', type=int, default=32)  
+    parser.add_argument('--psf', type=str, default=None)  
+    parser.add_argument('--pdb', type=str, default=None)  
+    parser.add_argument('--trajs', default=None, nargs="*")  
+    parser.add_argument('--atom_selection', type=str, default="backbone")  
 
     args = parser.parse_args()
     return args
@@ -100,22 +105,38 @@ def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=Fal
         R_total = layer(graph_input)
     return R_total
 
+def traj_preprocessing(prot_traj, prot_ref, align_selection):
+    if (prot_traj.trajectory.ts.dimensions is not None): 
+        box_dim = prot_traj.trajectory.ts.dimensions
+    else:
+        box_dim = np.array([1,1,1,90,90,90])
+#         print(box_dim, prot_traj.atoms.positions, prot_ref.atoms.positions, align_selection)
+    transform = transformations.boxdimensions.set_dimensions(box_dim)
+    prot_traj.trajectory.add_transformations(transform)
+    AlignTraj(prot_traj, prot_ref, select=align_selection, in_memory=True).run()
+    return prot_traj
+    
 # @dataclasses.dataclass
 class PH_Featurizer_Dataset(Dataset):
     def __init__(self, args: argparse.ArgumentParser):
         super().__init__()
         [setattr(self, key, val) for key, val in args.__dict__.items()]
-        self.files_to_pg = list(map(lambda inp: os.path.join(self.data_dir, inp), os.listdir(self.data_dir)))
-        self.files_to_pg = list(filter(lambda inp: os.path.splitext(inp)[-1] == ".cif", self.files_to_pg ))
-        # print(self.files_to_pg)
+#         self.files_to_pg = list(map(lambda inp: os.path.join(self.data_dir, inp), os.listdir(self.data_dir)))
+#         self.files_to_pg = list(filter(lambda inp: os.path.splitext(inp)[-1] == ".cif", self.files_to_pg ))
+        self.reference, self.prot_traj = self.load_traj(data_dir=self.data_dir, pdb=self.pdb, psf=self.psf, trajs=self.trajs, selection=self.atom_selection)
+        self.coords_ref, self.coords_traj = self.get_coordinates_for_md(self.reference, self.atom_selection), self.get_coordinates_for_md(self.prot_traj, self.atom_selection)
         self.graph_input_list, self.Rs_total = self.get_values()
-
+        del self.coords_ref
+        del self.coords_traj
+        gc.collect()
+        
     def get_persistent_diagrams(self, ):
         if not self.multiprocessing:
             print("Single CPU Persistent Diagram...")
             if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename))):
                 s=time.time()
-                graph_input_list = get_coordinates(self.files_to_pg)
+#                 graph_input_list = get_coordinates(self.files_to_pg)
+                graph_input_list = self.coords_ref + self.coords_traj
                 print(cf.on_yellow("Coordinate extraction done!"))
                 Rs_total = persistent_diagram(graph_input_list, maxdim)
                 print(cf.on_yellow("Persistent diagram extraction done!"))
@@ -134,8 +155,9 @@ class PH_Featurizer_Dataset(Dataset):
             print(f"Multiple CPU Persistent Diagram... with {os.cpu_count()} CPUs")
             if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename))):
                 s=time.time()
-                futures = [get_coordinates_mp.remote(i) for i in self.files_to_pg] 
-                graph_input_list = ray.get(futures) #List of structures: each structure has maxdim PHs
+#                 futures = [get_coordinates_mp.remote(i) for i in self.files_to_pg] 
+#                 graph_input_list = ray.get(futures) #List of structures: each structure has maxdim PHs
+                graph_input_list = self.coords_ref + self.coords_traj
                 print(cf.on_yellow("Coordinate extraction done!"))
                 maxdims = [self.maxdim] * len(graph_input_list)
                 tensor_flags = [self.tensor] * len(graph_input_list)
@@ -170,7 +192,35 @@ class PH_Featurizer_Dataset(Dataset):
         for i in range(self.maxdim+1):
             Rs_dict[f"ph{i}"] = torch.from_numpy(Rs[i]).type(torch.float)
         return Data(x=graph_input, y=torch.tensor([0.]) ,**Rs_dict)
+    
+    def load_traj(self, data_dir: str, pdb: str, psf: str, trajs: List[str], selection: str):
+        assert (pdb is not None) or (psf is not None), "At least either PDB of PSF should be provided..."
+        assert trajs is not None, "DCD(s) must be provided"
+        top = pdb if (pdb is not None) else psf
+        top = os.path.join(data_dir, top)
+        trajs = list(map(lambda inp: os.path.join(data_dir, inp), trajs ))
+        universe = mda.Universe(top, *trajs)
+        reference = mda.Universe(top)
+        print("MDA Universe is created")
+    #         print(top, universe,reference)
+        prot_traj = traj_preprocessing(universe, reference, selection)
+        print("Aligned MDA Universe is RETURNED!")
 
+        return reference, prot_traj #universes
+
+    def get_coordinates_for_md(self, mda_universes_or_atomgroups: mda.AtomGroup,
+                        selection: str = "backbone and segid A"):
+        ags = mda_universes_or_atomgroups #List of AtomGroups 
+        assert isinstance(ags, mda.core.groups.AtomGroup), "mda_universes_or_atomgroups must be AtomGroup!"
+
+        prot_traj = ags.universe #back to universe
+        coords = AnalysisFromFunction(lambda ag: ag.positions.copy(),
+                               prot_traj.atoms.select_atoms(selections)).run().results['timeseries'] #B,L,3
+        information = torch.from_numpy(coords).unbind(dim=0) #List of (L,3) Tensors
+        information = list(map(lambda inp: inp.detach().cpu().numpy(), information )) #List of (L,3) Arrays
+
+        return information
+    
 class PH_Featurizer_DataLoader(abc.ABC):
     """ Abstract DataModule. Children must define self.ds_{train | val | test}. """
 
