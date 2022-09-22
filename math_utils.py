@@ -74,7 +74,7 @@ def wasserstein(dgm1, dgm2, matching=False):
     # distance to the diagonal
     cp = np.cos(math.pi/4)
     sp = np.sin(math.pi/4)
-    R = torch.tensor([[cp, -sp], [sp, cp]])
+    R = torch.tensor([[cp, -sp], [sp, cp]]).to(dgm1)
     S = S[:, 0:2].mm(R)
     T = T[:, 0:2].mm(R)
 #     D = np.zeros((M+N, M+N))
