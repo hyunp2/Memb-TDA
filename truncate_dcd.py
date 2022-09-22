@@ -20,7 +20,7 @@ def get_args():
     parser.add_argument('--atom_selection', type=str, default="backbone")
     
 args = get_args()
-u = mda.Universe("/Scr/arango/Sobolev-Hyun/2-MembTempredict/DPPC_280/namd/step5_input.psf", "/Scr/arango/Sobolev-Hyun/2-MembTempredict/DPPC_280/namd/step6.6_equilibration.dcd")
+u = MDAnalysis.Universe("/Scr/arango/Sobolev-Hyun/2-MembTempredict/DPPC_280/namd/step5_input.psf", "/Scr/arango/Sobolev-Hyun/2-MembTempredict/DPPC_280/namd/step6.6_equilibration.dcd")
 protein = u.select_atoms("all")
 with MDAnalysis.Writer("test.dcd", u.atoms.n_atoms) as W:
     for ts in u.trajectory[-200:]:
