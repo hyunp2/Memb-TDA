@@ -5,6 +5,21 @@ import warnings
 import math
 import torch
 
+def linear_sum_assignment(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, cost_matrix):
+        matchi, matchj = optimize.linear_sum_assignment(cost_matrix)
+        ctx.save_for_backward(cost_matrix, matchi, matchj)
+        ctx.mark_non_differentiable(matchi, matchj)
+        return matchi, matchj
+    
+    @staticmethd
+    def backward(ctx, gi, gj):
+        cost_matrix, matchi, matchj = ctx.saved_tensors
+        down_grad = torch.zeros_like(cost_matrix)
+        down_grad[matchi, matchj] = 1.
+        return down_grad
+
 def wasserstein(dgm1, dgm2, matching=False):
     """
     Perform the Wasserstein distance matching between persistence diagrams.
@@ -98,7 +113,8 @@ def wasserstein(dgm1, dgm2, matching=False):
     D[M:N+M, 0:N] = UL
 
     # Step 2: Run the hungarian algorithm
-    matchi, matchj = optimize.linear_sum_assignment(D)
+#     matchi, matchj = optimize.linear_sum_assignment(D)
+    matchi, matchj = linear_sum_assignment.apply(D)
     matchdist = D[matchi, matchj].sum()
 
     return matchdist
