@@ -289,8 +289,8 @@ if __name__ == "__main__":
         pos_list.append(pos)
 #         ph = persistent_diagram_tensor(pos, maxdim=1, tensor=True)
 #         phs.append(ph)
-    maxdims = [ph.maxdim] * len(batch.unique().size(0))
-    tensor_flags = [ph.tensor] * len(batch.unique().size(0))
+    maxdims = [ph.maxdim] * batch.unique().size(0)
+    tensor_flags = [ph.tensor] * batch.unique().size(0)
     futures = [persistent_diagram_tensor.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(pos_list, maxdims, tensor_flags)] 
     Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
     #     print(phs)
