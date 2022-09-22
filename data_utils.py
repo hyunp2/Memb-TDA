@@ -272,4 +272,4 @@ if __name__ == "__main__":
     # graph_input_list, Rs_total = ph
     # print(graph_input_list[0], Rs_total[0])
 
-    # python -m data_utils.ph --save_dir ../temp_save_cif --data_dir ../cif --multiprocessing --tensor --filename temp2.pickle
+    # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --tensor --filename temp2.pickle
