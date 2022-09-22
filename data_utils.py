@@ -235,7 +235,8 @@ class PH_Featurizer_Dataset(Dataset):
         reference = mda.Universe(top)
         print("MDA Universe is created")
     #         print(top, universe,reference)
-        prot_traj = traj_preprocessing(universe, reference, selection)
+        #prot_traj = traj_preprocessing(universe, reference, selection)
+        prot_traj = universe
         print("Aligned MDA Universe is RETURNED!")
 
         return reference, prot_traj #universes
