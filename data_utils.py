@@ -105,8 +105,9 @@ def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=Fal
         R_total = ripser.ripser(graph_input, maxdim=maxdim)["dgms"]
     else:
 #         graph_input = torch.from_numpy(graph_input).to("cuda").type(torch.float)
-        layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
-        layer
+#         layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
+        layer = AlphaLayer(maxdim=maxdim)
+        layer.cuda()
         R_total = layer(graph_input)
     return R_total
 
@@ -288,12 +289,13 @@ if __name__ == "__main__":
         sel = (b == batch)
         pos = poses[sel]
         pos_list.append(pos)
-#         ph = persistent_diagram_tensor(pos, maxdim=1, tensor=True)
-#         phs.append(ph)
-    maxdims = [ph.maxdim] * batch.unique().size(0)
-    tensor_flags = [ph.tensor] * batch.unique().size(0)
-    futures = [persistent_diagram_tensor.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(pos_list, maxdims, tensor_flags)] 
-    Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
+        PH = persistent_diagram_tensor(pos, maxdim=1, tensor=True)
+        phs.append(PH)
+    print(phs)
+#     maxdims = [ph.maxdim] * batch.unique().size(0)
+#     tensor_flags = [ph.tensor] * batch.unique().size(0)
+#     futures = [persistent_diagram_tensor.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(pos_list, maxdims, tensor_flags)] 
+#     Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
     #     print(phs)
     # graph_input_list, Rs_total = ph
     # print(graph_input_list[0], Rs_total[0])
