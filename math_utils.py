@@ -80,15 +80,15 @@ def wasserstein(dgm1, dgm2, matching=False):
 #     D = np.zeros((M+N, M+N))
     D = dgm1.new_zeros((M+N, M+N))
 #     np.fill_diagonal(D, 0)
-    D.fill_diagonal(0)
+    D.fill_diagonal_(0)
     D[0:M, 0:N] = DUL
     UR = torch.tensor(float('inf')) * dgm1.new_ones((M, M))
 #     np.fill_diagonal(UR, S[:, 1])
-    UR.fill_diagonal(S[:,1])
+    UR.fill_diagonal_(S[:,1])
     D[0:M, N:N+M] = UR
     UL = torch.tensor(float('inf')) * dgm1.new_ones((N, N))
 #     np.fill_diagonal(UL, T[:, 1])
-    UL.fill_diagonal(T[:,1])
+    UL.fill_diagonal_(T[:,1])
     D[M:N+M, 0:N] = UL
 
     # Step 2: Run the hungarian algorithm
