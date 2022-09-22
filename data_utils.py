@@ -35,7 +35,7 @@ from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everythin
     using_tensor_cores, increase_l2_fetch_granularity
 from torch.utils.data import DistributedSampler
 from typing import *
-from topologylayer.nn import RipsLayer
+from topologylayer.nn import RipsLayer, AlphaLayer
 import gc
 from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
@@ -116,7 +116,7 @@ def persistent_diagram_tensor(graph_input: torch.Tensor, maxdim: int, tensor: bo
     assert isinstance(graph_input, torch.Tensor), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
-    layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
+    layer = AlphaLayer(graph_input.size(0), maxdim=maxdim)
     layer.cuda()
     R_total = layer(graph_input)
     return R_total
