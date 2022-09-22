@@ -112,7 +112,7 @@ def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=Fal
     return R_total
 
 # @ray.remote
-def persistent_diagram_tensor(graph_input: torch.Tensor, maxdim: int, tensor: bool=False):
+def persistent_diagram_tensor(graph_input: torch.Tensor, maxdim: int):
     assert isinstance(graph_input, torch.Tensor), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
@@ -274,7 +274,7 @@ class PH_Featurizer_DataLoader(abc.ABC):
     def test_dataloader(self) -> DataLoader:
         return get_dataloader(self.ds_test, shuffle=False, collate_fn=None, **self.dataloader_kwargs)    
 
-def alphalayer_computer(batches: Data):
+def alphalayer_computer(batches: Data, maxdim: int):
     batches = batches.to(torch.cuda.current_device())
     poses = batches.x
     batch = batches.batch
@@ -284,7 +284,7 @@ def alphalayer_computer(batches: Data):
         sel = (b == batch)
         pos = poses[sel]
         pos_list.append(pos)
-        ph, _ = persistent_diagram_tensor(pos, maxdim=1, tensor=True)
+        ph, _ = persistent_diagram_tensor(pos, maxdim=maxdim)
         phs.append(ph)
     return phs #List[List[torch.Tensor]]   
 
@@ -294,9 +294,11 @@ if __name__ == "__main__":
     print(ph[5])
     dataloader = PH_Featurizer_DataLoader(opt=args)
     print(iter(dataloader.test_dataloader()).next())
-    batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
-    phs = alphalayer_computer(batches)
-    print(phs)
+    for i, batches in enumerate(dataloader.train_dataloader()):
+#     batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
+        phs = alphalayer_computer(batches, ph.maxdim)
+        print(phs)
+        print(f"{i} is done!")
 #     maxdims = [ph.maxdim] * batch.unique().size(0)
 #     tensor_flags = [ph.tensor] * batch.unique().size(0)
 #     futures = [persistent_diagram_tensor.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(pos_list, maxdims, tensor_flags)] 
