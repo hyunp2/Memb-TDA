@@ -98,5 +98,5 @@ def wasserstein(dgm1, dgm2, matching=False):
 if __name__ == "__main__":
     x = torch.randn(100,2)
     y = torch.randn(30, 2)
-    z = wassersteinx(x, y)
+    z = wasserstein(x, y)
     print(z)
