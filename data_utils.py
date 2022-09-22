@@ -37,6 +37,10 @@ from torch.utils.data import DistributedSampler
 from typing import *
 from topologylayer.nn import RipsLayer
 import gc
+from MDAnalysis.analysis.base import AnalysisFromFunction
+from MDAnalysis.analysis.align import AlignTraj
+from MDAnalysis import transformations
+
 
 warnings.simplefilter("ignore")
 warnings.filterwarnings("ignore")
