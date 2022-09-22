@@ -98,9 +98,10 @@ def persistent_diagram(graph_input_list: List[np.ndarray], maxdim: int):
 
 @ray.remote
 def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=False):
-    assert isinstance(graph_input, np.ndarray), f"graph_input must be a type array..."
+    assert isinstance(graph_input, (torch.Tensor, np.ndarray)), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
+    graph_input = graph_input.detach().cpu().numpy()
     if not tensor:
         R_total = ripser.ripser(graph_input, maxdim=maxdim)["dgms"]
     else:
