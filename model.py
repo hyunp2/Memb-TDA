@@ -246,4 +246,9 @@ class MPNN(torch.nn.Module):
 if __name__ == "__main__":
     model = MPNN()
     from data_utils import *
-    model
+    args = get_args()
+    dataloader = PH_Featurizer_DataLoader(opt=args)
+    testset = iter(dataloader.test_dataloader()).next()["PH"]
+    testset_ph = testset.x
+    testset_batch = testset.batch
+    model(testset_ph, batch=testset_batch)
