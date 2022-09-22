@@ -212,14 +212,13 @@ class PH_Featurizer_Dataset(Dataset):
 
         return reference, prot_traj #universes
 
-    def get_coordinates_for_md(self, mda_universes_or_atomgroups: mda.AtomGroup,
-                        selection: str = "backbone and segid A"):
+    def get_coordinates_for_md(self, mda_universes_or_atomgroups: mda.AtomGroup):
         ags = mda_universes_or_atomgroups #List of AtomGroups 
         assert isinstance(ags, (mda.AtomGroup, mda.Universe)), "mda_universes_or_atomgroups must be AtomGroup or Universe!"
 
         prot_traj = ags.universe if hasattr(ags, "universe") else ags #back to universe
         coords = AnalysisFromFunction(lambda ag: ag.positions.copy(),
-                               prot_traj.atoms.select_atoms(selections)).run().results['timeseries'] #B,L,3
+                               prot_traj.atoms.select_atoms(self.atom_selection)).run().results['timeseries'] #B,L,3
         information = torch.from_numpy(coords).unbind(dim=0) #List of (L,3) Tensors
         information = list(map(lambda inp: inp.detach().cpu().numpy(), information )) #List of (L,3) Arrays
 
@@ -272,4 +271,4 @@ if __name__ == "__main__":
     # graph_input_list, Rs_total = ph
     # print(graph_input_list[0], Rs_total[0])
 
-    # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --tensor --filename temp2.pickle
+    # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
