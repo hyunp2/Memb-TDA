@@ -5,7 +5,7 @@ import warnings
 import math
 import torch
 
-def linear_sum_assignment(torch.autograd.Function):
+class linear_sum_assignment(torch.autograd.Function):
     @staticmethod
     def forward(ctx, cost_matrix):
         matchi, matchj = optimize.linear_sum_assignment(cost_matrix)
