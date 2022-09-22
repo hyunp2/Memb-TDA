@@ -275,7 +275,7 @@ class PH_Featurizer_DataLoader(abc.ABC):
         return get_dataloader(self.ds_test, shuffle=False, collate_fn=None, **self.dataloader_kwargs)    
 
 def alphalayer_computer(batches: Data):
-    batches = batched.to(torch.cuda.current_device())
+    batches = batches.to(torch.cuda.current_device())
     poses = batches.x
     batch = batches.batch
     phs = []
