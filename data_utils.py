@@ -175,6 +175,7 @@ class PH_Featurizer_Dataset(Dataset):
 #                 futures = [get_coordinates_mp.remote(i) for i in self.files_to_pg] 
 #                 graph_input_list = ray.get(futures) #List of structures: each structure has maxdim PHs
                 graph_input_list = self.coords_ref + self.coords_traj
+                graph_input_list = list(map(lambda inp: torch.tensor(inp).to(torch.cuda.current_device()), graph_input_list )) #List of (L,3) Arrays
                 print(cf.on_yellow("Coordinate extraction done!"))
                 maxdims = [self.maxdim] * len(graph_input_list)
                 tensor_flags = [self.tensor] * len(graph_input_list)
@@ -191,6 +192,7 @@ class PH_Featurizer_Dataset(Dataset):
             else:
                 f = open(os.path.join(self.save_dir, "coords_" + self.filename), "rb")
                 graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
+                graph_input_list = list(map(lambda inp: torch.tensor(inp).to(torch.cuda.current_device()), graph_input_list )) #List of (L,3) Arrays
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "rb")
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 maxdims = [self.maxdim] * len(graph_input_list)
