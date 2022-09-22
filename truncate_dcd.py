@@ -20,7 +20,10 @@ def get_args():
     parser.add_argument('--atom_selection', type=str, default="backbone")
     
 args = get_args()
-u = MDAnalysis.Universe(args.psf, args.trajs)
+psf = os.path.join(args.data_dir, args.psf)
+trajs = list(map(lambda inp: os.path.join(args.data_dir, inp), args.trajs))
+
+u = MDAnalysis.Universe(psf, *trajs)
 protein = u.select_atoms("all")
 with MDAnalysis.Writer("test.dcd", u.atoms.n_atoms) as W:
     for ts in u.trajectory[-200:]:
