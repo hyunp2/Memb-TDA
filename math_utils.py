@@ -13,7 +13,7 @@ class linear_sum_assignment(torch.autograd.Function):
         ctx.mark_non_differentiable(matchi, matchj)
         return matchi, matchj
     
-    @staticmethd
+    @staticmethod
     def backward(ctx, gi, gj):
         cost_matrix, matchi, matchj = ctx.saved_tensors
         down_grad = torch.zeros_like(cost_matrix)
