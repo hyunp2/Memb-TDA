@@ -232,7 +232,7 @@ class PH_Featurizer_Dataset(Dataset):
         top = pdb if (pdb is not None) else psf
         top = os.path.join(data_dir, top)
         trajs = list(map(lambda inp: os.path.join(data_dir, inp), trajs ))
-        universe = mda.Universe(top, *trajs)[-self.last:]
+        universe = mda.Universe(top, *trajs)
         reference = mda.Universe(top)
         print("MDA Universe is created")
     #         print(top, universe,reference)
