@@ -116,7 +116,8 @@ def persistent_diagram_tensor(graph_input: torch.Tensor, maxdim: int, tensor: bo
     assert isinstance(graph_input, torch.Tensor), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
-    layer = AlphaLayer(graph_input.size(0), maxdim=maxdim)
+#     layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
+    layer = AlphaLayer(maxdim=maxdim)
     layer.cuda()
     R_total = layer(graph_input)
     return R_total
