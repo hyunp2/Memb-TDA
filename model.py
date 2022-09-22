@@ -252,3 +252,5 @@ if __name__ == "__main__":
     testset_ph = testset.x
     testset_batch = testset.batch
     print(model(testset_ph, batch=testset_batch))
+    
+    #python -m model --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
