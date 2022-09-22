@@ -9,6 +9,7 @@ class linear_sum_assignment(torch.autograd.Function):
     @staticmethod
     def forward(ctx, cost_matrix):
         matchi, matchj = optimize.linear_sum_assignment(cost_matrix)
+        matchi, matchj = list(map(lambda inp: torch.from_numpy(inp), (matchi, matchj) ))
         ctx.save_for_backward(cost_matrix, matchi, matchj)
         ctx.mark_non_differentiable(matchi, matchj)
         return matchi, matchj
