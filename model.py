@@ -53,7 +53,7 @@ class MPNN(torch.nn.Module):
     ):
         super(MPNN, self).__init__()
 
-        self.embedding = torch.nn.Embedding(200, num_features)
+        self.embedding = torch.nn.Embedding(10000, num_features)
         self.rbf = GaussianSmearing(0.0, cutoff, num_gaussians)
 
         self.explain = kwargs.get("explain", False)
