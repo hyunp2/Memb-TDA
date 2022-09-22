@@ -118,7 +118,7 @@ def persistent_diagram_tensor(graph_input: torch.Tensor, maxdim: int, tensor: bo
     #Multiprocessing changes return value from "List of R" to "one R"
 #     layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
     layer = AlphaLayer(maxdim=maxdim)
-    layer.cuda()
+    layer.to(torch.cuda.current_device())
     R_total = layer(graph_input)
     return R_total
 
@@ -274,14 +274,8 @@ class PH_Featurizer_DataLoader(abc.ABC):
     def test_dataloader(self) -> DataLoader:
         return get_dataloader(self.ds_test, shuffle=False, collate_fn=None, **self.dataloader_kwargs)    
 
-if __name__ == "__main__":
-    args = get_args()
-    ph = PH_Featurizer_Dataset(args)
-    print(ph[5])
-    dataloader = PH_Featurizer_DataLoader(opt=args)
-    print(iter(dataloader.test_dataloader()).next())
-    batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
-    batches = batches.cuda()
+def alphalayer_computer(batches: Data):
+    batches = batched.to(torch.cuda.current_device())
     poses = batches.x
     batch = batches.batch
     phs = []
@@ -290,8 +284,18 @@ if __name__ == "__main__":
         sel = (b == batch)
         pos = poses[sel]
         pos_list.append(pos)
-        PH = persistent_diagram_tensor(pos, maxdim=1, tensor=True)
-        phs.append(PH)
+        ph, _ = persistent_diagram_tensor(pos, maxdim=1, tensor=True)
+        phs.append(ph)
+    return phs #List[List[torch.Tensor]]   
+
+if __name__ == "__main__":
+    args = get_args()
+    ph = PH_Featurizer_Dataset(args)
+    print(ph[5])
+    dataloader = PH_Featurizer_DataLoader(opt=args)
+    print(iter(dataloader.test_dataloader()).next())
+    batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
+    phs = alphalayer_computer(batches)
     print(phs)
 #     maxdims = [ph.maxdim] * batch.unique().size(0)
 #     tensor_flags = [ph.tensor] * batch.unique().size(0)
