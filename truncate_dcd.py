@@ -1,6 +1,6 @@
 import argparse
 import MDAnalysis
-
+import os
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_dir', type=str, default="/grand/ACO2RDS/xiaoliyan/hMOF/cif") 
