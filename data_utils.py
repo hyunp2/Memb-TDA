@@ -110,6 +110,7 @@ def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=Fal
         R_total = layer(graph_input)
     return R_total
 
+@ray.remote
 def persistent_diagram_tensor(graph_input: torch.Tensor, maxdim: int, tensor: bool=False):
     assert isinstance(graph_input, torch.Tensor), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
