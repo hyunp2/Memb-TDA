@@ -106,7 +106,7 @@ def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=Fal
     else:
 #         graph_input = torch.from_numpy(graph_input).to("cuda").type(torch.float)
         layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
-        layer.cuda()
+        layer
         R_total = layer(graph_input)
     return R_total
 
@@ -279,7 +279,7 @@ if __name__ == "__main__":
     dataloader = PH_Featurizer_DataLoader(opt=args)
     print(iter(dataloader.test_dataloader()).next())
     batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
-    batches = batches.cuda()
+    batches = batches
     poses = batches.x
     batch = batches.batch
     phs = []
