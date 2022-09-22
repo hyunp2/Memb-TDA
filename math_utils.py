@@ -126,7 +126,7 @@ if __name__ == "__main__":
     y = torch.randn(30, 2)
     z = wasserstein(x, y)
     print(z)
-    z.register_hook(lambda grad: grad+10)
+    z.register_hook(lambda grad: grad)
     z.retain_grad()
     z.backward()
     print(x.grad)
