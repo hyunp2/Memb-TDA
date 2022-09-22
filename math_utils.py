@@ -127,6 +127,7 @@ if __name__ == "__main__":
     z = wasserstein(x, y)
     print(z)
     z.register_hook(lambda grad: grad)
+    z.retain_grad()
     z.backward()
     print(x.grad)
     print(z.grad)
