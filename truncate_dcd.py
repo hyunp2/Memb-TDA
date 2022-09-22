@@ -22,7 +22,7 @@ def get_args():
 args = get_args()
 psf = os.path.join(args.data_dir, args.psf)
 trajs = list(map(lambda inp: os.path.join(args.data_dir, inp), args.trajs))
-
+print(psf , trajs)
 u = MDAnalysis.Universe(psf, *trajs)
 protein = u.select_atoms("all")
 with MDAnalysis.Writer("test.dcd", u.atoms.n_atoms) as W:
