@@ -118,7 +118,7 @@ def persistent_diagram_tensor(graph_input: torch.Tensor, maxdim: int):
     #Multiprocessing changes return value from "List of R" to "one R"
 #     layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
     layer = AlphaLayer(maxdim=maxdim)
-    layer.to(torch.cuda.current_device())
+    layer #.to(torch.cuda.current_device())
     R_total = layer(graph_input)
     return R_total
 
@@ -303,7 +303,7 @@ def alphalayer_computer(batches: Data, maxdim: int):
     return phs #List[List[torch.Tensor]]   
 
 def alphalayer_computer_coords(coords: torch.Tensor, maxdim: int):
-    coords = coords.to(torch.cuda.current_device())
+#     coords = coords.to(torch.cuda.current_device())
     ph, _ = persistent_diagram_tensor(coords, maxdim=maxdim)
     return ph #List[List[torch.Tensor]]  
 
