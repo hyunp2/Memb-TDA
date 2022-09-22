@@ -260,7 +260,7 @@ class PH_Featurizer_DataLoader(abc.ABC):
         """ Method called only once per node. Put here any downloading or preprocessing """
         full_dataset = PH_Featurizer_Dataset(self.opt)
         full_dataset.get_values()
-        print("Preparation is done!")
+        print(cf.on_blue("Preparation is done!"))
             
     def train_dataloader(self) -> DataLoader:
         return get_dataloader(self.ds_train, shuffle=True, collate_fn=None, **self.dataloader_kwargs)
