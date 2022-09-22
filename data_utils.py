@@ -128,7 +128,7 @@ class PH_Featurizer_Dataset(Dataset):
 #         self.files_to_pg = list(map(lambda inp: os.path.join(self.data_dir, inp), os.listdir(self.data_dir)))
 #         self.files_to_pg = list(filter(lambda inp: os.path.splitext(inp)[-1] == ".cif", self.files_to_pg ))
         self.reference, self.prot_traj = self.load_traj(data_dir=self.data_dir, pdb=self.pdb, psf=self.psf, trajs=self.trajs, selection=self.atom_selection)
-        self.coords_ref, self.coords_traj = self.get_coordinates_for_md(self.reference, self.atom_selection), self.get_coordinates_for_md(self.prot_traj, self.atom_selection)
+        self.coords_ref, self.coords_traj = self.get_coordinates_for_md(self.reference), self.get_coordinates_for_md(self.prot_traj)
         self.graph_input_list, self.Rs_total = self.get_values()
         del self.coords_ref
         del self.coords_traj
