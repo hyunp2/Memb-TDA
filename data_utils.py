@@ -40,7 +40,7 @@ import gc
 from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
-
+from math_utils import wasserstein
 
 warnings.simplefilter("ignore")
 warnings.filterwarnings("ignore")
@@ -301,11 +301,11 @@ if __name__ == "__main__":
     print(ph[5])
     dataloader = PH_Featurizer_DataLoader(opt=args)
     print(iter(dataloader.test_dataloader()).next())
-    for i, batches in enumerate(dataloader.train_dataloader()):
-#     batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
-        phs = alphalayer_computer(batches, ph.maxdim)
-        print(phs)
-        print(f"{i} is done!")
+#     for i, batches in enumerate(dataloader.train_dataloader()):
+# #     batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
+#         phs = alphalayer_computer(batches, ph.maxdim)
+#         print(phs)
+#         print(f"{i} is done!")
 #     maxdims = [ph.maxdim] * batch.unique().size(0)
 #     tensor_flags = [ph.tensor] * batch.unique().size(0)
 #     futures = [persistent_diagram_tensor.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(pos_list, maxdims, tensor_flags)] 
