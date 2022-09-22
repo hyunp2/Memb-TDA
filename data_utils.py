@@ -59,6 +59,7 @@ def get_args():
     parser.add_argument('--batch_size', type=int, default=32)  
     parser.add_argument('--psf', type=str, default=None)  
     parser.add_argument('--pdb', type=str, default=None)  
+    parser.add_argument('--last', type=int, default=200) 
     parser.add_argument('--trajs', default=None, nargs="*")  
     parser.add_argument('--atom_selection', type=str, default="backbone")  
 
