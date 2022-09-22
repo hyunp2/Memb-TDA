@@ -142,7 +142,7 @@ class PH_Featurizer_Dataset(Dataset):
 #         self.files_to_pg = list(filter(lambda inp: os.path.splitext(inp)[-1] == ".cif", self.files_to_pg ))
         self.reference, self.prot_traj = self.load_traj(data_dir=self.data_dir, pdb=self.pdb, psf=self.psf, trajs=self.trajs, selection=self.atom_selection)
         self.coords_ref, self.coords_traj = self.get_coordinates_for_md(self.reference), self.get_coordinates_for_md(self.prot_traj)
-        self.graph_input_list, self.Rs_total = self.get_values()
+        self.graph_input_list, self.Rs_total, self.Rs_list_tensor = self.get_values()
         del self.coords_ref
         del self.coords_traj
         gc.collect()
@@ -187,17 +187,19 @@ class PH_Featurizer_Dataset(Dataset):
                 pickle.dump(graph_input_list, f)   
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "wb")
                 pickle.dump(Rs_total, f)   
+                Rs_list_tensor = list(map(alphalayer_computer_coords, list(zip(graph_input_list, maxdims)) ))
             else:
                 f = open(os.path.join(self.save_dir, "coords_" + self.filename), "rb")
                 graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "rb")
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
+                Rs_list_tensor = list(map(alphalayer_computer_coords, list(zip(graph_input_list, maxdims)) ))
 
-        return graph_input_list, Rs_total #List of structures: each structure has maxdim PHs
+        return graph_input_list, Rs_total, Rs_list_tensor #List of structures: each structure has maxdim PHs
 
     def get_values(self, ):
-        graph_input_list, Rs_total = self.get_persistent_diagrams()
-        return graph_input_list, Rs_total
+        graph_input_list, Rs_total, Rs_list_tensor = self.get_persistent_diagrams()
+        return graph_input_list, Rs_total, Rs_list_tensor
 
     def len(self, ):
         return len(self.graph_input_list)
@@ -210,7 +212,8 @@ class PH_Featurizer_Dataset(Dataset):
             Rs_dict[f"ph{i}"] = torch.from_numpy(Rs[i]).type(torch.float)
             
         Rs_dict_tensor = dict()
-        Rs_list_tensor = persistent_diagram_tensor(graph_input, maxdim=self.maxdim)
+#         Rs_list_tensor = list(persistent_diagram_tensor(graph_input, maxdim=self.maxdim))
+        Rs_list_tensor = list(self.Rs_list_tensor[idx])
         del Rs_list_tensor[0] #Remove H0
         for i in range(1, self.maxdim+1):
             Rs_dict_tensor[f"ph{i}"] = Rs_list_tensor[i-1]
@@ -294,6 +297,11 @@ def alphalayer_computer(batches: Data, maxdim: int):
         ph, _ = persistent_diagram_tensor(pos, maxdim=maxdim)
         phs.append(ph)
     return phs #List[List[torch.Tensor]]   
+
+def alphalayer_computer_coords(coords: torch.Tensor, maxdim: int):
+    coords = coords.to(torch.cuda.current_device())
+    ph, _ = persistent_diagram_tensor(pos, maxdim=maxdim)
+    return ph #List[List[torch.Tensor]]  
 
 if __name__ == "__main__":
     args = get_args()
