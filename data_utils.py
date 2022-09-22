@@ -96,7 +96,7 @@ def persistent_diagram(graph_input_list: List[np.ndarray], maxdim: int):
     Rs_total = list(map(lambda info: ripser.ripser(info, maxdim=maxdim)["dgms"], graph_input_list ))
     return Rs_total
 
-@ray.remote
+# @ray.remote
 def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=False):
     assert isinstance(graph_input, np.ndarray), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
@@ -104,8 +104,9 @@ def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=Fal
     if not tensor:
         R_total = ripser.ripser(graph_input, maxdim=maxdim)["dgms"]
     else:
-        graph_input = torch.from_numpy(graph_input).to("cuda").type(torch.float)
+#         graph_input = torch.from_numpy(graph_input).to("cuda").type(torch.float)
         layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
+        layer.cuda()
         R_total = layer(graph_input)
     return R_total
 
@@ -267,7 +268,17 @@ if __name__ == "__main__":
     print(ph[5])
     dataloader = PH_Featurizer_DataLoader(opt=args)
     print(iter(dataloader.test_dataloader()).next())
-
+    batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
+    batches = batches.cuda()
+    poses = batches.x
+    batch = batches.batch
+    phs = []
+    for b in batch.unique():
+        sel = (b == batch)
+        pos = poses[sel]
+        ph = persistent_diagram_mp(pos, maxdim=1, tensor=True)
+        phs.append(ph)
+    print(phs)
     # graph_input_list, Rs_total = ph
     # print(graph_input_list[0], Rs_total[0])
 
