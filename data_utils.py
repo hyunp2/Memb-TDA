@@ -96,7 +96,7 @@ def persistent_diagram(graph_input_list: List[np.ndarray], maxdim: int):
     Rs_total = list(map(lambda info: ripser.ripser(info, maxdim=maxdim)["dgms"], graph_input_list ))
     return Rs_total
 
-# @ray.remote
+@ray.remote
 def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=False):
     assert isinstance(graph_input, np.ndarray), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
@@ -108,6 +108,15 @@ def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=Fal
         layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
         layer.cuda()
         R_total = layer(graph_input)
+    return R_total
+
+def persistent_diagram_tensor(graph_input: torch.Tensor, maxdim: int, tensor: bool=False):
+    assert isinstance(graph_input, torch.Tensor), f"graph_input must be a type array..."
+    #Definition of information has changed from List[np.ndarray] to np.ndarray
+    #Multiprocessing changes return value from "List of R" to "one R"
+    layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
+    layer.cuda()
+    R_total = layer(graph_input)
     return R_total
 
 def traj_preprocessing(prot_traj, prot_ref, align_selection):
@@ -276,7 +285,7 @@ if __name__ == "__main__":
     for b in batch.unique():
         sel = (b == batch)
         pos = poses[sel]
-        ph = persistent_diagram_mp(pos, maxdim=1, tensor=True)
+        ph = persistent_diagram_tensor(pos, maxdim=1, tensor=True)
         phs.append(ph)
     print(phs)
     # graph_input_list, Rs_total = ph
