@@ -193,7 +193,7 @@ class PH_Featurizer_Dataset(Dataset):
                 graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "rb")
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
-                Rs_list_tensor = list(map(alphalayer_computer_coords, list(zip(graph_input_list, maxdims)) ))
+                Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
 
         return graph_input_list, Rs_total, Rs_list_tensor #List of structures: each structure has maxdim PHs
 
