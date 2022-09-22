@@ -215,9 +215,9 @@ class PH_Featurizer_Dataset(Dataset):
     def get_coordinates_for_md(self, mda_universes_or_atomgroups: mda.AtomGroup,
                         selection: str = "backbone and segid A"):
         ags = mda_universes_or_atomgroups #List of AtomGroups 
-        assert isinstance(ags, mda.core.groups.AtomGroup), "mda_universes_or_atomgroups must be AtomGroup!"
+        assert isinstance(ags, (mda.AtomGroup, mda.Universe)), "mda_universes_or_atomgroups must be AtomGroup or Universe!"
 
-        prot_traj = ags.universe #back to universe
+        prot_traj = ags.universe if hasattr(ags, "universe") else ags #back to universe
         coords = AnalysisFromFunction(lambda ag: ag.positions.copy(),
                                prot_traj.atoms.select_atoms(selections)).run().results['timeseries'] #B,L,3
         information = torch.from_numpy(coords).unbind(dim=0) #List of (L,3) Tensors
