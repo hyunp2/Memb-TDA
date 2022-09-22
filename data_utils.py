@@ -244,7 +244,7 @@ class PH_Featurizer_Dataset(Dataset):
         coords = AnalysisFromFunction(lambda ag: ag.positions.copy(),
                                prot_traj.atoms.select_atoms(self.atom_selection)).run().results['timeseries'] #B,L,3
         information = torch.from_numpy(coords).unbind(dim=0) #List of (L,3) Tensors
-        information = list(map(lambda inp: inp.detach().cpu().numpy(), information )) #List of (L,3) Arrays
+#         information = list(map(lambda inp: inp.detach().cpu().numpy(), information )) #List of (L,3) Arrays
 
         return information
     
