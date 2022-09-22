@@ -208,7 +208,8 @@ class PH_Featurizer_Dataset(Dataset):
         return len(self.graph_input_list)
 
     def get(self, idx):
-        graph_input = torch.from_numpy(self.graph_input_list[idx]).type(torch.float)
+#         graph_input = torch.from_numpy(self.graph_input_list[idx]).type(torch.float)
+        graph_input = self.graph_input_list[idx].type(torch.float)
         Rs = self.Rs_total[idx]
         Rs_dict = dict()
         for i in range(self.maxdim+1):
