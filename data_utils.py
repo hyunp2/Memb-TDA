@@ -282,12 +282,18 @@ if __name__ == "__main__":
     poses = batches.x
     batch = batches.batch
     phs = []
+    pos_list = []
     for b in batch.unique():
         sel = (b == batch)
         pos = poses[sel]
-        ph = persistent_diagram_tensor(pos, maxdim=1, tensor=True)
-        phs.append(ph)
-    print(phs)
+        pos_list.append(pos)
+#         ph = persistent_diagram_tensor(pos, maxdim=1, tensor=True)
+#         phs.append(ph)
+    maxdims = [ph.maxdim] * len(batch.unique().size(0))
+    tensor_flags = [ph.tensor] * len(batch.unique().size(0))
+    futures = [persistent_diagram_tensor.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(pos_list, maxdims, tensor_flags)] 
+    Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
+    #     print(phs)
     # graph_input_list, Rs_total = ph
     # print(graph_input_list[0], Rs_total[0])
 
