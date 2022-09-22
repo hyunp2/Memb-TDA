@@ -18,6 +18,8 @@ def get_args():
     parser.add_argument('--last', type=int, default=200) 
     parser.add_argument('--trajs', default=None, nargs="*")  
     parser.add_argument('--atom_selection', type=str, default="backbone")
+    args = parser.parse_args()
+    return args
     
 args = get_args()
 print(args)
