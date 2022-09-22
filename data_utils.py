@@ -187,7 +187,7 @@ class PH_Featurizer_Dataset(Dataset):
         return graph_input_list, Rs_total
 
     def len(self, ):
-        return len(self.files_to_pg)
+        return len(self.graph_input_list)
 
     def get(self, idx):
         graph_input = torch.from_numpy(self.graph_input_list[idx]).type(torch.float)
