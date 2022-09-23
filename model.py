@@ -162,6 +162,7 @@ class MPNN(torch.nn.Module):
         #pos #(nodes, 3)
         #z #(nodes,)
         z = torch.cat([torch.arange(batch[b==batch].sum()) for b in batch.unique()], dim=0) #positional encoding
+        print(z.unique())
         pos.requires_grad_()
 
         h = self.embedding(z) #(nodes, dim)
