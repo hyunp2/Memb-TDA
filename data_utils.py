@@ -48,6 +48,42 @@ __all__ = ["PH_Featurizer_Dataset", "PH_Featurizer_DataLoader"]
 warnings.simplefilter("ignore")
 warnings.filterwarnings("ignore")
 
+import torch
+import numpy as np
+
+def remove_filler(dgm, val=np.inf):
+    """
+    remove filler rows from diagram
+    """
+    inds = (dgm[:,0] != val)
+    return dgm[inds,:]
+
+def remove_zero_bars(dgm):
+    """
+    remove zero bars from diagram
+    """
+    inds = dgm[:,0] != dgm[:,1]
+    return dgm[inds,:]
+
+def remove_infinite_bars(dgm, issub):
+    """
+    remove infinite bars from diagram
+    """
+    if issub:
+        inds = dgm[:, 1] != np.inf
+        return dgm[inds,:]
+    else:
+        inds = dgm[:, 1] != -np.inf
+        return dgm[inds,:]
+
+def order_dgm(dgm):
+    dgm = remove_zero_bars(dgm)
+    dgm = remove_infinite_bars(dgm, True)
+    order_data = np.abs(dgm[:,1] - dgm[:,0]) # abs(death - birth)
+    args = np.argsort(order_data)[::-1] #Largest to smallest length
+    dgm = dgm[args]
+    return dgm
+    
 def _get_split_sizes(train_frac: float, full_dataset: Dataset) -> Tuple[int, int, int]:
     """DONE: Need to change split schemes!"""
     len_full = len(full_dataset)
