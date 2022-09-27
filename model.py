@@ -163,8 +163,8 @@ class MPNN(torch.nn.Module):
     def forward(self, pos, batch: torch.LongTensor=None, metadata: dict=None):
         #pos #(nodes, 3)
         #z #(nodes,)
-        z = torch.cat([torch.arange((b==batch).sum()) for b in batch.unique()], dim=0) #positional encoding
-        print(z.unique())
+        z = torch.cat([torch.arange((b==batch).sum()) for b in batch.unique()], dim=0).to(pos).long() #positional encoding
+#         print(z.unique())
         pos.requires_grad_()
 
         h = self.embedding(z) #(nodes, dim)
