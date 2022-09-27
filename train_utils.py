@@ -112,20 +112,23 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
 
     for step, packs in tqdm(enumerate(loader), total=len(loader), unit='batch',
                          desc=f'Epoch {epoch_idx}', disable=(args.silent or local_rank != 0)):
-        if args.gpu:
+        if args.gpu and args.backbone in ["mpnn"]:
             assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
-            pack, names = packs[0], packs[1]
-            atom_fea, nbr_fea, nbr_fea_idx, crystal_atom_idx, batch, dists, targetE = pack.x, pack.edge_attr, pack.edge_index, pack.cif_id, pack.batch, pack.edge_weight, pack.y
-            pack =  atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE
-            atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE = to_cuda(pack)
+            coords, phs = packs["Coords"], packs["PH"]
+            atom_coords, targetT, cbatch = coords.x, coords.y, coords.batch
+            pack =  atom_coords, targetT, cbatch
+            atom_coords, targetT, cbatch = to_cuda(pack)
+            atom_ph, phbatch = phs.x, phs.batch
+            pack =  atom_ph, phbatch
+            atom_ph, phbatch = to_cuda(pack)
         else:
             print("Significant error in dataloader!")
             break
 		
         with torch.cuda.amp.autocast(enabled=args.amp):
-            preds = model(atom_fea, nbr_fea, nbr_fea_idx, dists, crystal_atom_idx, batch) 
-            loss_mse = loss_func(args, preds, targetE) #get_loss_func
-            loss_metrics = tmetrics(preds.view(-1,).detach().cpu(), targetE.view(-1,).detach().cpu()) #LOG energy only!
+            preds = model(pos=atom_ph, batch=phbatch) 
+            loss_mse = loss_func(preds, targetT) #get_loss_func
+            loss_metrics = tmetrics(preds.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
             
         if args.log:
             logger.log_metrics({'rank0_specific_train_loss_mse': loss_mse.item()})
@@ -162,19 +165,23 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
 		     leave=False, disable=(args.silent or get_local_rank() != 0)):
             pack, names = packs[0], packs[1]
 
-            if args.gpu:
+            if args.gpu and args.backbone in ["mpnn"]:
                 assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
-                atom_fea, nbr_fea, nbr_fea_idx, crystal_atom_idx, batch, dists, targetE = pack.x, pack.edge_attr, pack.edge_index, pack.cif_id, pack.batch, pack.edge_weight, pack.y
-                pack =  atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE
-                atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE = to_cuda(pack)	
+                coords, phs = packs["Coords"], packs["PH"]
+                atom_coords, targetT, cbatch = coords.x, coords.y, coords.batch
+                pack =  atom_coords, targetT, cbatch
+                atom_coords, targetT, cbatch = to_cuda(pack)
+                atom_ph, phbatch = phs.x, phs.batch
+                pack =  atom_ph, phbatch
+                atom_ph, phbatch = to_cuda(pack)
             else:
                 print("Significant error in dataloader!")
                 break
 		
             with torch.cuda.amp.autocast(enabled=args.amp):
-                preds = model(atom_fea, nbr_fea, nbr_fea_idx, dists, crystal_atom_idx, batch) 
-                loss_mse = loss_func(args, preds, targetE) #get_loss_func
-                loss_metrics = tmetrics(preds.view(-1,).detach().cpu(), targetE.view(-1,).detach().cpu()) #LOG energy only!
+                preds = model(pos=atom_ph, batch=phbatch) 
+                loss_mse = loss_func(preds, targetT) #get_loss_func
+                loss_metrics = tmetrics(preds.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
 
             if args.log:
                 logger.log_metrics({'rank0_specific_val_loss_mse': loss_mse.item()})
@@ -196,19 +203,23 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
 		     leave=False, disable=(args.silent or get_local_rank() != 0)):
             pack, names = packs[0], packs[1]
 
-            if args.gpu:
+            if args.gpu and args.backbone in ["mpnn"]:
                 assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
-                atom_fea, nbr_fea, nbr_fea_idx, crystal_atom_idx, batch, dists, targetE = pack.x, pack.edge_attr, pack.edge_index, pack.cif_id, pack.batch, pack.edge_weight, pack.y
-                pack =  atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE
-                atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE = to_cuda(pack)	
+                coords, phs = packs["Coords"], packs["PH"]
+                atom_coords, targetT, cbatch = coords.x, coords.y, coords.batch
+                pack =  atom_coords, targetT, cbatch
+                atom_coords, targetT, cbatch = to_cuda(pack)
+                atom_ph, phbatch = phs.x, phs.batch
+                pack =  atom_ph, phbatch
+                atom_ph, phbatch = to_cuda(pack)
             else:
                 print("Significant error in dataloader!")
                 break
 		
             with torch.cuda.amp.autocast(enabled=args.amp):
-                preds = model(atom_fea, nbr_fea, nbr_fea_idx, dists, crystal_atom_idx, batch) 
-                loss_mse = loss_func(args, preds, targetE) #get_loss_func
-                loss_metrics = tmetrics(preds.view(-1,).detach().cpu(), targetE.view(-1,).detach().cpu()) #LOG energy only!
+                preds = model(pos=atom_ph, batch=phbatch) 
+                loss_mse = loss_func(preds, targetT) #get_loss_func
+                loss_metrics = tmetrics(preds.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
 
             if args.log:
                 logger.log_metrics({'rank0_specific_test_loss_mse': loss_mse.item()})
