@@ -81,4 +81,4 @@ if __name__ == "__main__":
     elif args.which_mode == "train":
         dl = PH_Featurizer_DataLoader(opt=args)
         train_loader, val_loader, test_loader = [getattr(dl, key), for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
-        train_function
+        train_function(model, loss_func, train_loader, val_loader, test_loader, logger, args)
