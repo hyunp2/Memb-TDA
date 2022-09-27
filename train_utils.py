@@ -39,6 +39,8 @@ from torch.distributed.fsdp.wrap import (
 					wrap,
 					)
 
+__all__ = ["train"]
+
 def save_state(model: nn.Module, optimizer: Optimizer, scheduler_groups: "list of schedulers", epoch: int, val_loss: int, path_and_name: Union[pathlib.Path, str]):
     """ Saves model, optimizer and epoch states to path (only once per node) 
     Only local rank=0!"""
