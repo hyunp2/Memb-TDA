@@ -57,12 +57,13 @@ def get_args():
     parser.add_argument('--last', type=int, default=200) 
     parser.add_argument('--trajs', default=None, nargs="*")  
     parser.add_argument('--atom_selection', type=str, default="backbone")  
-    parser.add_argument('--preprocessing', actions="store_true", "data_utils.py will save and load COORDS_ and PH_ pickle files")  
+    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessiing")  
 
     args = parser.parse_args()
     return args
 
 if __name__ == "__main__":
+    args = get_args()
     dl = PH_Featurizer_DataLoader(opt=args)
     testset = dl.test_dataloader()
     print(iter(testset).next())
