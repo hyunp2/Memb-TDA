@@ -65,7 +65,7 @@ def get_args():
 
 if __name__ == "__main__":
     args = get_args()
-    
+    print(args.__dict__)
     if args.which_mode == "preprocessing":
         ds = PH_Featurizer_Dataset(args)
         print(ds[0], ds[5])
