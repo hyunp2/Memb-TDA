@@ -63,6 +63,6 @@ def get_args():
     return args
 
 if __name__ == "__main__":
-    dl = PH_Featurizer_DataLoader(args)
+    dl = PH_Featurizer_DataLoader(opt=args)
     testset = dl.test_dataloader()
     print(iter(testset).next())
