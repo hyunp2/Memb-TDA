@@ -244,7 +244,7 @@ class PH_Featurizer_Dataset(Dataset):
         Rs_list_tensor = list(self.Rs_list_tensor[idx])
         del Rs_list_tensor[0] #Remove H0
         for i in range(1, self.maxdim+1):
-            Rs_dict_tensor[f"ph{i}"] = Rs_list_tensor[i-1]
+            Rs_dict_tensor[f"ph{i}"] = order_dgm(Rs_list_tensor[i-1]) #ordered!
             
         return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict_tensor["ph1"], **Rs_dict_tensor)}
     
