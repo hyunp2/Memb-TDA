@@ -168,6 +168,7 @@ class PH_Featurizer_Dataset(Dataset):
         _temps = np.repeat(sorted(glob.glob(self.save_dir + "TEMP*dat")), 4).tolist() #4 is 4 patching scheme by Andres
         _coords = sorted(glob.glob(self.save_dir + "coords*pickle"))
         _phs = sorted(glob.glob(self.save_dir + "PH*pickle"))
+        print(_temps)
         zips = zip(_coords, _phs, _temps) #zip to shortest
 
         self.graph_input_list, self.Rs_total, self.mem_temp_list, self.Rs_list_tensor = list(zip(*[self.get_values(coord_filename, ph_filename, temp_filename) for coord_filename, ph_filename, temp_filename in zips]))
