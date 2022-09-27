@@ -19,7 +19,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader, DistributedSampler
 from tqdm import tqdm
 from transformers import get_linear_schedule_with_warmup
-from train.dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
+from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
     using_tensor_cores, increase_l2_fetch_granularity, Logger, WandbLogger
 # from transformers import AdamW
 import curtsies.fmtfuncs as cf
