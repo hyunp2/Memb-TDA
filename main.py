@@ -38,6 +38,7 @@ import gc
 from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
+from data_utils import *
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -60,3 +61,8 @@ def get_args():
 
     args = parser.parse_args()
     return args
+
+if __name__ == "__main__":
+    dl = PH_Featurizer_DataLoader(args)
+    testset = dl.test_dataloader()
+    print(iter(testset).next())
