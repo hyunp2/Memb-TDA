@@ -112,8 +112,8 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
 
     for step, packs in tqdm(enumerate(loader), total=len(loader), unit='batch',
                          desc=f'Epoch {epoch_idx}', disable=(args.silent or local_rank != 0)):
-        if args.gpu and args.use_tensors:
-            assert args.backbone in ["cphysnet","cschnet","cgcnn","ctorchmdnet", "calignn"], "Wrong data format for a given backbone model!"
+        if args.gpu:
+            assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
             pack, names = packs[0], packs[1]
             atom_fea, nbr_fea, nbr_fea_idx, crystal_atom_idx, batch, dists, targetE = pack.x, pack.edge_attr, pack.edge_index, pack.cif_id, pack.batch, pack.edge_weight, pack.y
             pack =  atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE
@@ -162,8 +162,8 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
 		     leave=False, disable=(args.silent or get_local_rank() != 0)):
             pack, names = packs[0], packs[1]
 
-            if args.gpu and args.use_tensors:
-                assert args.backbone in ["cphysnet","cschnet","cgcnn","ctorchmdnet", "calignn"], "Wrong data format for a given backbone model!"
+	    if args.gpu:
+	        assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
                 atom_fea, nbr_fea, nbr_fea_idx, crystal_atom_idx, batch, dists, targetE = pack.x, pack.edge_attr, pack.edge_index, pack.cif_id, pack.batch, pack.edge_weight, pack.y
                 pack =  atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE
                 atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE = to_cuda(pack)	
@@ -196,8 +196,8 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
 		     leave=False, disable=(args.silent or get_local_rank() != 0)):
             pack, names = packs[0], packs[1]
 
-            if args.gpu and args.use_tensors:
-                assert args.backbone in ["cphysnet","cschnet","cgcnn","ctorchmdnet", "calignn"], "Wrong data format for a given backbone model!"
+            if args.gpu:
+	        assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
                 atom_fea, nbr_fea, nbr_fea_idx, crystal_atom_idx, batch, dists, targetE = pack.x, pack.edge_attr, pack.edge_index, pack.cif_id, pack.batch, pack.edge_weight, pack.y
                 pack =  atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE
                 atom_fea, nbr_fea, nbr_fea_idx, batch, dists, targetE = to_cuda(pack)	
