@@ -41,6 +41,7 @@ from MDAnalysis import transformations
 from data_utils import *
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
     using_tensor_cores, increase_l2_fetch_granularity
+from train_utils import *
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -61,6 +62,8 @@ def get_args():
     parser.add_argument('--atom_selection', type=str, default="backbone")  
     parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessing")  
     parser.add_argument('--preprocessing_only', action="store_true", help="to get RIPSER based PH!")  
+    parser.add_argument('--preprocessing_only', action="store_true", help="to get RIPSER based PH!")  
+    parser.add_argument('--log', action="store_true", help="to log for W&B")  
 
     args = parser.parse_args()
     return args
