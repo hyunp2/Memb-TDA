@@ -191,7 +191,7 @@ class PH_Featurizer_Dataset(Dataset):
         f = open(os.path.join(self.save_dir, ph_filename), "rb")
         Rs_total = pickle.load(f)[slice(1,None)] #List of structures: each structure has maxdim PHs ; except for the beginning (i.e. ref)
         dcdlen = len(Rs_total) #slice last 200 frames?
-        mem_temp_list = pd.read_csv(os.path.join(self.save_dir, temp_filename).values[-dcdlen:].reshape(-1, ).tolist() #get last dcdlen frames of temperatures
+        mem_temp_list = pd.read_csv(os.path.join(self.save_dir, temp_filename)).values[-dcdlen:].reshape(-1, ).tolist() #get last dcdlen frames of temperatures
         
         maxdims = [self.maxdim] * len(graph_input_list)
         if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
