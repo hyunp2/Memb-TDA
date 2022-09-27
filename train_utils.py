@@ -163,8 +163,6 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
     with torch.inference_mode():  
         for i, packs in tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Evaluation',
 		     leave=False, disable=(args.silent or get_local_rank() != 0)):
-            pack, names = packs[0], packs[1]
-
             if args.gpu and args.backbone in ["mpnn"]:
                 assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
                 coords, phs = packs["Coords"], packs["PH"]
@@ -201,8 +199,6 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
     with torch.inference_mode():  
         for i, packs in tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
 		     leave=False, disable=(args.silent or get_local_rank() != 0)):
-            pack, names = packs[0], packs[1]
-
             if args.gpu and args.backbone in ["mpnn"]:
                 assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
                 coords, phs = packs["Coords"], packs["PH"]
