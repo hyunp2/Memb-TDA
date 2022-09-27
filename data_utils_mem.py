@@ -181,8 +181,8 @@ class PH_Featurizer_Dataset(Dataset):
         
     def get_persistent_diagrams(self, coord_filename, ph_filename, temp_filename):
         temperature = os.path.splitext(os.path.split(temp_filename)[1])[0] #remove .dat
-        print(temperature)
-        temperature = re.split(r"[.|_]", temperature)[1]
+        temperature = re.split(r"[.|_]", temperature) #[1]
+        print(temperature[1])
         ph_temperature = os.path.splitext(os.path.split(ph_filename)[1])[0] #remove .pickle
         print(ph_temperature)
         ph_temperature = re.split(r"[.|_]", temperature)[1]
