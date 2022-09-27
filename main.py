@@ -71,6 +71,7 @@ def get_args():
     parser.add_argument('--num_workers', type=int, default=0)  
     parser.add_argument('--batch_size', type=int, default=32)  
     parser.add_argument('--preprocessing_only', action="store_true", help="to get RIPSER based PH!")  
+    parser.add_argument('--ignore_topologicallayer', action="store_true", help="forcefully use RIPSER for subscription!")  
 
     #Training utils
     parser.add_argument('--epoches', type=int, default=2)
