@@ -56,6 +56,7 @@ def get_args():
     parser.add_argument('--last', type=int, default=200) 
     parser.add_argument('--trajs', default=None, nargs="*")  
     parser.add_argument('--atom_selection', type=str, default="backbone")  
+    parser.add_argument('--preprocessing', actions="store_true", "data_utils.py will save and load COORDS_ and PH_ pickle files")  
 
     args = parser.parse_args()
     return args
