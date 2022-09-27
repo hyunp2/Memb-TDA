@@ -75,5 +75,5 @@ if __name__ == "__main__":
 #         print(iter(testset).next())
     elif args.which_mode == "train":
         dl = PH_Featurizer_DataLoader(opt=args)
-        train_loader, val_loader, test_loader = [getattr(dl, key), for key in ["train_dataloader, "]]
-        testset = dl.test_dataloader()
+        train_loader, val_loader, test_loader = [getattr(dl, key), for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
+        
