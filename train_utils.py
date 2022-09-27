@@ -102,7 +102,7 @@ def load_state(model: nn.Module, optimizer: Optimizer, scheduler_groups: "list o
         print(f"Loaded a model from rank {get_local_rank()}!")
     return epoch, val_loss
 
-def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler, grad_scaler, local_rank, logger: WandbLogger, tmetrics):
+def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler, grad_scaler, local_rank, logger: Logger, tmetrics):
     #add grad_scaler, local_rank,
     model = model.train()
     losses = []
@@ -152,7 +152,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
 
 
-def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: WandbLogger, tmetrics):
+def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Logger, tmetrics):
     model = model.eval()
     _loss = 0
     _loss_metrics = 0.
@@ -186,7 +186,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Wan
 
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
                 
-def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: WandbLogger, tmetrics):
+def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Logger, tmetrics):
     model = model.eval()
     _loss = 0
     _loss_metrics = 0.
