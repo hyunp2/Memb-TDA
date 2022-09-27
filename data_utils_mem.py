@@ -165,9 +165,9 @@ class PH_Featurizer_Dataset(Dataset):
 #         self.files_to_pg = list(filter(lambda inp: os.path.splitext(inp)[-1] == ".cif", self.files_to_pg ))
 #         self.reference, self.prot_traj = self.load_traj(data_dir=self.data_dir, pdb=self.pdb, psf=self.psf, trajs=self.trajs, selection=self.atom_selection)
 #         self.coords_ref, self.coords_traj = self.get_coordinates_for_md(self.reference), self.get_coordinates_for_md(self.prot_traj)
-        _temps = np.repeat(sorted(glob.glob(self.save_dir + "TEMP*dat")), 4).tolist() #4 is 4 patching scheme by Andres
-        _coords = sorted(glob.glob(self.save_dir + "coords*pickle"))
-        _phs = sorted(glob.glob(self.save_dir + "PH*pickle"))
+        _temps = np.repeat(sorted(glob.glob(os.path.join(self.save_dir, "TEMP*dat"))), 4).tolist() #4 is 4 patching scheme by Andres
+        _coords = sorted(glob.glob(os.path.join(self.save_dir, "coords*pickle")))
+        _phs = sorted(glob.glob(os.path.join(self.save_dir, "PH*pickle")))
         print(_temps)
         zips = zip(_coords, _phs, _temps) #zip to shortest
 
@@ -181,12 +181,12 @@ class PH_Featurizer_Dataset(Dataset):
         
     def get_persistent_diagrams(self, coord_filename, ph_filename, temp_filename):
         temperature = os.path.splitext(os.path.split(temp_filename)[1])[0] #remove .dat
-        print(temperature)
-        temperature = re.split(r"[.|_]", temperature) #[1]
-        print(temperature[1])
+#         print(temperature)
+        temperature = re.split(r"[.|_]", temperature)[1]
+#         print(temperature[1])
         ph_temperature = os.path.splitext(os.path.split(ph_filename)[1])[0] #remove .pickle
-        print(ph_temperature)
-        ph_temperature = re.split(r"[.|_]", temperature)[1]
+#         print(ph_temperature)
+        ph_temperature = re.split(r"[.|_]", ph_temperature)[1]
         assert temperature == ph_temperature, "temperature must be the same..."
         
         f = open(os.path.join(self.save_dir, coord_filename), "rb")
