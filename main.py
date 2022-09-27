@@ -77,7 +77,7 @@ def get_args():
     parser.add_argument('--learning_rate','-lr', type=float, default=1e-3)
     parser.add_argument('--weight_decay', type=float, default=2e-5)
     parser.add_argument('--dropout', type=float, default=0)
-    parser.add_argument('--distributed',  action="store_true")
+#     parser.add_argument('--distributed',  action="store_true")
     parser.add_argument('--low_memory',  action="store_true")
     parser.add_argument('--amp', action="store_true", help="floating 16 when turned on.")
     parser.add_argument('--optimizer', type=str, default='adam', choices=["adam","lamb","sgd","torch_adam","torch_adamw","torch_sparse_adam"])
@@ -117,4 +117,17 @@ if __name__ == "__main__":
         net = MPNN()
         loss_func = torch.nn.MSELoss()
         logger = None
+        
+        #Initalize DDP
+        is_distributed = init_distributed() #normal python vs torchrun!
+        local_rank = get_local_rank()
+        if args.gpu:
+            model = model.to(torch.cuda.current_device())
+        #Dist training
+        if is_distributed:         
+            nproc_per_node = torch.cuda.device_count()
+            affinity = set_affinity(local_rank, nproc_per_node)
+        increase_l2_fetch_granularity()
+        
+        print("Initalizing training...")
         train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
