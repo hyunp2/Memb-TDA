@@ -57,7 +57,7 @@ def get_args():
     parser.add_argument('--last', type=int, default=200) 
     parser.add_argument('--trajs', default=None, nargs="*")  
     parser.add_argument('--atom_selection', type=str, default="backbone")  
-    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessiing")  
+    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessing")  
 
     args = parser.parse_args()
     return args
