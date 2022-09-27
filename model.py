@@ -15,6 +15,8 @@ from torch_scatter import scatter_mean, scatter_add, scatter_max, scatter
 from torch_geometric.data import Data
 from torch_geometric.nn import MessagePassing, radius_graph
 
+__all__ == ["MPNN"]
+
 class GaussianSmearing(torch.nn.Module):
     def __init__(self, start=0.0, stop=5.0, num_gaussians=50):
         super().__init__()
