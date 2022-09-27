@@ -85,6 +85,7 @@ def get_args():
     parser.add_argument('--accumulate_grad_batches', type=int, default=1) 
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--gpu', action='store_true')
+    parser.add_argument('--shard', action='store_true')
     
     #Model utils
     parser.add_argument('--backbone', type=str, default='mpnn', choices=["mpnn"])
