@@ -217,7 +217,7 @@ class PH_Featurizer_Dataset(Dataset):
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 maxdims = [self.maxdim] * len(graph_input_list)
                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
-        if self.preprocessing_only:
+        if self.preprocessing_only and self.ignore_topologicallayer:
             return graph_input_list, Rs_total, None #List of structures: each structure has maxdim PHs
         else:
             return graph_input_list, Rs_total, Rs_list_tensor #List of structures: each structure has maxdim PHs
@@ -234,19 +234,21 @@ class PH_Featurizer_Dataset(Dataset):
             raise NotImplementedError("Get item method is not available with preprocessing_only option!")
 #         graph_input = torch.from_numpy(self.graph_input_list[idx]).type(torch.float)
         graph_input = self.graph_input_list[idx].type(torch.float)
-        Rs = self.Rs_total[idx]
-        Rs_dict = dict()
-        for i in range(self.maxdim+1):
-            Rs_dict[f"ph{i}"] = torch.from_numpy(Rs[i]).type(torch.float)
+        
+        if self.ignore_topologicallayer:
+            Rs = self.Rs_total[idx]
+            Rs_dict = dict()
+            for i in range(self.maxdim+1):
+                Rs_dict[f"ph{i}"] = torch.from_numpy(Rs[i]).type(torch.float)
+        else:
+            Rs = list(self.Rs_list_tensor[idx])
+            Rs_dict = dict()
+    #         Rs_list_tensor = list(persistent_diagram_tensor(graph_input, maxdim=self.maxdim))
+            del Rs[0] #Remove H0
+            for i in range(1, self.maxdim+1):
+                Rs_dict[f"ph{i}"] = order_dgm(Rs[i-1]) #ordered!
             
-        Rs_dict_tensor = dict()
-#         Rs_list_tensor = list(persistent_diagram_tensor(graph_input, maxdim=self.maxdim))
-        Rs_list_tensor = list(self.Rs_list_tensor[idx])
-        del Rs_list_tensor[0] #Remove H0
-        for i in range(1, self.maxdim+1):
-            Rs_dict_tensor[f"ph{i}"] = order_dgm(Rs_list_tensor[i-1]) #ordered!
-            
-        return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict_tensor["ph1"], **Rs_dict_tensor)}
+        return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict["ph1"], **Rs_dict)}
     
     def load_traj(self, data_dir: str, pdb: str, psf: str, trajs: List[str], selection: str):
         assert (pdb is not None) or (psf is not None), "At least either PDB of PSF should be provided..."
