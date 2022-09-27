@@ -180,10 +180,10 @@ class PH_Featurizer_Dataset(Dataset):
         gc.collect()
         
     def get_persistent_diagrams(self, coord_filename, ph_filename, temp_filename):
-        temperature = os.path.splitext(temp_filename)[0] #remove .dat
+        temperature = os.path.splitext(os.path.split(temp_filename)[1])[0] #remove .dat
         print(temperature)
         temperature = re.split(r"[.|_]", temperature)[1]
-        ph_temperature = os.path.splitext(ph_filename)[0] #remove .pickle
+        ph_temperature = os.path.splitext(os.path.split(ph_filename)[1])[0] #remove .pickle
         print(ph_temperature)
         ph_temperature = re.split(r"[.|_]", temperature)[1]
         assert temperature == ph_temperature, "temperature must be the same..."
