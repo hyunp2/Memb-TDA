@@ -58,7 +58,7 @@ def get_args():
     parser.add_argument('--trajs', default=None, nargs="*")  
     parser.add_argument('--atom_selection', type=str, default="backbone")  
     parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessing")  
-    parser.add_argument('--preprocessing_only', action="store_true", default="to get RIPSER based PH!")  
+    parser.add_argument('--preprocessing_only', action="store_true", help="to get RIPSER based PH!")  
 
     args = parser.parse_args()
     return args
