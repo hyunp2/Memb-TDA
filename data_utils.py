@@ -295,9 +295,9 @@ def alphalayer_computer_coords(coords: torch.Tensor, maxdim: int):
 if __name__ == "__main__":
     args = get_args()
     ph = PH_Featurizer_Dataset(args)
-    print(ph[5])
-    dataloader = PH_Featurizer_DataLoader(opt=args)
-    print(iter(dataloader.test_dataloader()).next())
+#     print(ph[5])
+#     dataloader = PH_Featurizer_DataLoader(opt=args)
+#     print(iter(dataloader.test_dataloader()).next())
 #     for i, batches in enumerate(dataloader.train_dataloader()):
 # #     batches = iter(dataloader.test_dataloader()).next() #num_nodes, 3
 #         phs = alphalayer_computer(batches, ph.maxdim)
