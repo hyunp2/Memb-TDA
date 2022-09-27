@@ -172,7 +172,7 @@ class PH_Featurizer_Dataset(Dataset):
                 pickle.dump(graph_input_list, f)   
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "wb")
                 pickle.dump(Rs_total, f)   
-                Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
+                if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
             else:
                 f = open(os.path.join(self.save_dir, "coords_" + self.filename), "rb")
                 graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
@@ -180,8 +180,11 @@ class PH_Featurizer_Dataset(Dataset):
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "rb")
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 maxdims = [self.maxdim] * len(graph_input_list)
-                Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
-        return graph_input_list, Rs_total, Rs_list_tensor #List of structures: each structure has maxdim PHs
+                if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
+        if self.preprocessing_only:
+            return graph_input_list, Rs_total, None #List of structures: each structure has maxdim PHs
+        else:
+            return graph_input_list, Rs_total, Rs_list_tensor #List of structures: each structure has maxdim PHs
 
     def get_values(self, ):
         graph_input_list, Rs_total, Rs_list_tensor = self.get_persistent_diagrams()
@@ -191,6 +194,8 @@ class PH_Featurizer_Dataset(Dataset):
         return len(self.graph_input_list)
 
     def get(self, idx):
+        if self.preprocessing_only:
+            raise NotImplementedError("Get item method is not available with preprocessing_only option!")
 #         graph_input = torch.from_numpy(self.graph_input_list[idx]).type(torch.float)
         graph_input = self.graph_input_list[idx].type(torch.float)
         Rs = self.Rs_total[idx]
