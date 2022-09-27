@@ -92,6 +92,7 @@ def get_args():
     #Callback utils
     parser.add_argument('--log', action="store_true", help="to log for W&B")  
     parser.add_argument('--silent', action='store_true')
+    parser.add_argument('--name', type=str, default="mpnn", help="saved torch model name...")
     
     #Mode utils
     parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessing")  
