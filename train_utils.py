@@ -1,12 +1,8 @@
 import logging
 import pathlib
 from typing import List, Union
-
 import os, sys
 import pathlib
-roots = pathlib.Path(__file__).parent.parent
-sys.path.append(roots) #append top directory
-
 import numpy as np
 import torch
 import torch.distributed as dist
