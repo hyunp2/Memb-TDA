@@ -46,39 +46,55 @@ from model import MPNN
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, default="/grand/ACO2RDS/xiaoliyan/hMOF/cif") 
-    parser.add_argument('--save_dir', type=str, default=os.getcwd())  
+    
+    #Directories
+    parser.add_argument('--data_dir', type=str, default="/Scr/hyunpark/Monster/vaegan_md_gitlab/data") 
+    parser.add_argument('--save_dir', type=str, default="/Scr/hyunpark/Protein-TDA/pickled")  
+    parser.add_argument('--load_ckpt_path', type=str, default="/Scr/hyunpark/Protein-TDA/saved")
     parser.add_argument('--filename', type=str, default="default.pickle")  
+    
+    #MDAnalysis utils
+    parser.add_argument('--psf', type=str, default=None)  
+    parser.add_argument('--pdb', type=str, default=None)  
+    parser.add_argument('--last', type=int, default=200) 
+    parser.add_argument('--trajs', default=None, nargs="*") 
+    parser.add_argument('--atom_selection', type=str, default="backbone")  
+
+    #PH utils
     parser.add_argument('--maxdim', type=int, default=1)  
     parser.add_argument('--multiprocessing', action="store_true")  
     parser.add_argument('--tensor', action="store_true", help="DEPRECATED!")  
+
+    #Dataloader utils
     parser.add_argument('--train_frac', type=float, default=0.8)  
     parser.add_argument('--pin_memory', type=bool, default=True)  
     parser.add_argument('--num_workers', type=int, default=0)  
     parser.add_argument('--batch_size', type=int, default=32)  
-    parser.add_argument('--psf', type=str, default=None)  
-    parser.add_argument('--pdb', type=str, default=None)  
-    parser.add_argument('--last', type=int, default=200) 
-    parser.add_argument('--trajs', default=None, nargs="*")  
-    parser.add_argument('--atom_selection', type=str, default="backbone")  
-    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessing")  
     parser.add_argument('--preprocessing_only', action="store_true", help="to get RIPSER based PH!")  
-    parser.add_argument('--log', action="store_true", help="to log for W&B")  
-    parser.add_argument('--silent', action='store_true')
+
+    #Training utils
     parser.add_argument('--epoches', type=int, default=2)
     parser.add_argument('--learning_rate','-lr', type=float, default=1e-3)
     parser.add_argument('--weight_decay', type=float, default=2e-5)
     parser.add_argument('--dropout', type=float, default=0)
-    parser.add_argument('--resume', action='store_true')
     parser.add_argument('--distributed',  action="store_true")
     parser.add_argument('--low_memory',  action="store_true")
     parser.add_argument('--amp', action="store_true", help="floating 16 when turned on.")
     parser.add_argument('--optimizer', type=str, default='adam', choices=["adam","lamb","sgd","torch_adam","torch_adamw","torch_sparse_adam"])
     parser.add_argument('--gradient_clip', type=float, default=None) 
     parser.add_argument('--accumulate_grad_batches', type=int, default=1) 
-    parser.add_argument('--backbone', type=str, default='physnet', choices=["mpnn"])
-    parser.add_argument('--load_ckpt_path', type=str, default="/Scr/hyunpark/ArgonneGNN/argonne_gnn/save_pub/")
+    parser.add_argument('--resume', action='store_true')
     
+    #Model utils
+    parser.add_argument('--backbone', type=str, default='physnet', choices=["mpnn"])
+    
+    #Callback utils
+    parser.add_argument('--log', action="store_true", help="to log for W&B")  
+    parser.add_argument('--silent', action='store_true')
+    
+    #Mode utils
+    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessing")  
+
     args = parser.parse_args()
     return args
 
