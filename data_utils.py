@@ -80,7 +80,7 @@ def order_dgm(dgm):
     dgm = remove_zero_bars(dgm)
     dgm = remove_infinite_bars(dgm, True)
     order_data = np.abs(dgm[:,1] - dgm[:,0]) # abs(death - birth)
-    args = np.argsort(order_data)[::-1] #Largest to smallest length
+    args = np.argsort(order_data, axis=0)[::-1] #Largest to smallest length
     dgm = dgm[args]
     return dgm
     
