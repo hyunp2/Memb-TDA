@@ -87,7 +87,7 @@ def get_args():
     parser.add_argument('--gpu', action='store_true')
     
     #Model utils
-    parser.add_argument('--backbone', type=str, default='physnet', choices=["mpnn"])
+    parser.add_argument('--backbone', type=str, default='mpnn', choices=["mpnn"])
     
     #Callback utils
     parser.add_argument('--log', action="store_true", help="to log for W&B")  
