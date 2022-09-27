@@ -42,6 +42,7 @@ from data_utils import *
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
     using_tensor_cores, increase_l2_fetch_granularity
 from train_utils import train as train_function
+from model import MPNN
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -81,4 +82,7 @@ if __name__ == "__main__":
     elif args.which_mode == "train":
         dl = PH_Featurizer_DataLoader(opt=args)
         train_loader, val_loader, test_loader = [getattr(dl, key), for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
-        train_function(model, loss_func, train_loader, val_loader, test_loader, logger, args)
+        net = MPNN()
+        loss_func = torch.nn.MSELoss()
+        logger = None
+        train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
