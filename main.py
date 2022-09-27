@@ -66,9 +66,14 @@ def get_args():
 if __name__ == "__main__":
     args = get_args()
     print(args.__dict__)
+    
     if args.which_mode == "preprocessing":
         ds = PH_Featurizer_Dataset(args)
         print(ds[0], ds[5])
 #         dl = PH_Featurizer_DataLoader(opt=args)
 #         testset = dl.test_dataloader()
 #         print(iter(testset).next())
+    elif args.which_mode == "train":
+        dl = PH_Featurizer_DataLoader(opt=args)
+        train_loader, val_loader, test_loader = [getattr(dl, key), for key in ["train_dataloader, "]]
+        testset = dl.test_dataloader()
