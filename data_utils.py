@@ -217,7 +217,7 @@ class PH_Featurizer_Dataset(Dataset):
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 maxdims = [self.maxdim] * len(graph_input_list)
                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
-        if self.preprocessing_only and self.ignore_topologicallayer:
+        if self.preprocessing_only or self.ignore_topologicallayer:
             return graph_input_list, Rs_total, None #List of structures: each structure has maxdim PHs
         else:
             return graph_input_list, Rs_total, Rs_list_tensor #List of structures: each structure has maxdim PHs
