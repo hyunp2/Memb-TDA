@@ -63,9 +63,22 @@ def get_args():
     parser.add_argument('--atom_selection', type=str, default="backbone")  
     parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessing")  
     parser.add_argument('--preprocessing_only', action="store_true", help="to get RIPSER based PH!")  
-    parser.add_argument('--preprocessing_only', action="store_true", help="to get RIPSER based PH!")  
     parser.add_argument('--log', action="store_true", help="to log for W&B")  
-
+    parser.add_argument('--silent', action='store_true')
+    parser.add_argument('--epoches', type=int, default=2)
+    parser.add_argument('--learning_rate','-lr', type=float, default=1e-3)
+    parser.add_argument('--weight_decay', type=float, default=2e-5)
+    parser.add_argument('--dropout', type=float, default=0)
+    parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--distributed',  action="store_true")
+    parser.add_argument('--low_memory',  action="store_true")
+    parser.add_argument('--amp', action="store_true", help="floating 16 when turned on.")
+    parser.add_argument('--optimizer', type=str, default='adam', choices=["adam","lamb","sgd","torch_adam","torch_adamw","torch_sparse_adam"])
+    parser.add_argument('--gradient_clip', type=float, default=None) 
+    parser.add_argument('--accumulate_grad_batches', type=int, default=1) 
+    parser.add_argument('--backbone', type=str, default='physnet', choices=["mpnn"])
+    parser.add_argument('--load_ckpt_path', type=str, default="/Scr/hyunpark/ArgonneGNN/argonne_gnn/save_pub/")
+    
     args = parser.parse_args()
     return args
 
