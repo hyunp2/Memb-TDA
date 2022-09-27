@@ -123,7 +123,7 @@ if __name__ == "__main__":
         is_distributed = init_distributed() #normal python vs torchrun!
         local_rank = get_local_rank()
         if args.gpu:
-            model = model.to(torch.cuda.current_device())
+            net = net.to(torch.cuda.current_device())
         #Dist training
         if is_distributed:         
             nproc_per_node = torch.cuda.device_count()
