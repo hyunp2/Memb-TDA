@@ -66,7 +66,8 @@ if __name__ == "__main__":
     args = get_args()
     
     if args.which_mode == "preprocessing":
-        _ = PH_Featurizer_Dataset(args)
+        ds = PH_Featurizer_Dataset(args)
+        print(ds[0], ds[5])
 #         dl = PH_Featurizer_DataLoader(opt=args)
 #         testset = dl.test_dataloader()
 #         print(iter(testset).next())
