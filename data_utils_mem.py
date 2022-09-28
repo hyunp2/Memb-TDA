@@ -160,6 +160,7 @@ def traj_preprocessing(prot_traj, prot_ref, align_selection):
 class PH_Featurizer_Dataset(Dataset):
     def __init__(self, args: argparse.ArgumentParser):
         super().__init__()
+        self.step = 0
         [setattr(self, key, val) for key, val in args.__dict__.items()]
 #         self.files_to_pg = list(map(lambda inp: os.path.join(self.data_dir, inp), os.listdir(self.data_dir)))
 #         self.files_to_pg = list(filter(lambda inp: os.path.splitext(inp)[-1] == ".cif", self.files_to_pg ))
@@ -179,7 +180,6 @@ class PH_Featurizer_Dataset(Dataset):
         del self.coords_ref
         del self.coords_traj
         gc.collect()
-        self.step = 0
         
     def get_persistent_diagrams(self, coord_filename, ph_filename, temp_filename):
         print(f"Parsing {self.step}-th file...")
