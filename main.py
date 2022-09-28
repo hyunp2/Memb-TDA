@@ -135,3 +135,4 @@ if __name__ == "__main__":
         
         print("Initalizing training...")
         train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
+        #python -m main --which_mode train --ignore_topologicallayer
