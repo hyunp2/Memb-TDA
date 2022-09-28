@@ -107,6 +107,33 @@ def get_args():
     args = parser.parse_args()
     return args
 
+def job_submit(args):
+    dl = dutils.PH_Featurizer_DataLoader(opt=args)
+    train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
+    net = MPNN()
+    loss_func = torch.nn.MSELoss()
+
+    if args.log:
+        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+        os.environ["WANDB_CACHE_DIR"] = os.getcwd()
+    else:
+        logger = None
+
+    #Initalize DDP
+    is_distributed = init_distributed() #normal python vs torchrun!
+    local_rank = get_local_rank()
+    if args.gpu:
+        net = net.to(torch.cuda.current_device())
+    #Dist training
+    if is_distributed:         
+        nproc_per_node = torch.cuda.device_count()
+        affinity = set_affinity(local_rank, nproc_per_node)
+    increase_l2_fetch_granularity()
+
+    print("Initalizing training...")
+    train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
+    #python -m main --which_mode train --ignore_topologicallayer
+
 if __name__ == "__main__":
     args = get_args()
     print(args.__dict__)
@@ -119,29 +146,5 @@ if __name__ == "__main__":
 #         testset = dl.test_dataloader()
 #         print(iter(testset).next())
     elif args.which_mode == "train":
-        dl = dutils.PH_Featurizer_DataLoader(opt=args)
-        train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
-        net = MPNN()
-        loss_func = torch.nn.MSELoss()
-        
-        if args.log:
-            logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
-            os.environ["WANDB_CACHE_DIR"] = os.getcwd()
-        else:
-            logger = None
-        
-        #Initalize DDP
-        is_distributed = init_distributed() #normal python vs torchrun!
-        local_rank = get_local_rank()
-        if args.gpu:
-            net = net.to(torch.cuda.current_device())
-        #Dist training
-        if is_distributed:         
-            nproc_per_node = torch.cuda.device_count()
-            affinity = set_affinity(local_rank, nproc_per_node)
-        increase_l2_fetch_granularity()
-        
-        print("Initalizing training...")
-        train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
-        #python -m main --which_mode train --ignore_topologicallayer
+        job_submit(args)
         
