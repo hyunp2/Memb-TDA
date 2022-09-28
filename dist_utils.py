@@ -209,6 +209,82 @@ class Logger(ABC):
     def log_explainer(self, model: torch.nn.Module, smiles_list: Union[List[Chem.rdchem.Mol], List[str]], step=None) -> None:
         pass
         
+class WandbLogger(Logger):
+    def __init__(
+            self,
+            name: str,
+            save_dir: pathlib.Path=None,
+            id: Optional[str] = None,
+            project: Optional[str] = None,
+            entity: Optional[str] = None
+    ):
+        super().__init__()
+        if not dist.is_initialized() or dist.get_rank() == 0:
+    #             save_dir.mkdir(parents=True, exist_ok=True)
+            self.experiment = wandb.init(name=name,
+                                         project=project,
+                                         entity=entity,
+                                         settings=wandb.Settings(start_method="fork"),
+                                         id=id,
+                                         dir=None,
+                                         resume='allow',
+                                         anonymous='must')
+
+    @rank_zero_only
+    def start_watching(self, model):
+        wandb.watch(model)
+
+    @rank_zero_only
+    def log_hyperparams(self, params: Dict[str, Any]) -> None:
+        params = self._sanitize_params(params)
+        self.experiment.config.update(params, allow_val_change=True)
+
+    @rank_zero_only
+    def log_html(self, html_file: str, name: str=None) -> None:
+        if name == None : self.experiment.log({"html": wandb.Html(open(html_file))})
+        else: self.experiment.log({name: wandb.Html(open(html_file)) }) 
+
+    @rank_zero_only
+    def log_image(self, image: Union[np.ndarray], name: str=None) -> None:
+        if name == None : self.experiment.log({"image": wandb.Image(image)})
+        else: self.experiment.log({name: wandb.Image(image)}) 
+
+    @rank_zero_only
+    def log_dataframe(self, df: Union[pd.DataFrame], name: str=None) -> None:
+        table = wandb.Table(dataframe=df)
+        if name == None : self.experiment.log({"dataframe": table}) 
+        else: self.experiment.log({name: table}) 
+
+    @rank_zero_only
+    def log_metrics(self, metrics: Dict[str, float], step: Optional[int] = None) -> None:
+        if step is not None:
+            self.experiment.log({**metrics, 'epoch': step})
+        else:
+            self.experiment.log(metrics)
+            
+    @rank_zero_only
+    def log_artifacts(self, name: str, dtype: str, path_and_name: Union[str, pathlib.Path]) -> None:
+        """https://docs.wandb.ai/guides/artifacts/api"""
+        artifact = wandb.Artifact(name=name, type=dtype)
+        artifact.add_file(str(path_and_name)) #which directory's file to add; when downloading it downloads directory/file
+        self.experiment.log_artifact(artifact)
+
+    @rank_zero_only    
+    def download_artifacts(self, name: str) -> None:
+        """https://docs.wandb.ai/guides/artifacts/api"""
+        if not ":" in name:
+            name += ":latest"
+        artifact = self.experiment.use_artifact(name)
+        return artifact.download() #returns directory/file
+            
+    @rank_zero_only
+    def log_deephyper(self, dataframe: pd.DataFrame, step: Optional[int] = None) -> None:
+        table = wandb.Table(dataframe=dataframe)
+        if step is not None:
+            self.experiment.log({"DeepHyper Param Search": table})
+        else:
+            self.experiment.log({"DeepHyper Param Search": table})
+    
 
         
 
