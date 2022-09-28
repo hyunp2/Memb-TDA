@@ -180,6 +180,9 @@ class PH_Featurizer_Dataset(Dataset):
         else:
             self.graph_input_list, self.Rs_total, self.mem_temp_list = list(map(lambda one_list: functools.reduce(lambda a, b: a+b, one_list ), (self.graph_input_list, self.Rs_total, self.mem_temp_list) ))
         #ABOVE: self.graph_input_list is a <list of coordinates>; number of elements is number of pickle files * num_coords per file
+        min_t, max_t = np.min(self.mem_temp_list), np.max(self.mem_temp_list)
+        self.mem_temp_list = ((1 - (-1)) * (np.array(self.mem_temp_list) - min_t) / (max_t - min_t) + (-1)).tolist() #scale to (-1,1)
+        #ABOVE: https://stackoverflow.com/questions/5294955/how-to-scale-down-a-range-of-numbers-with-a-known-min-and-max-value#:~:text=f(x)%20%3D%20%2D%2D%2D%2D%2D%2D%2D%2D%2D%20%20%20%3D%3D%3D%3E%20%20%20f(min)%20%3D%200%3B%20%20f(max)%20%3D%20%20%2D%2D%2D%2D%2D%2D%2D%2D%2D%20%3D%201
 #         del self.coords_ref
 #         del self.coords_traj
 #         gc.collect()
