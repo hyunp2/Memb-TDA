@@ -284,7 +284,17 @@ class WandbLogger(Logger):
             self.experiment.log({"DeepHyper Param Search": table})
         else:
             self.experiment.log({"DeepHyper Param Search": table})
+            
+    @staticmethod
+    def mol_to_pil_image(molecule: str, width: int = 300, height: int = 300) -> "PIL.Image":
+        pass
     
-
+    @staticmethod
+    def rdkit_dataframe(smiles_string: str):
+        pass
+    
+    @rank_zero_only
+    def log_explainer(self, model: torch.nn.Module, smiles_list: Union[List[Chem.rdchem.Mol], List[str]], step=None) -> None:
+        pass
         
 
