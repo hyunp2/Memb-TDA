@@ -199,7 +199,7 @@ class PH_Featurizer_Dataset(Dataset):
         mem_temp_list = pd.read_csv(os.path.join(self.save_dir, temp_filename)).values[-dcdlen:].reshape(-1, ).tolist() #get last dcdlen frames of temperatures
         
         maxdims = [self.maxdim] * len(graph_input_list)
-        if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
+        if not self.ignore_topologicallayer: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
         if self.preprocessing_only or self.ignore_topologicallayer:
             return graph_input_list, Rs_total, mem_temp_list, None #List of structures: each structure has maxdim PHs
         else:
