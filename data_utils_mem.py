@@ -179,8 +179,10 @@ class PH_Featurizer_Dataset(Dataset):
         del self.coords_ref
         del self.coords_traj
         gc.collect()
+        self.step = 0
         
     def get_persistent_diagrams(self, coord_filename, ph_filename, temp_filename):
+        print(f"Parsing {self.step}-th file...")
         temperature = os.path.splitext(os.path.split(temp_filename)[1])[0] #remove .dat
 #         print(temperature)
         temperature = re.split(r"[.|_]", temperature)[1]
