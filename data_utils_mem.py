@@ -203,7 +203,7 @@ class PH_Featurizer_Dataset(Dataset):
         f = open(os.path.join(self.save_dir, ph_filename), "rb")
         Rs_total = pickle.load(f)[slice(1,None)] #List of structures: each structure has maxdim PHs ; except for the beginning (i.e. ref)
         dcdlen = len(Rs_total) #slice last 200 frames?
-        mem_temp_list = pd.read_csv(os.path.join(self.save_dir, temp_filename)).values[-dcdlen:].reshape(-1, ).astype(float).tolist() #get last dcdlen frames of temperatures
+        mem_temp_list = pd.read_csv(os.path.join(self.save_dir, temp_filename, delim_whitespace=True)).values[-dcdlen:, 1].reshape(-1, ).astype(float).tolist() #get last dcdlen frames of temperatures
         f.close()
         
         maxdims = [self.maxdim] * len(graph_input_list)
