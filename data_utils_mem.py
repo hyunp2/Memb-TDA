@@ -182,6 +182,7 @@ class PH_Featurizer_Dataset(Dataset):
         gc.collect()
         
     def get_persistent_diagrams(self, coord_filename, ph_filename, temp_filename):
+        self.step += 1
         print(f"Parsing {self.step}-th file...")
         temperature = os.path.splitext(os.path.split(temp_filename)[1])[0] #remove .dat
 #         print(temperature)
@@ -195,10 +196,12 @@ class PH_Featurizer_Dataset(Dataset):
         f = open(os.path.join(self.save_dir, coord_filename), "rb")
         graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
         graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list ))[slice(1,None)] #List of (L,3) Arrays; except for the beginning (i.e. ref)
+        f.close()
         f = open(os.path.join(self.save_dir, ph_filename), "rb")
         Rs_total = pickle.load(f)[slice(1,None)] #List of structures: each structure has maxdim PHs ; except for the beginning (i.e. ref)
         dcdlen = len(Rs_total) #slice last 200 frames?
         mem_temp_list = pd.read_csv(os.path.join(self.save_dir, temp_filename)).values[-dcdlen:].reshape(-1, ).tolist() #get last dcdlen frames of temperatures
+        f.close()
         
         maxdims = [self.maxdim] * len(graph_input_list)
         if not self.ignore_topologicallayer: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
