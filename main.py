@@ -123,7 +123,7 @@ if __name__ == "__main__":
         net = MPNN()
         loss_func = torch.nn.MSELoss()
         
-        if opt.log:
+        if args.log:
             logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
             os.environ["WANDB_CACHE_DIR"] = os.getcwd()
         else:
