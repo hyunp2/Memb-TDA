@@ -1,0 +1,28 @@
+#!/bin/bash
+
+JOBNAME="${1/%.py/}"
+LOGNAME="${2}"
+MODELNAME="${3}"
+MACHINENAME="${4}"
+
+echo "$JOBNAME"
+if [ -z "$1" ]; then
+  echo "Useage: submit_local PYTHON_FILE_NAME_WITH_DOTPY LOGFILE_NAME MODEL_NAME MACHINENAME"
+  exit
+fi
+if [ ! -f $JOBNAME.py ]; then
+	echo "Distributed Python input file $JOBNAME.py does not exist!"
+	exit -1
+fi
+
+if [ ! -f $JOBNAME.log ]; then
+        echo "Distributed Python output file $JOBNAME.log does not exist!"
+        touch $JOBNAME.log 
+fi	
+
+qsub -q $MACHINENAME -N $JOBNAME -j y -o ~/Jobs << EOF
+cd "$PWD"
+
+/Scr/hyunpark/anaconda3/envs/deeplearning/bin/python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --gpu --log --ignore_topologicallayer --optimizer torch_adam --which_mode train --batch_size 8
+EOF
+
