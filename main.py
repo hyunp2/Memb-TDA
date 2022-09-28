@@ -41,7 +41,7 @@ from MDAnalysis import transformations
 import data_utils
 import data_utils_mem 
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
-    using_tensor_cores, increase_l2_fetch_granularity
+    using_tensor_cores, increase_l2_fetch_granularity, WandbLogger
 from train_utils import train as train_function
 from model import MPNN
 from gpu_utils import *
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
         net = MPNN()
         loss_func = torch.nn.MSELoss()
-        logger = None
+        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
         
         #Initalize DDP
         is_distributed = init_distributed() #normal python vs torchrun!
@@ -138,3 +138,4 @@ if __name__ == "__main__":
         print("Initalizing training...")
         train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
         #python -m main --which_mode train --ignore_topologicallayer
+        
