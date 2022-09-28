@@ -110,7 +110,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
     _loss = 0.
     _loss_metrics = 0.
 	
-    pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
+    pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Training',
 		     leave=False, disable=(args.silent or get_local_rank() != 0))
     for step, packs in pbar:
         if args.gpu and args.backbone in ["mpnn"]:
@@ -163,7 +163,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
     _loss_metrics = 0.
 
     with torch.inference_mode():  
-        pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
+        pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Validation',
 		     leave=False, disable=(args.silent or get_local_rank() != 0))
         for i, packs in pbar:
             if args.gpu and args.backbone in ["mpnn"]:
