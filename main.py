@@ -44,6 +44,7 @@ from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everythin
     using_tensor_cores, increase_l2_fetch_granularity
 from train_utils import train as train_function
 from model import MPNN
+from gpu_utils import *
 
 def get_args():
     parser = argparse.ArgumentParser()
