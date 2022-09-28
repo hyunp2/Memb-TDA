@@ -29,7 +29,12 @@ python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --t
 <code>
 python -m main --ignore_topologicallayer --optimizer torch_adamw --which_mode train --gpu --batch_size 8
 </code> 
-<br> For distributed data parallelization <br>
+<br><br> For distributed data parallelization <br>
 <code>
 python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --gpu --log --ignore_topologicallayer --optimizer torch_adam --which_mode train  --batch_size 8
 </code>
+<br><br> For DGX-3 submission <br> Assuming submit_local contains proper job scheduling...
+<code>
+submit_local main.py main main dgx-test
+</code>
+
