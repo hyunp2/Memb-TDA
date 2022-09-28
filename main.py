@@ -122,7 +122,12 @@ if __name__ == "__main__":
         train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
         net = MPNN()
         loss_func = torch.nn.MSELoss()
-        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+        
+        if opt.log:
+            logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+            os.environ["WANDB_CACHE_DIR"] = os.getcwd()
+        else:
+            logger = None
         
         #Initalize DDP
         is_distributed = init_distributed() #normal python vs torchrun!
