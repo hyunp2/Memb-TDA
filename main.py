@@ -85,6 +85,7 @@ def get_args():
     parser.add_argument('--low_memory',  action="store_true")
     parser.add_argument('--amp', action="store_true", help="floating 16 when turned on.")
     parser.add_argument('--optimizer', type=str, default='adam', choices=["adam","lamb","sgd","torch_adam","torch_adamw","torch_sparse_adam"])
+    parser.add_argument('--scheduler', type=str, default='reduce', choices=["linear","reduce"])
     parser.add_argument('--gradient_clip', type=float, default=None) 
     parser.add_argument('--accumulate_grad_batches', type=int, default=1) 
     parser.add_argument('--resume', action='store_true')
