@@ -24,3 +24,8 @@ python -m test_persistent_homology --data_dir /Scr/hyunpark/Monster/vaegan_md_gi
 <code>
 python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
 </code>
+
+[To train from saved pickle/dat files] Assuming that pickle/dat files for coordinates, PH and temperature are saved, we can start training neural network model...</br>
+<code>
+python -m main --ignore_topologicallayer --which_mode train --optimizer torch_adamw
+</code>
