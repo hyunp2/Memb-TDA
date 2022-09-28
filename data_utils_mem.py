@@ -180,9 +180,9 @@ class PH_Featurizer_Dataset(Dataset):
         else:
             self.graph_input_list, self.Rs_total, self.mem_temp_list = list(map(lambda one_list: functools.reduce(lambda a, b: a+b, one_list ), (self.graph_input_list, self.Rs_total, self.mem_temp_list) ))
         #ABOVE: self.graph_input_list is a <list of coordinates>; number of elements is number of pickle files * num_coords per file
-        del self.coords_ref
-        del self.coords_traj
-        gc.collect()
+#         del self.coords_ref
+#         del self.coords_traj
+#         gc.collect()
         
     def get_persistent_diagrams(self, coord_filename, ph_filename, temp_filename):
         self.step += 1
