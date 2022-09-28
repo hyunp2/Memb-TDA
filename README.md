@@ -28,8 +28,8 @@ python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --t
 [To train from saved pickle/dat files] Assuming that pickle/dat files for coordinates, PH and temperature are saved, we can start training neural network model...</br>
 <code>
 python -m main --ignore_topologicallayer --optimizer torch_adamw --which_mode train --gpu --batch_size 8
-</code>
-For distributed data parallelization <br>
+</code> 
+<br> For distributed data parallelization <br>
 <code>
 python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --ignore_topologicallayer --optimizer torch_adamw --which_mode train --gpu --batch_size 8
 </code>
