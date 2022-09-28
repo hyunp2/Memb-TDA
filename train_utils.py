@@ -313,11 +313,14 @@ def train(model: nn.Module,
     #SCHEDULER
     total_training_steps = len(train_dataloader) * args.epoches
     warmup_steps = total_training_steps // args.warm_up_split
-    scheduler = get_linear_schedule_with_warmup(
+    if args.scheduler == "linear":
+        scheduler = get_linear_schedule_with_warmup(
 		optimizer,
 		num_warmup_steps=warmup_steps,
 		num_training_steps=total_training_steps) #can be used for every step (and epoch if wanted); per training step?
-    scheduler_re = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, mode="min", factor=0.9, patience=3, verbose=True) #needs a validation metric to reduce LR (perhaps mainly for epoch-wise eval)
+    elif args.scheduler == "reduce":
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, threshold=0.0001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08, verbose=False)
+    scheduler_re = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, threshold=0.0001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08, verbose=False)
     #Load state (across multi GPUs)
 
     path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
@@ -387,7 +390,8 @@ def train(model: nn.Module,
         #logger.log_metrics({'ALL_REDUCED_val_mae_loss': mae_reduced.item()}, epoch_idx) #zero rank only
         tmetrics.reset()
         #scheduler_re.step(val_loss) #Not on individual stats but the total stats
-        scheduler.step()
+        if args.scheduler == "linear": scheduler.step()
+        elif args.scheduler == "reduce": scheduler.step(val_loss)
 
         scheduler_groups = [scheduler, scheduler_re] #step and epoch schedulers
         if val_loss < best_loss:
