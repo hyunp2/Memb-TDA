@@ -109,9 +109,10 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
     path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
     _loss = 0.
     _loss_metrics = 0.
-
-    for step, packs in tqdm(enumerate(loader), total=len(loader), unit='batch',
-                         desc=f'Epoch {epoch_idx}', disable=(args.silent or local_rank != 0)):
+	
+    pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
+		     leave=False, disable=(args.silent or get_local_rank() != 0))
+    for step, packs in pbar:
         if args.gpu and args.backbone in ["mpnn"]:
             assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
             coords, phs = packs["Coords"], packs["PH"]
@@ -150,6 +151,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
         _loss += loss.item()
         _loss_metrics += loss_metrics.item()
         #if step % 10 == 0: save_state(model, optimizer, scheduler, epoch_idx, path_and_name) #Deprecated
+        pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item())
 
 #     return torch.cat(losses, dim=0).mean() #Not MAE
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
@@ -161,8 +163,9 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
     _loss_metrics = 0.
 
     with torch.inference_mode():  
-        for i, packs in tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Evaluation',
-		     leave=False, disable=(args.silent or get_local_rank() != 0)):
+        pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
+		     leave=False, disable=(args.silent or get_local_rank() != 0))
+        for i, packs in pbar:
             if args.gpu and args.backbone in ["mpnn"]:
                 assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
                 coords, phs = packs["Coords"], packs["PH"]
@@ -188,6 +191,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
             loss = loss_mse
             _loss += loss.item()
             _loss_metrics += loss_metrics.item()
+            pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item())
 
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
                 
@@ -197,8 +201,9 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
     _loss_metrics = 0.
 
     with torch.inference_mode():  
-        for i, packs in tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
-		     leave=False, disable=(args.silent or get_local_rank() != 0)):
+        pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
+		     leave=False, disable=(args.silent or get_local_rank() != 0))	
+        for i, packs in pbar:
             if args.gpu and args.backbone in ["mpnn"]:
                 assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
                 coords, phs = packs["Coords"], packs["PH"]
@@ -224,6 +229,7 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
             loss = loss_mse
             _loss += loss.item()
             _loss_metrics += loss_metrics.item()
+            pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item())
 
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
 	
