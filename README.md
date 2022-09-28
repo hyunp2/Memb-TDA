@@ -29,3 +29,7 @@ python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --t
 <code>
 python -m main --ignore_topologicallayer --optimizer torch_adamw --which_mode train --gpu --batch_size 8
 </code>
+For distributed data parallelization <br>
+<code>
+python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --ignore_topologicallayer --optimizer torch_adamw --which_mode train --gpu --batch_size 8
+</code>
