@@ -180,7 +180,7 @@ class PH_Featurizer_Dataset(Dataset):
         else:
             self.graph_input_list, self.Rs_total, self.mem_temp_list = list(map(lambda one_list: functools.reduce(lambda a, b: a+b, one_list ), (self.graph_input_list, self.Rs_total, self.mem_temp_list) ))
         #ABOVE: self.graph_input_list is a <list of coordinates>; number of elements is number of pickle files * num_coords per file
-        min_t, max_t = np.min(self.mem_temp_list), np.max(self.mem_temp_list)
+        self.min_t, self.max_t = np.min(self.mem_temp_list), np.max(self.mem_temp_list)
         self.mem_temp_list = ((1 - (-1)) * (np.array(self.mem_temp_list) - min_t) / (max_t - min_t) + (-1)).tolist() #scale to (-1,1)
         #ABOVE: https://stackoverflow.com/questions/5294955/how-to-scale-down-a-range-of-numbers-with-a-known-min-and-max-value#:~:text=f(x)%20%3D%20%2D%2D%2D%2D%2D%2D%2D%2D%2D%20%20%20%3D%3D%3D%3E%20%20%20f(min)%20%3D%200%3B%20%20f(max)%20%3D%20%20%2D%2D%2D%2D%2D%2D%2D%2D%2D%20%3D%201
 #         del self.coords_ref
@@ -290,7 +290,7 @@ class PH_Featurizer_DataLoader(abc.ABC):
         if dist.is_initialized():
             dist.barrier(device_ids=[get_local_rank()]) #WAITNG for 0-th core is done!
                     
-        full_dataset = PH_Featurizer_Dataset(self.opt)
+        self.full_dataset = full_dataset = PH_Featurizer_Dataset(self.opt)
         self.ds_train, self.ds_val, self.ds_test = torch.utils.data.random_split(full_dataset, _get_split_sizes(self.opt.train_frac, full_dataset),
                                                                 generator=torch.Generator().manual_seed(42))
     
