@@ -174,7 +174,7 @@ class PH_Featurizer_Dataset(Dataset):
 
         self.graph_input_list, self.Rs_total, self.mem_temp_list, self.Rs_list_tensor = list(zip(*[self.get_values(coord_filename, ph_filename, temp_filename) for coord_filename, ph_filename, temp_filename in zips]))
         #ABOVE: self.graph_input_list is a LIST of <list of coordinates>; number of elements is number of pickle files
-        print("PASSED")
+        print(self.graph_input_list)
         self.graph_input_list, self.Rs_total, self.mem_temp_list, self.Rs_list_tensor = list(map(lambda one_list: functools.reduce(lambda a, b: a+b, one_list ), (self.graph_input_list, self.Rs_total, self.mem_temp_list, self.Rs_list_tensor) ))
         #ABOVE: self.graph_input_list is a <list of coordinates>; number of elements is number of pickle files * num_coords per file
         del self.coords_ref
