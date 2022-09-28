@@ -113,6 +113,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
     pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Training',
 		     leave=False, disable=(args.silent or get_local_rank() != 0))
     for step, packs in pbar:
+        pbar.set_description(f"Epoch {epoch_idx}")
         if args.gpu and args.backbone in ["mpnn"]:
             assert args.backbone in ["mpnn"], "Wrong data format for a given backbone model!"
             coords, phs = packs["Coords"], packs["PH"]
