@@ -38,7 +38,8 @@ import gc
 from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
-from data_utils_mem import *
+import data_utils
+import data_utils_mem 
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
     using_tensor_cores, increase_l2_fetch_granularity
 from train_utils import train as train_function
@@ -106,15 +107,16 @@ def get_args():
 if __name__ == "__main__":
     args = get_args()
     print(args.__dict__)
+    dutils = data_utils if args.which_mode == "preprocessing" else data_utils_mem
     
     if args.which_mode == "preprocessing":
-        ds = PH_Featurizer_Dataset(args)
+        ds = dutils.PH_Featurizer_Dataset(args)
         print(ds[0], ds[5])
 #         dl = PH_Featurizer_DataLoader(opt=args)
 #         testset = dl.test_dataloader()
 #         print(iter(testset).next())
     elif args.which_mode == "train":
-        dl = PH_Featurizer_DataLoader(opt=args)
+        dl = dutils.PH_Featurizer_DataLoader(opt=args)
         train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
         net = MPNN()
         loss_func = torch.nn.MSELoss()
