@@ -31,5 +31,5 @@ python -m main --ignore_topologicallayer --optimizer torch_adamw --which_mode tr
 </code> 
 <br> For distributed data parallelization <br>
 <code>
-python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --ignore_topologicallayer --optimizer torch_adamw --which_mode train --gpu --batch_size 8
+python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --gpu --log --ignore_topologicallayer --optimizer torch_adam --which_mode train  --batch_size 8
 </code>
