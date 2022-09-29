@@ -108,6 +108,13 @@ def get_args():
     return args
 
 def job_submit(args):
+    #Initalize DDP
+    is_distributed = init_distributed() #normal python vs torchrun!
+    local_rank = get_local_rank()
+    if args.gpu:
+        net = net.to(torch.cuda.current_device())
+
+    #WARNING: Call dataloader & logger after initializing DDP
     dl = dutils.PH_Featurizer_DataLoader(opt=args)
     train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
     net = MPNN()
@@ -118,18 +125,13 @@ def job_submit(args):
         os.environ["WANDB_CACHE_DIR"] = os.getcwd()
     else:
         logger = None
-
-    #Initalize DDP
-    is_distributed = init_distributed() #normal python vs torchrun!
-    local_rank = get_local_rank()
-    if args.gpu:
-        net = net.to(torch.cuda.current_device())
+    
     #Dist training
     if is_distributed:         
         nproc_per_node = torch.cuda.device_count()
         affinity = set_affinity(local_rank, nproc_per_node)
     increase_l2_fetch_granularity()
-
+    
     print("Initalizing training...")
     train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
     #python -m main --which_mode train --ignore_topologicallayer
