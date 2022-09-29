@@ -23,6 +23,6 @@ fi
 qsub -q $MACHINENAME -N $JOBNAME -j y -o ~/Jobs << EOF
 cd "$PWD"
 
-/Scr/hyunpark/anaconda3/envs/deeplearning/bin/python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --gpu --log --ignore_topologicallayer --optimizer torch_adam --which_mode train --batch_size 8
+/Scr/hyunpark/anaconda3/envs/deeplearning/bin/python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --gpu --log --ignore_topologicallayer --optimizer torch_adam --which_mode train --batch_size 8 --epoches 100
 EOF
 
