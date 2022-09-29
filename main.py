@@ -92,7 +92,8 @@ def get_args():
     parser.add_argument('--use_artifacts', action='store_true')
     parser.add_argument('--gpu', action='store_true')
     parser.add_argument('--shard', action='store_true')
-    
+    parser.add_argument('--loss', choices=["mse", "mae", "smooth"], default="mse")
+
     #Model utils
     parser.add_argument('--backbone', type=str, default='mpnn', choices=["mpnn"])
     
@@ -111,14 +112,21 @@ def job_submit(args):
     #Initalize DDP
     is_distributed = init_distributed() #normal python vs torchrun!
     local_rank = get_local_rank()
-    if args.gpu:
-        net = net.to(torch.cuda.current_device())
 
     #WARNING: Call dataloader & logger after initializing DDP
     dl = dutils.PH_Featurizer_DataLoader(opt=args)
     train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
+    
     net = MPNN()
-    loss_func = torch.nn.MSELoss()
+    if args.gpu:
+        net = net.to(torch.cuda.current_device())
+        
+    if args.loss == "mse":
+        loss_func = torch.nn.MSELoss()
+    elif args.loss == "mae":
+        loss_func = torch.nn.L1Loss()
+    elif args.loss == "smooth":
+        loss_func = torch.nn.SmoothL1Loss()
 
     if args.log:
         logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
