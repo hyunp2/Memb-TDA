@@ -108,6 +108,13 @@ def get_args():
     args = parser.parse_args()
     return args
 
+def preprocessing(args):
+    ds = dutils.PH_Featurizer_Dataset(args)
+    print(ds[0], ds[5])
+#         dl = PH_Featurizer_DataLoader(opt=args)
+#         testset = dl.test_dataloader()
+#         print(iter(testset).next())
+
 def job_submit(args):
     #Initalize DDP
     is_distributed = init_distributed() #normal python vs torchrun!
@@ -150,11 +157,7 @@ if __name__ == "__main__":
     dutils = data_utils if args.which_mode == "preprocessing" else data_utils_mem
     
     if args.which_mode == "preprocessing":
-        ds = dutils.PH_Featurizer_Dataset(args)
-        print(ds[0], ds[5])
-#         dl = PH_Featurizer_DataLoader(opt=args)
-#         testset = dl.test_dataloader()
-#         print(iter(testset).next())
+        preprocessing(args)
     elif args.which_mode == "train":
         job_submit(args)
         
