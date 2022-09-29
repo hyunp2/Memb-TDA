@@ -39,5 +39,5 @@ submit_local main.py main main dgx-test
 </code>
 <br><br> To continue training...<br>
 <code>
-python -m main --ignore_topologicallayer --optimizer torch_adamw --which_mode train --gpu --log --batch_size 8 --epoches 100 --resume --name [model.pth]
+python -m main --ignore_topologicallayer --optimizer torch_adamw --which_mode train --gpu --log --batch_size 8 --epoches 100 --resume --name [model_name]
 </code>
