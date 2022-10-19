@@ -43,6 +43,7 @@ from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
 from math_utils import wasserstein
 from main import get_args
+import mdtraj
 
 __all__ = ["PH_Featurizer_Dataset", "PH_Featurizer_DataLoader"]
 
