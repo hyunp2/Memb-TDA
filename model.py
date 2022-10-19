@@ -14,8 +14,14 @@ from torch_geometric.nn import (
 from torch_scatter import scatter_mean, scatter_add, scatter_max, scatter
 from torch_geometric.data import Data
 from torch_geometric.nn import MessagePassing, radius_graph
+from transformers import ViTFeatureExtractor, ViTModel
+import os
+import curtsies.fmtfuncs as cf 
 
-__all__ = ["MPNN"]
+__all__ = ["MPNN", "Vit", "feature_extractor"]
+
+feature_extractor = ViTFeatureExtractor.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache")) #224 resize...
+Vit = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
 
 class GaussianSmearing(torch.nn.Module):
     def __init__(self, start=0.0, stop=5.0, num_gaussians=50):
