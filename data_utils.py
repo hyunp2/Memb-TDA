@@ -10,6 +10,7 @@ import persim
 import ripser
 import MDAnalysis as mda
 import argparse
+import glob
 from typing import *
 import functools
 import itertools 
@@ -120,7 +121,7 @@ def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=Fal
     assert isinstance(graph_input, (torch.Tensor, np.ndarray)), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
-    graph_input = graph_input.detach().cpu().numpy()
+    graph_input = graph_input.detach().cpu().numpy() if isinstance(graph_input, torch.Tensor) else np.array(graph_input)
     if not tensor:
         R_total = ripser.ripser(graph_input, maxdim=maxdim)["dgms"]
     else:
@@ -160,9 +161,26 @@ class PH_Featurizer_Dataset(Dataset):
         [setattr(self, key, val) for key, val in args.__dict__.items()]
 #         self.files_to_pg = list(map(lambda inp: os.path.join(self.data_dir, inp), os.listdir(self.data_dir)))
 #         self.files_to_pg = list(filter(lambda inp: os.path.splitext(inp)[-1] == ".cif", self.files_to_pg ))
-        self.reference, self.prot_traj = self.load_traj(data_dir=self.data_dir, pdb=self.pdb, psf=self.psf, trajs=self.trajs, selection=self.atom_selection)
-        self.coords_ref, self.coords_traj = self.get_coordinates_for_md(self.reference), self.get_coordinates_for_md(self.prot_traj)
-        self.graph_input_list, self.Rs_total, self.Rs_list_tensor = self.get_values()
+
+        if self.trajs is not None:
+            self.reference, self.prot_traj = self.load_traj(data_dir=self.data_dir, pdb=self.pdb, psf=self.psf, trajs=self.trajs, selection=self.atom_selection)
+            self.coords_ref, self.coords_traj = self.get_coordinates_for_md(self.reference), self.get_coordinates_for_md(self.prot_traj)
+        else:
+            #pdb_database: /Scr/arango/Sobolev-Hyun/2-MembTempredict/testing/
+            self.coords_ref = []
+            self.coords_traj = []
+            self.temperatures = []
+            directories = sorted(glob.glob(os.path.join(self.pdb_database, "T.*")))
+            for direct in directories:
+                pdbs = os.listdir(direct) #all PDBs inside a directory
+                univ_pdbs = [mda.Universe(top) for top in pdbs] #List PDB universes
+                self.coords_traj += [self.get_coordinates_for_md(univ_pdb)[0] for univ_pdb in univ_pdbs]
+                self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(pdbs)
+            assert len(self.coords_traj) == len(self.temperatures), "coords traj and temperatures must have the same data length..."
+                
+#         self.graph_input_list, self.Rs_total, self.Rs_list_tensor = self.get_values()
+        self.graph_input_list, self.Rs_total, self.images_total = self.get_values()
+
         del self.coords_ref
         del self.coords_traj
         gc.collect()
@@ -196,18 +214,44 @@ class PH_Featurizer_Dataset(Dataset):
 #                 graph_input_list = ray.get(futures) #List of structures: each structure has maxdim PHs
                 graph_input_list = self.coords_ref + self.coords_traj
                 graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
-                print(cf.on_yellow("Coordinate extraction done!"))
+                f = open(os.path.join(self.save_dir, "coords_" + self.filename), "wb")
+                pickle.dump(graph_input_list, f) 
+                print(cf.on_yellow("STEP 1: Coordinate extraction done!"))
+                
                 maxdims = [self.maxdim] * len(graph_input_list)
                 tensor_flags = [self.tensor] * len(graph_input_list)
                 futures = [persistent_diagram_mp.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(graph_input_list, maxdims, tensor_flags)] 
                 Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
-                print(cf.on_yellow("Persistent diagram extraction done!"))
-                e=time.time()
-                print(f"{e-s} seconds taken...")
-                f = open(os.path.join(self.save_dir, "coords_" + self.filename), "wb")
-                pickle.dump(graph_input_list, f)   
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "wb")
                 pickle.dump(Rs_total, f)   
+                print(cf.on_yellow("STEP 2: Persistent diagram extraction done!"))
+
+                images_total = list(zip(*Rs_total))
+                assert len(images_total) == (self.maxdim + 1), "images_total must be the same as maxdim!"
+                pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
+                pers_images_total = collections.defaultdict(list)
+                for i, img in enumerate(images_total):
+#                     img = list(map(lambda inp: torch.from_numpy(inp), img))
+                    img = list(map(order_dgm, img)) #list of Hi 
+#                     img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
+                    pers.fit(img)
+                    pers.birth_range = (0,1)
+                    pers.pers_range = (0,1)
+                    img_list = pers.transform(img, n_jobs=-1)
+                    temp = np.stack(img_list, axis=0)
+                    mins, maxs = temp.min(), temp.max()
+                    img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
+                    pers_images_total[i] += img_list
+                Images_total = pers_images_total
+                f = open(os.path.join(self.save_dir, "Im_" + self.filename), "wb")
+                pickle.dump(pers_images_total, f)   
+                print(cf.on_yellow("STEP 3: Persistent image extraction done!"))
+                
+                e=time.time()
+                print(f"{e-s} seconds taken...")
+                
+                print(cf.on_yellow("STEP 4: Coords and PH and Images files saved!"))
+  
                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
             else:
                 f = open(os.path.join(self.save_dir, "coords_" + self.filename), "rb")
@@ -217,14 +261,17 @@ class PH_Featurizer_Dataset(Dataset):
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 maxdims = [self.maxdim] * len(graph_input_list)
                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
+                f = open(os.path.join(self.save_dir, "Im_" + self.filename), "rb")
+                Images_total = pickle.load(f) #List of structures: each structure has maxdim PHs
+                
         if self.preprocessing_only or self.ignore_topologicallayer:
-            return graph_input_list, Rs_total, None #List of structures: each structure has maxdim PHs
+            return graph_input_list, Rs_total, Images_total #None #List of structures: each structure has maxdim PHs
         else:
-            return graph_input_list, Rs_total, Rs_list_tensor #List of structures: each structure has maxdim PHs
+            return graph_input_list, Rs_total, Images_total #Rs_list_tensor #List of structures: each structure has maxdim PHs
 
     def get_values(self, ):
-        graph_input_list, Rs_total, Rs_list_tensor = self.get_persistent_diagrams()
-        return graph_input_list, Rs_total, Rs_list_tensor
+        graph_input_list, Rs_total, Images_total = self.get_persistent_diagrams()
+        return graph_input_list, Rs_total, Images_total
 
     def len(self, ):
         return len(self.graph_input_list)
@@ -233,23 +280,26 @@ class PH_Featurizer_Dataset(Dataset):
         if self.preprocessing_only:
             raise NotImplementedError("Get item method is not available with preprocessing_only option!")
 #         graph_input = torch.from_numpy(self.graph_input_list[idx]).type(torch.float)
-        graph_input = self.graph_input_list[idx].type(torch.float)
+#         graph_input = self.graph_input_list[idx].type(torch.float)
         
-        if self.ignore_topologicallayer:
-            Rs = self.Rs_total[idx]
-            Rs_dict = dict()
-            for i in range(self.maxdim+1):
-                Rs_dict[f"ph{i}"] = torch.from_numpy(Rs[i]).type(torch.float)
-        else:
-            Rs = list(self.Rs_list_tensor[idx])
-            Rs_dict = dict()
-    #         Rs_list_tensor = list(persistent_diagram_tensor(graph_input, maxdim=self.maxdim))
-            del Rs[0] #Remove H0
-            for i in range(1, self.maxdim+1):
-                Rs_dict[f"ph{i}"] = order_dgm(Rs[i-1]) #ordered!
-            
-        return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict["ph1"], **Rs_dict)}
-    
+#         if self.ignore_topologicallayer:
+#             Rs = self.Rs_total[idx]
+#             Rs_dict = dict()
+#             for i in range(self.maxdim+1):
+#                 Rs_dict[f"ph{i}"] = torch.from_numpy(Rs[i]).type(torch.float)
+#         else:
+#             Rs = list(self.Rs_list_tensor[idx])
+#             Rs_dict = dict()
+#     #         Rs_list_tensor = list(persistent_diagram_tensor(graph_input, maxdim=self.maxdim))
+#             del Rs[0] #Remove H0
+#             for i in range(1, self.maxdim+1):
+#                 Rs_dict[f"ph{i}"] = order_dgm(Rs[i-1]) #ordered!
+        img = np.stack((self.Images_total[0][idx], self.Images_total[1][idx], self.Images_total[2][idx]), axis=0) #(3,H,W)
+        img = torch.from_numpy(img).to(torch.cuda.current_device()).type(torch.float)
+        temps = torch.tensor(self.temperature).view(-1,1).to(img)[idx]
+#         return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict["ph1"], **Rs_dict)}
+        return {"PH": img, "temp": temps}
+
     def load_traj(self, data_dir: str, pdb: str, psf: str, trajs: List[str], selection: str):
         assert (pdb is not None) or (psf is not None), "At least either PDB of PSF should be provided..."
         assert trajs is not None, "DCD(s) must be provided"
@@ -337,7 +387,7 @@ def alphalayer_computer_coords(coords: torch.Tensor, maxdim: int):
 if __name__ == "__main__":
     args = get_args()
     ph = PH_Featurizer_Dataset(args)
-#     print(ph[5])
+    print(ph[5])
 #     dataloader = PH_Featurizer_DataLoader(opt=args)
 #     print(iter(dataloader.test_dataloader()).next())
 #     for i, batches in enumerate(dataloader.train_dataloader()):
