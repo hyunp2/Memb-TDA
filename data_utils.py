@@ -179,7 +179,7 @@ class PH_Featurizer_Dataset(Dataset):
             assert len(self.coords_traj) == len(self.temperatures), "coords traj and temperatures must have the same data length..."
                 
 #         self.graph_input_list, self.Rs_total, self.Rs_list_tensor = self.get_values()
-        self.graph_input_list, self.Rs_total, self.images_total = self.get_values()
+        self.graph_input_list, self.Rs_total, self.Images_total = self.get_values()
 
         del self.coords_ref
         del self.coords_traj
