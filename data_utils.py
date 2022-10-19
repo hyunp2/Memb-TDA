@@ -173,6 +173,7 @@ class PH_Featurizer_Dataset(Dataset):
             directories = sorted(glob.glob(os.path.join(self.pdb_database, "T.*")))
             for direct in directories:
                 pdbs = os.listdir(direct) #all PDBs inside a directory
+                print(os.path.join(direct,pdbs[0]))
                 univ_pdbs = [mda.Universe(os.path.join(direct,top)) for top in pdbs] #List PDB universes
                 self.coords_traj += [self.get_coordinates_for_md(univ_pdb)[0] for univ_pdb in univ_pdbs]
                 self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(pdbs)
