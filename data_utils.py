@@ -408,7 +408,7 @@ if __name__ == "__main__":
 
     # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
 
-    with open("../pickled/PH_vit.pickle", "rb") as f:
+    with open("./pickled/PH_vit.pickle", "rb") as f:
         Rs_total = pickle.load(f)
     maxdim = 1
     images_total = list(zip(*Rs_total))
@@ -429,5 +429,5 @@ if __name__ == "__main__":
         pers_images_total[i] += img_list
     Images_total = pers_images_total
     print(Images_total)
-    with open("../DATA2PH/Im_vit.pickle", "wb") as f:
+    with open("./pickled/Im_vit.pickle", "wb") as f:
         pickle.dump(Images_total, f)
