@@ -389,8 +389,8 @@ def alphalayer_computer_coords(coords: torch.Tensor, maxdim: int):
 
 if __name__ == "__main__":
     args = get_args()
-#     ph = PH_Featurizer_Dataset(args)
-#     print(ph[5])
+    ph = PH_Featurizer_Dataset(args)
+    print(ph[5])
 #     dataloader = PH_Featurizer_DataLoader(opt=args)
 #     print(iter(dataloader.test_dataloader()).next())
 #     for i, batches in enumerate(dataloader.train_dataloader()):
@@ -408,26 +408,26 @@ if __name__ == "__main__":
 
     # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
 
-    with open("./pickled/PH_vit.pickle", "rb") as f:
-        Rs_total = pickle.load(f)
-    maxdim = 1
-    images_total = list(zip(*Rs_total))
-    assert len(images_total) == (maxdim + 1), "images_total must be the same as maxdim!"
-    pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
-    pers_images_total = collections.defaultdict(list)
-    for i, img in enumerate(images_total):
-#         img = list(map(lambda inp: torch.from_numpy(inp), img))
-        img = list(map(order_dgm, img)) #list of Hi 
-#         img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
-        pers.fit(img)
-        pers.birth_range = (0,1)
-        pers.pers_range = (0,1)
-        img_list = pers.transform(img, n_jobs=-1)
-        temp = np.stack(img_list, axis=0)
-        mins, maxs = temp.min(), temp.max()
-        img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
-        pers_images_total[i] += img_list
-    Images_total = pers_images_total
-    print(Images_total)
-    with open("./pickled/Im_vit.pickle", "wb") as f:
-        pickle.dump(Images_total, f)
+#     with open("./pickled/PH_vit.pickle", "rb") as f:
+#         Rs_total = pickle.load(f)
+#     maxdim = 1
+#     images_total = list(zip(*Rs_total))
+#     assert len(images_total) == (maxdim + 1), "images_total must be the same as maxdim!"
+#     pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
+#     pers_images_total = collections.defaultdict(list)
+#     for i, img in enumerate(images_total):
+# #         img = list(map(lambda inp: torch.from_numpy(inp), img))
+#         img = list(map(order_dgm, img)) #list of Hi 
+# #         img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
+#         pers.fit(img)
+#         pers.birth_range = (0,1)
+#         pers.pers_range = (0,1)
+#         img_list = pers.transform(img, n_jobs=-1)
+#         temp = np.stack(img_list, axis=0)
+#         mins, maxs = temp.min(), temp.max()
+#         img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
+#         pers_images_total[i] += img_list
+#     Images_total = pers_images_total
+#     print(Images_total)
+#     with open("./pickled/Im_vit.pickle", "wb") as f:
+#         pickle.dump(Images_total, f)
