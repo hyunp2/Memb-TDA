@@ -255,7 +255,7 @@ class PH_Featurizer_Dataset(Dataset):
                 
                 print(cf.on_yellow("STEP 4: Coords and PH and Images files saved!"))
   
-                if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
+#                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
             else:
                 f = open(os.path.join(self.save_dir, "coords_" + self.filename), "rb")
                 graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
@@ -263,7 +263,7 @@ class PH_Featurizer_Dataset(Dataset):
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "rb")
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 maxdims = [self.maxdim] * len(graph_input_list)
-                if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
+#                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
                 f = open(os.path.join(self.save_dir, "Im_" + self.filename), "rb")
                 Images_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 
