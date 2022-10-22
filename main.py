@@ -96,7 +96,7 @@ def get_args():
     parser.add_argument('--loss', choices=["mse", "mae", "smooth"], default="mse")
 
     #Model utils
-    parser.add_argument('--backbone', type=str, default='mpnn', choices=["mpnn"])
+    parser.add_argument('--backbone', type=str, default='mpnn', choices=["mpnn", "vit", "swin", "swinv2", "convnext"])
     
     #Callback utils
     parser.add_argument('--log', action="store_true", help="to log for W&B")  
