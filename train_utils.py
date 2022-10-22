@@ -428,3 +428,4 @@ def train(model: nn.Module,
     save_state(model, optimizer, scheduler_groups, epoch_idx, val_loss, path_and_name)
     if args.log: logger.log_artifacts(name=f"{args.name}_model_objects", dtype="pytorch_models", path_and_name=path_and_name) #version will be appended to name; path_and_name is model(.pt)
     #DONE: SAVE ONE MORE TIME before ending???
+    dist.destroy_process_group()
