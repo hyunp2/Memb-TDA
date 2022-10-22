@@ -17,11 +17,13 @@ from torch_geometric.nn import MessagePassing, radius_graph
 from transformers import ViTFeatureExtractor, ViTModel
 import os
 import curtsies.fmtfuncs as cf 
+from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel
 
 __all__ = ["MPNN", "Vit", "feature_extractor"]
 
-feature_extractor = ViTFeatureExtractor.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache")) #224 resize...
-Vit = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+##############################
+############GNN###############
+##############################
 
 class GaussianSmearing(torch.nn.Module):
     def __init__(self, start=0.0, stop=5.0, num_gaussians=50):
@@ -252,6 +254,68 @@ class MPNN(torch.nn.Module):
                 
         return out
 
+##############################
+############VIT###############
+##############################
+Vit = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+Swin = SwinModel.from_pretrained("microsoft/swin-tiny-patch4-window7-224", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+Swinv2 = Swinv2Model.from_pretrained("microsoft/swinv2-large-patch4-window12-192-22k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+Convnext = ConvNextModel.from_pretrained("facebook/convnext-xlarge-384-22k-1k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache")
+
+class CombinedPhysnetVit(torch.nn.Module):
+    def __init__(self, pretrained, args, **configs):
+        super().__init__()
+        self.pretrained = pretrained
+
+        if args.vitbackbone == "vit":
+            self.feature_extractor = ViTFeatureExtractor.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+#             hidden_from_ = self.pretrained.pooler.dense.out_features
+        elif args.vitbackbone == "swin":
+            self.feature_extractor = ViTFeatureExtractor.from_pretrained("microsoft/swin-tiny-patch4-window7-224", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+#             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
+        elif args.vitbackbone == "swinv2":
+            self.feature_extractor = ViTFeatureExtractor.from_pretrained("microsoft/swinv2-large-patch4-window12-192-22k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+#             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
+        elif args.vitbackbone == "convnext":
+            self.feature_extractor = ConvNextFeatureExtractor.from_pretrained("facebook/convnext-xlarge-384-22k-1k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+        hidden_from_ = self.pretrained.layernorm.weight.size()[0]
+
+        self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.SiLU(True), 
+                                                            torch.nn.Linear(512,256), torch.nn.SiLU(True), 
+                                                                torch.nn.Linear(256,64), torch.nn.SiLU(True), 
+                                                                torch.nn.Linear(64,48), )) #48 temperature classes
+                                                                
+    def forward(self, img_ph: torch.FloatTensor):
+        img_ph : List[torch.FloatTensor] = img_ph.detach().cpu().unbind(dim=0)
+        img_inputs: Dict[str, torch.FloatTensor] = self.feature_extractor(img_ph, return_tensors="pt") #range [-1, 1]
+        img_inputs = dict(pixel_values=img_inputs["pixel_values"].to(torch.cuda.current_device()))
+        out_ph = self.pretrained(**img_inputs).pooler_output #batch, dim
+        out = self.last_layer_together(out)
+        
+        return out
+
+if __name__ == "__main__":
+    from tda.ph import get_args, PH_Featurizer_DataLoader
+    args = get_args()
+    print(cf.green(f"Arguments: {args.__dict__}"))
+    dataloader = PH_Featurizer_DataLoader(opt=args)
+    ds = iter(dataloader.test_dataloader()).next()
+    images = ds["PH"] #range [0,1]
+
+    inputs = feature_extractor(images.unbind(dim=0), return_tensors="pt") #range [-1, 1]
+    outs = model(**inputs)
+    print(outs)
+
+    
+    
+    
+    
+
+
+
+
+
+    
 if __name__ == "__main__":
     model = MPNN()
     from data_utils import *
