@@ -297,7 +297,8 @@ class PH_Featurizer_Dataset(Dataset):
 #             del Rs[0] #Remove H0
 #             for i in range(1, self.maxdim+1):
 #                 Rs_dict[f"ph{i}"] = order_dgm(Rs[i-1]) #ordered!
-        img = np.stack([self.Images_total[i][idx] for i in range(len(self.Images_total))], axis=0) #(3,H,W)
+        img = np.stack([self.Images_total[i][idx] for i in range(len(self.Images_total))], axis=0) #(2,H,W)
+        img = np.concatenate((img, 0.5*img[:1, ...] + 0.5*img[1:2, ...]), axis=0) #->(3,H,W)
         img = torch.from_numpy(img).to(torch.cuda.current_device()).type(torch.float)
         temps = torch.tensor(self.temperatures).view(-1,1).to(img)[idx]
 #         return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict["ph1"], **Rs_dict)}
