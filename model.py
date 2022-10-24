@@ -17,7 +17,7 @@ from torch_geometric.nn import MessagePassing, radius_graph
 from transformers import ViTFeatureExtractor, ViTModel
 import os
 import curtsies.fmtfuncs as cf 
-from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel
+from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
 
 __all__ = ["MPNN", "Vit", "feature_extractor"]
 
@@ -263,20 +263,31 @@ Swinv2 = Swinv2Model.from_pretrained("microsoft/swinv2-large-patch4-window12-192
 Convnext = ConvNextModel.from_pretrained("facebook/convnext-xlarge-384-22k-1k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache")
 
 class CombinedPhysnetVit(torch.nn.Module):
-    def __init__(self, pretrained, args, **configs):
+    def __init__(self, args, **configs):
         super().__init__()
-        self.pretrained = pretrained
+        config_vit = ViTConfig(image_size=100, patch_size=5, num_channels=3)
+        config_swin = SwinConfig(image_size=100, patch_size=5, num_channels=3)
+        config_swinv2 = Swinv2Config(image_size=100, patch_size=5, num_channels=3)
+        config_convnext = ConvNextConfig(image_size=100, patch_size=5, num_channels=3)
+        Vit = ViTModel(config_vit)
+        Swin = SwinModel(config_swin)
+        Swinv2 = Swinv2Model(config_swinv2)
+        Convnext = ConvNextModel(config_convnext)
 
         if args.vitbackbone == "vit":
+            self.pretrained = Vit
             self.feature_extractor = ViTFeatureExtractor.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
 #             hidden_from_ = self.pretrained.pooler.dense.out_features
         elif args.vitbackbone == "swin":
+            self.pretrained = Swin
             self.feature_extractor = ViTFeatureExtractor.from_pretrained("microsoft/swin-tiny-patch4-window7-224", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.vitbackbone == "swinv2":
+            self.pretrained = Swinv2
             self.feature_extractor = ViTFeatureExtractor.from_pretrained("microsoft/swinv2-large-patch4-window12-192-22k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.vitbackbone == "convnext":
+            self.pretrained = Convnext
             self.feature_extractor = ConvNextFeatureExtractor.from_pretrained("facebook/convnext-xlarge-384-22k-1k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
         hidden_from_ = self.pretrained.layernorm.weight.size()[0]
 
@@ -287,6 +298,7 @@ class CombinedPhysnetVit(torch.nn.Module):
                                                                 
     def forward(self, img_ph: torch.FloatTensor):
         img_ph : List[torch.FloatTensor] = img_ph.detach().cpu().unbind(dim=0)
+        img_ph : List[np.ndarray] = list(map(lambda inp: inp.numpy(), img_ph.detach().cpu().unbind(dim=0) ))
         img_inputs: Dict[str, torch.FloatTensor] = self.feature_extractor(img_ph, return_tensors="pt") #range [-1, 1]
         img_inputs = dict(pixel_values=img_inputs["pixel_values"].to(torch.cuda.current_device()))
         out_ph = self.pretrained(**img_inputs).pooler_output #batch, dim
@@ -316,14 +328,14 @@ if __name__ == "__main__":
 
 
     
-if __name__ == "__main__":
-    model = MPNN()
-    from data_utils import *
-    args = get_args()
-    dataloader = PH_Featurizer_DataLoader(opt=args)
-    testset = iter(dataloader.test_dataloader()).next()["PH"]
-    testset_ph = testset.x
-    testset_batch = testset.batch
-    print(model(testset_ph, batch=testset_batch))
+# if __name__ == "__main__":
+#     model = MPNN()
+#     from data_utils import *
+#     args = get_args()
+#     dataloader = PH_Featurizer_DataLoader(opt=args)
+#     testset = iter(dataloader.test_dataloader()).next()["PH"]
+#     testset_ph = testset.x
+#     testset_batch = testset.batch
+#     print(model(testset_ph, batch=testset_batch))
     
     #python -m model --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
