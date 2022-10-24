@@ -257,10 +257,10 @@ class MPNN(torch.nn.Module):
 ##############################
 ############VIT###############
 ##############################
-Vit = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
-Swin = SwinModel.from_pretrained("microsoft/swin-tiny-patch4-window7-224", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
-Swinv2 = Swinv2Model.from_pretrained("microsoft/swinv2-large-patch4-window12-192-22k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
-Convnext = ConvNextModel.from_pretrained("facebook/convnext-xlarge-384-22k-1k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache")
+# Vit = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+# Swin = SwinModel.from_pretrained("microsoft/swin-tiny-patch4-window7-224", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+# Swinv2 = Swinv2Model.from_pretrained("microsoft/swinv2-large-patch4-window12-192-22k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+# Convnext = ConvNextModel.from_pretrained("facebook/convnext-xlarge-384-22k-1k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
 
 class CombinedPhysnetVit(torch.nn.Module):
     def __init__(self, args, **configs):
@@ -276,19 +276,19 @@ class CombinedPhysnetVit(torch.nn.Module):
 
         if args.vitbackbone == "vit":
             self.pretrained = Vit
-            self.feature_extractor = ViTFeatureExtractor.from_pretrained("google/vit-base-patch16-224-in21k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
 #             hidden_from_ = self.pretrained.pooler.dense.out_features
         elif args.vitbackbone == "swin":
             self.pretrained = Swin
-            self.feature_extractor = ViTFeatureExtractor.from_pretrained("microsoft/swin-tiny-patch4-window7-224", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.vitbackbone == "swinv2":
             self.pretrained = Swinv2
-            self.feature_extractor = ViTFeatureExtractor.from_pretrained("microsoft/swinv2-large-patch4-window12-192-22k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.vitbackbone == "convnext":
             self.pretrained = Convnext
-            self.feature_extractor = ConvNextFeatureExtractor.from_pretrained("facebook/convnext-xlarge-384-22k-1k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
         hidden_from_ = self.pretrained.layernorm.weight.size()[0]
 
         self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.SiLU(True), 
