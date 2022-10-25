@@ -40,6 +40,7 @@ from torch.distributed.fsdp.wrap import (
 					)
 
 from loss_utils import *
+loss_func = lambda pred, targ: ce_loss(targ, pred) + reg_loss(targ, pred)
 
 __all__ = ["train"]
 
@@ -145,9 +146,9 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
             #scheduler.step() #stepwise (self.last_epoch is called (as a step) internally)  
 #         losses.append(loss)
         _loss += loss.item()
-        _loss_metrics += loss_metrics.item()
+        _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics
         #if step % 10 == 0: save_state(model, optimizer, scheduler, epoch_idx, path_and_name) #Deprecated
-        pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item())
+        pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics)
 
 #     return torch.cat(losses, dim=0).mean() #Not MAE
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
@@ -188,8 +189,8 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
 
             loss = loss_mse
             _loss += loss.item()
-            _loss_metrics += loss_metrics.item()
-            pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item())
+            _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics
+            pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics)
 
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
                 
@@ -221,8 +222,8 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
 
             loss = loss_mse
             _loss += loss.item()
-            _loss_metrics += loss_metrics.item()
-            pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item())
+            _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics
+            pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics)
 
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
 	
