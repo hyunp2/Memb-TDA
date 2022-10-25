@@ -3,6 +3,8 @@ import torch.nn.functional as F
 from typing import *
 from torch_geometric.data import Data, Batch
 
+__all__ = ["ce_loss", "reg_loss"]
+
 def ce_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
     """Get temperature class prediction"""
 #     onehots = F.one_hot(torch.arange(0, 48), num_classes=48) #48 temp bins
