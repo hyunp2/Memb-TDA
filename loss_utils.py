@@ -51,5 +51,32 @@ def contrastive_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred_
     logits /= temperature
     return F.cross_entropy(logits, torch.arange(b, device=device))
         
-        
+def roost_RobustL2Loss(output, log_std, target):
+    """
+    Robust L2 loss using a gaussian prior. Allows for estimation
+    of an aleatoric uncertainty.
+    """
+    # NOTE can we scale log_std by something sensible to improve the OOD behaviour?
+    loss = 0.5 * torch.pow(output - target, 2.0) * torch.exp(-2.0 * log_std) + log_std
+    return torch.mean(loss)
+    
+def roost_sampled_softmax(pre_logits, log_std, samples=10):
+    """
+    Draw samples from gaussian distributed pre-logits and use these to estimate
+    a mean and aleatoric uncertainty.
+    """
+    # NOTE here as we do not risk dividing by zero should we really be
+    # predicting log_std or is there another way to deal with negative numbers?
+    # This choice may have an unknown effect on the calibration of the uncertainties
+    sam_std = torch.exp(log_std).repeat_interleave(samples, dim=0)
+
+    # TODO here we are normally distributing the samples even if the loss
+    # uses a different prior?
+    epsilon = torch.randn_like(sam_std)
+    pre_logits = pre_logits.repeat_interleave(samples, dim=0) + torch.mul(
+        epsilon, sam_std
+    )
+    logits = F.softmax(pre_logits, dim=1).view(len(log_std), samples, -1) #B,s,dim
+    logits = logits.mean(dim=1) #B,dim
+    return logits.exp()
     
