@@ -154,6 +154,10 @@ def traj_preprocessing(prot_traj, prot_ref, align_selection):
     prot_traj.trajectory.add_transformations(transform)
     #AlignTraj(prot_traj, prot_ref, select=align_selection, in_memory=True).run()
     return prot_traj
+
+@ray.remote
+def mdtraj_loading(root: str, topology: str):
+    return md.load(os.path.join(root, topology)).xyz[0]
     
 # @dataclasses.dataclass
 class PH_Featurizer_Dataset(Dataset):
@@ -172,14 +176,23 @@ class PH_Featurizer_Dataset(Dataset):
             self.coords_traj = []
             self.temperatures = []
             directories = sorted(glob.glob(os.path.join(self.pdb_database, "T.*")))
-            for direct in directories:
-                pdbs = os.listdir(direct) #all PDBs inside a directory
-#                 print(os.path.join(direct,pdbs[0]))
-#                 univ_pdbs = [mda.Universe(os.path.join(direct,top)) for top in pdbs] #List PDB universes
-#                 self.coords_traj += [self.get_coordinates_for_md(univ_pdb)[0] for univ_pdb in univ_pdbs]
-                self.coords_traj += [mdtraj.load(os.path.join(direct,top)).xyz[0] for top in pdbs]
-                self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(pdbs)
-            assert len(self.coords_traj) == len(self.temperatures), "coords traj and temperatures must have the same data length..."
+            
+            if not os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)):
+                for direct in directories:
+                    pdbs = os.listdir(direct) #all PDBs inside a directory
+    #                 print(os.path.join(direct,pdbs[0]))
+    #                 univ_pdbs = [mda.Universe(os.path.join(direct,top)) for top in pdbs] #List PDB universes
+    #                 self.coords_traj += [self.get_coordinates_for_md(univ_pdb)[0] for univ_pdb in univ_pdbs]
+                    self.coords_traj += [mdtraj.load(os.path.join(direct,top)).xyz[0] for top in pdbs] if not self.multiprocessing else ray.get([mdtraj_loading.remote(root, top) for root, top in zip([direct]*len(pdbs), pdbs)])
+                    self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(pdbs)
+                f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "wb")
+                pickle.dump(self.temperatures, f)   
+                assert len(self.coords_traj) == len(self.temperatures), "coords traj and temperatures must have the same data length..."
+                print("STEP 0: Saved temperature!")
+            else:
+                f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "rb")
+                self.temperatures = pickle.load(f)
+                print("STEP0: Loaded temperature!")
                 
 #         self.graph_input_list, self.Rs_total, self.Rs_list_tensor = self.get_values()
         self.graph_input_list, self.Rs_total, self.Images_total = self.get_values()
