@@ -145,7 +145,7 @@ def job_submit(args):
         loss_func = torch.nn.SmoothL1Loss()
     elif args.loss == "hybrid":
 #         print(args.ce_re_ratio)
-        ce_re_ratio = torch.tensor(args.ce_re_ratio).to(torch.cuda.current_device())
+        ce_re_ratio = torch.tensor(args.ce_re_ratio).to(torch.cuda.current_device()).float()
         loss_func = lambda pred, targ: ce_re_ratio[0] * ce_loss(args, targ, pred) + ce_re_ratio[1] * reg_loss(args, targ, pred)
 
     if args.log:
