@@ -171,4 +171,4 @@ if __name__ == "__main__":
     elif args.which_mode == "train":
         job_submit(args)
         
-    #python -m main --which_mode train --name vit_model --filename vit.pickle
+    #python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing
