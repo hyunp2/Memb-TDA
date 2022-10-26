@@ -157,7 +157,7 @@ def traj_preprocessing(prot_traj, prot_ref, align_selection):
 
 @ray.remote
 def mdtraj_loading(root: str, topology: str):
-    return md.load(os.path.join(root, topology)).xyz[0]
+    return mdtraj.load(os.path.join(root, topology)).xyz[0]
     
 # @dataclasses.dataclass
 class PH_Featurizer_Dataset(Dataset):
