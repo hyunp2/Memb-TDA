@@ -262,7 +262,7 @@ class MPNN(torch.nn.Module):
 # Swinv2 = Swinv2Model.from_pretrained("microsoft/swinv2-large-patch4-window12-192-22k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
 # Convnext = ConvNextModel.from_pretrained("facebook/convnext-xlarge-384-22k-1k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
 
-class CombinedPhysnetVit(torch.nn.Module):
+class Vision(torch.nn.Module):
     def __init__(self, args, **configs):
         super().__init__()
         config_vit = ViTConfig(image_size=100, patch_size=5, num_channels=3)
