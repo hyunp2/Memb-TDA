@@ -2,21 +2,23 @@ import torch
 import torch.nn.functional as F
 from typing import *
 from torch_geometric.data import Data, Batch
+import argparse
 
 __all__ = ["ce_loss", "reg_loss"]
 
-def ce_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
+def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
     """Get temperature class prediction"""
 #     onehots = F.one_hot(torch.arange(0, 48), num_classes=48) #48 temp bins
 #     onehots.index_select(dim=0, index = y_true.view(-1,).long() - 283) # -->(Batch, numclass)
     assert y_true.size(0) == y_pred.size(0), "Batch size must match!"
     ranges = torch.arange(0, 48).to(y_pred).long() #48 temp bins
     y_true = ranges.index_select(dim=0, index = y_true.to(y_pred).view(-1,).long() - 283) # --> (Batch, ) of LongTensor;; y_pred is (Batch, numclasses)
-    ce = torch.nn.CrossEntropyLoss()
+    weights = torch.tensor(args.ce_weights).to(y_pred)
+    ce = torch.nn.CrossEntropyLoss(weight=weights)
     loss = ce(y_pred, y_true)
     return loss
   
-def reg_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
+def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
     """Get expected temperature and regress on True Temp"""
     assert y_true.size(0) == y_pred.size(0), "Batch size must match!"
     ranges = torch.arange(283, 283+48).to(y_pred).float() #temperatures
