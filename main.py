@@ -144,8 +144,9 @@ def job_submit(args):
     elif args.loss == "smooth":
         loss_func = torch.nn.SmoothL1Loss()
     elif args.loss == "hybrid":
-        print(args.ce_re_ratio)
-        loss_func = lambda pred, targ: args.ce_re_ratio[0] * ce_loss(args, targ, pred) + args.ce_re_ratio[1] * reg_loss(args, targ, pred)
+#         print(args.ce_re_ratio)
+        ce_re_ratio = torch.tensor(args.ce_re_ratio).to(torch.cuda.current_device())
+        loss_func = lambda pred, targ: ce_re_ratio[0] * ce_loss(args, targ, pred) + ce_re_ratio[1] * reg_loss(args, targ, pred)
 
     if args.log:
         logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
