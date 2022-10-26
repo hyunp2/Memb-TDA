@@ -128,7 +128,7 @@ def job_submit(args):
     
     if args.backbone == "mpnn":
         net = MPNN()
-    elif args.backbone in ["vit", "swin", "swinv2", "convnext"]
+    elif args.backbone in ["vit", "swin", "swinv2", "convnext"]:
         net = Vision(args)
         
     if args.gpu:
