@@ -274,19 +274,19 @@ class Vision(torch.nn.Module):
         Swinv2 = Swinv2Model(config_swinv2)
         Convnext = ConvNextModel(config_convnext)
 
-        if args.vitbackbone == "vit":
+        if args.backbone == "vit":
             self.pretrained = Vit
             self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
 #             hidden_from_ = self.pretrained.pooler.dense.out_features
-        elif args.vitbackbone == "swin":
+        elif args.backbone == "swin":
             self.pretrained = Swin
             self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
-        elif args.vitbackbone == "swinv2":
+        elif args.backbone == "swinv2":
             self.pretrained = Swinv2
             self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
-        elif args.vitbackbone == "convnext":
+        elif args.backbone == "convnext":
             self.pretrained = Convnext
             self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
         hidden_from_ = self.pretrained.layernorm.weight.size()[0]
