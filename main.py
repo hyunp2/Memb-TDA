@@ -125,6 +125,7 @@ def job_submit(args):
     #WARNING: Call dataloader & logger after initializing DDP
     dl = dutils.PH_Featurizer_DataLoader(opt=args)
     train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
+    print(cf.on_blue("STEP 1 of training: Loading data is done!"))
     
     if args.backbone == "mpnn":
         net = MPNN()
@@ -155,7 +156,7 @@ def job_submit(args):
         affinity = set_affinity(local_rank, nproc_per_node)
     increase_l2_fetch_granularity()
     
-    print("Initalizing training...")
+    print(cf.on_yellow("STEP 2 of training: Initalizing training..."))
     train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
     #python -m main --which_mode train --ignore_topologicallayer
 
