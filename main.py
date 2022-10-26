@@ -95,6 +95,8 @@ def get_args():
     parser.add_argument('--gpu', action='store_true')
     parser.add_argument('--shard', action='store_true')
     parser.add_argument('--loss', choices=["mse", "mae", "smooth", "hybrid"], default="hybrid")
+    parser.add_argument('--ce_weights', default=[1]*48, help="CE weights for class")
+    parser.add_argument('--ce_re_ratio', default=[1., 1.], help="CE and Reg loss weights")
 
     #Model utils
     parser.add_argument('--backbone', type=str, default='vit', choices=["mpnn", "vit", "swin", "swinv2", "convnext"])
@@ -142,7 +144,7 @@ def job_submit(args):
     elif args.loss == "smooth":
         loss_func = torch.nn.SmoothL1Loss()
     elif args.loss == "hybrid":
-        loss_func = lambda pred, targ: ce_loss(targ, pred) + reg_loss(targ, pred)
+        loss_func = lambda pred, targ: args.ce_re_ratio[0] * ce_loss(args, targ, pred) + args.ce_re_ratio[1] * reg_loss(args, targ, pred)
 
     if args.log:
         logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
@@ -171,4 +173,4 @@ if __name__ == "__main__":
     elif args.which_mode == "train":
         job_submit(args)
         
-    #python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing
+    #python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]"
