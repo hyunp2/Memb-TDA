@@ -43,8 +43,9 @@ import data_utils_mem
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
     using_tensor_cores, increase_l2_fetch_granularity, WandbLogger
 from train_utils import train as train_function
-from model import MPNN
+from model import MPNN, Vision
 from gpu_utils import *
+from loss_utils import *
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -93,10 +94,10 @@ def get_args():
     parser.add_argument('--use_artifacts', action='store_true')
     parser.add_argument('--gpu', action='store_true')
     parser.add_argument('--shard', action='store_true')
-    parser.add_argument('--loss', choices=["mse", "mae", "smooth"], default="mse")
+    parser.add_argument('--loss', choices=["mse", "mae", "smooth", "hybrid"], default="hybrid")
 
     #Model utils
-    parser.add_argument('--backbone', type=str, default='mpnn', choices=["mpnn", "vit", "swin", "swinv2", "convnext"])
+    parser.add_argument('--backbone', type=str, default='vit', choices=["mpnn", "vit", "swin", "swinv2", "convnext"])
     
     #Callback utils
     parser.add_argument('--log', action="store_true", help="to log for W&B")  
@@ -125,7 +126,11 @@ def job_submit(args):
     dl = dutils.PH_Featurizer_DataLoader(opt=args)
     train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
     
-    net = MPNN()
+    if args.backbone == "mpnn":
+        net = MPNN()
+    elif args.backbone in ["vit", "swin", "swinv2", "convnext"]
+        net = Vision(args)
+        
     if args.gpu:
         net = net.to(torch.cuda.current_device())
         
@@ -135,6 +140,8 @@ def job_submit(args):
         loss_func = torch.nn.L1Loss()
     elif args.loss == "smooth":
         loss_func = torch.nn.SmoothL1Loss()
+    elif args.loss == "hybrid":
+        loss_func = lambda pred, targ: ce_loss(targ, pred) + reg_loss(targ, pred)
 
     if args.log:
         logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
@@ -155,10 +162,12 @@ def job_submit(args):
 if __name__ == "__main__":
     args = get_args()
     print(args.__dict__)
-    dutils = data_utils if args.which_mode == "preprocessing" else data_utils_mem
+#     dutils = data_utils if args.which_mode == "preprocessing" else data_utils_mem
+    dutils = data_utils
     
     if args.which_mode == "preprocessing":
         preprocessing(args)
     elif args.which_mode == "train":
         job_submit(args)
         
+    #python -m main --which_mode train --name vit_model --filename vit.pickle
