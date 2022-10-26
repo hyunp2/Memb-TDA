@@ -40,7 +40,7 @@ from torch.distributed.fsdp.wrap import (
 					)
 
 from loss_utils import *
-loss_func = lambda pred, targ: ce_loss(targ, pred) + reg_loss(targ, pred)
+# loss_func = lambda pred, targ: ce_loss(targ, pred) + reg_loss(targ, pred)
 
 __all__ = ["train"]
 
