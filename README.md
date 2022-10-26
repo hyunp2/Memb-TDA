@@ -32,7 +32,7 @@ python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --t
 </code> 
 </br>
 <code>
-  python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000
+  python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]"
 </code>
 
 <br><br> For distributed data parallelization <br>
@@ -42,7 +42,7 @@ python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --t
 </code>
 </br>
 <code>
-  python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000
+  python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]"
 </code>
   
 <br><br> For DGX-3 submission, assuming submit_local contains proper job scheduling...<br>
@@ -51,5 +51,5 @@ python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --t
 </code>
 <br><br> To continue training...<br>
 <code>
-python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --resume
+python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]" --resume
 </code>
