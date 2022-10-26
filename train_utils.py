@@ -126,8 +126,13 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
         with torch.cuda.amp.autocast(enabled=args.amp):
             preds = model(img_ph)
             loss_mse = loss_func(preds, targetT) #get_loss_func
-#             loss_metrics = tmetrics(preds.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
-            loss_metrics = 0
+            preds_prob = torch.nn.functional.softmax(preds, dim=-1)
+            ranges = torch.arange(283, 283+48).to(preds).float() #temperatures
+            assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
+            y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
+            y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
+            loss_metrics = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
+#             loss_metrics = 0
         if args.log:
             logger.log_metrics({'rank0_specific_train_loss_mse': loss_mse.item()})
             logger.log_metrics({'rank0_specific_train_loss_mae': loss_metrics})
@@ -180,8 +185,13 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
 #                 preds = model(pos=atom_ph, batch=phbatch) 
                 preds = model(img_ph)
                 loss_mse = loss_func(preds, targetT) #get_loss_func
-#                 loss_metrics = tmetrics(preds.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
-                loss_metrics = 0
+                preds_prob = torch.nn.functional.softmax(preds, dim=-1)
+                ranges = torch.arange(283, 283+48).to(preds).float() #temperatures
+                assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
+                y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
+                y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
+                loss_metrics = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
+#             loss_metrics = 0
 
             if args.log:
                 logger.log_metrics({'rank0_specific_val_loss_mse': loss_mse.item()})
@@ -213,8 +223,13 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
 #                 preds = model(pos=atom_ph, batch=phbatch) 
                 preds = model(img_ph)
                 loss_mse = loss_func(preds, targetT) #get_loss_func
-#                 loss_metrics = tmetrics(preds.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
-                loss_metrics = 0
+                preds_prob = torch.nn.functional.softmax(preds, dim=-1)
+                ranges = torch.arange(283, 283+48).to(preds).float() #temperatures
+                assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
+                y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
+                y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
+                loss_metrics = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
+#             loss_metrics = 0
 
             if args.log:
                 logger.log_metrics({'rank0_specific_test_loss_mse': loss_mse.item()})
