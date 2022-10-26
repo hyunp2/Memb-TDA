@@ -188,11 +188,11 @@ class PH_Featurizer_Dataset(Dataset):
                 f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "wb")
                 pickle.dump(self.temperatures, f)   
                 assert len(self.coords_traj) == len(self.temperatures), "coords traj and temperatures must have the same data length..."
-                print("STEP 0: Saved temperature!")
+                print(cf.on_blue("STEP 0: Saved temperature!"))
             else:
                 f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "rb")
                 self.temperatures = pickle.load(f)
-                print("STEP0: Loaded temperature!")
+                print(cf.on_blue("STEP0: Loaded temperature!"))
                 
 #         self.graph_input_list, self.Rs_total, self.Rs_list_tensor = self.get_values()
         self.graph_input_list, self.Rs_total, self.Images_total = self.get_values()
