@@ -149,8 +149,11 @@ def job_submit(args):
         loss_func = lambda pred, targ: ce_re_ratio[0] * ce_loss(args, targ, pred) + ce_re_ratio[1] * reg_loss(args, targ, pred)
 
     if args.log:
+#         https://docs.wandb.ai/guides/artifacts/storage
         logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
-        os.environ["WANDB_CACHE_DIR"] = os.getcwd()
+        os.environ["WANDB_DIR"] = os.path.join(os.getcwd(), "wandb")
+        os.environ["WANDB_CACHE_DIR"] = os.path.join(os.getcwd(), ".cache/wandb")
+        os.environ["WANDB_CONFIG_DIR"] = os.path.join(os.getcwd(), ".config/wandb")
     else:
         logger = None
     
