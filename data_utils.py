@@ -243,6 +243,7 @@ class PH_Featurizer_Dataset(Dataset):
                 print(cf.on_yellow("STEP 2: Persistent diagram extraction done!"))
 
                 images_total = list(zip(*Rs_total))
+                print(len(images_total) , (self.maxdim + 1))
                 assert len(images_total) == (self.maxdim + 1), "images_total must be the same as maxdim!"
                 pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
                 pers_images_total = collections.defaultdict(list)
