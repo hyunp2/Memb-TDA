@@ -251,8 +251,9 @@ class PH_Featurizer_Dataset(Dataset):
                     img = list(map(order_dgm, img)) #list of Hi 
 #                     img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
                     pers.fit(img)
-                    pers.birth_range = (0,1)
-                    pers.pers_range = (0,1)
+                    bmax, pmax = pers.birth_range[1], pers.pers_range[1]
+                    pers.birth_range = (0, bmax+0.5)
+                    pers.pers_range = (0, pmax+0.5)
                     img_list = pers.transform(img, n_jobs=-1)
                     temp = np.stack(img_list, axis=0)
                     mins, maxs = temp.min(), temp.max()
