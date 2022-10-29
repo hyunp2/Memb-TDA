@@ -224,7 +224,7 @@ class PH_Featurizer_Dataset(Dataset):
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
         else:
             print(f"Multiple CPU Persistent Diagram... with {os.cpu_count()} CPUs")
-            if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename))):
+            if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename))):
                 s=time.time()
 #                 futures = [get_coordinates_mp.remote(i) for i in self.files_to_pg] 
 #                 graph_input_list = ray.get(futures) #List of structures: each structure has maxdim PHs
