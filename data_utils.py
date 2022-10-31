@@ -312,6 +312,7 @@ class PH_Featurizer_Dataset(Dataset):
 #             del Rs[0] #Remove H0
 #             for i in range(1, self.maxdim+1):
 #                 Rs_dict[f"ph{i}"] = order_dgm(Rs[i-1]) #ordered!
+        img_temp = []
         img = np.stack([self.Images_total[i][idx] for i in range(len(self.Images_total))], axis=0) #(2,H,W)
         img = np.concatenate((img, 0.5*img[:1, ...] + 0.5*img[1:2, ...]), axis=0) #->(3,H,W)
         img = torch.from_numpy(img).type(torch.float) #pin_memory for CPU tensors!
