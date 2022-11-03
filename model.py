@@ -18,6 +18,7 @@ from transformers import ViTFeatureExtractor, ViTModel
 import os
 import curtsies.fmtfuncs as cf 
 from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
+from resTv2 import ResTV2 as ResTV2Model
 
 __all__ = ["MPNN", "Vit", "feature_extractor"]
 
@@ -269,11 +270,15 @@ class Vision(torch.nn.Module):
         config_swin = SwinConfig(image_size=100, patch_size=5, num_channels=3)
         config_swinv2 = Swinv2Config(image_size=100, patch_size=5, num_channels=3)
         config_convnext = ConvNextConfig(image_size=100, patch_size=5, num_channels=3)
+        config_restv2 = dict(in_chans=3, num_classes=48, embed_dims=[96, 192, 384, 768],num_heads=[1, 2, 4, 8],
+                             drop_path_rate=0., depths=[2, 2, 2, 2], sr_ratios=[8, 4, 2, 1])
+
         Vit = ViTModel(config_vit)
         Swin = SwinModel(config_swin)
         Swinv2 = Swinv2Model(config_swinv2)
         Convnext = ConvNextModel(config_convnext)
-
+        ResTV2 = ResTV2Model(**config_restv2)
+        
         if args.backbone == "vit":
             self.pretrained = Vit
             self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
@@ -289,13 +294,16 @@ class Vision(torch.nn.Module):
         elif args.backbone == "convnext":
             self.pretrained = Convnext
             self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
-        hidden_from_ = self.pretrained.layernorm.weight.size()[0]
-
+        elif args.backbone == "restv2":
+            self.pretrained = ResTV2
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+       
+        hidden_from_ = self.pretrained.layernorm.weight.size()[0] if args.backbone in ["vit", "swin", "swinv2", "convnext"] else self.pretrained.embed_dims[3]
         self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.SiLU(True), 
                                                             torch.nn.Linear(512,256), torch.nn.SiLU(True), 
                                                                 torch.nn.Linear(256,64), torch.nn.SiLU(True), 
                                                                 torch.nn.Linear(64,48), )) #48 temperature classes
-                                                                
+
     def forward(self, img_ph: torch.FloatTensor):
         img_ph : List[torch.FloatTensor] = img_ph.detach().cpu().unbind(dim=0)
         img_ph : List[np.ndarray] = list(map(lambda inp: inp.numpy(), img_ph ))
