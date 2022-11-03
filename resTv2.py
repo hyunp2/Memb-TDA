@@ -10,7 +10,9 @@ import torch.nn as nn
 
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 from timm.models.registry import register_model
-
+from typing import *
+from transformers.utils.generic import ModelOutput
+from dataclasses import dataclass
 
 class Mlp(nn.Module):
     def __init__(self, dim):
@@ -178,7 +180,8 @@ class ResTV2(nn.Module):
         super().__init__()
         self.num_classes = num_classes
         self.depths = depths
-
+        self.embed_dims = embed_dims
+        
         self.stem = ConvStem(in_chans, embed_dims[0], patch_size=4)
         self.patch_2 = PatchEmbed(embed_dims[0], embed_dims[1], patch_size=2)
         self.patch_3 = PatchEmbed(embed_dims[1], embed_dims[2], patch_size=2)
@@ -213,7 +216,7 @@ class ResTV2(nn.Module):
         self.norm = nn.LayerNorm(embed_dims[-1], eps=1e-6)  # final norm layer
         # classification head
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.head = nn.Linear(embed_dims[3], num_classes) if num_classes > 0 else nn.Identity()
+#         self.head = nn.Linear(embed_dims[3], num_classes) if num_classes > 0 else nn.Identity()
 
         # init weights
         self.apply(self._init_weights)
@@ -227,7 +230,10 @@ class ResTV2(nn.Module):
             nn.init.constant_(m.weight, 1.)
             nn.init.constant_(m.bias, 0.)
 
-    def forward(self, x):
+    def forward(self, pixel_values: Optional[torch.FloatTensor] = None):
+        if pixel_values is None:
+            raise ValueError("You have to specify pixel_values")
+            
         B, _, H, W = x.shape
         x, (H, W) = self.stem(x)
 
@@ -254,11 +260,23 @@ class ResTV2(nn.Module):
             x = blk(x, H, W)
         x = self.norm(x)
 
-        x = x.permute(0, 2, 1).reshape(B, -1, H, W)
-        x = self.avg_pool(x).flatten(1)
-        x = self.head(x)
-        return x
+        last_hidden_state = x = x.permute(0, 2, 1).reshape(B, -1, H, W)
+        pooler_output = self.avg_pool(x).flatten(1) #(B, C)
+#         x = self.head(x)
+        
+        return ResTV2ModelOutput(
+            last_hidden_state = last_hidden_state
+            pooler_output = pooler_output, #Only thing necessary
+            )
 
+@dataclass
+# Copied from transformers.models.swin.modeling_swin.SwinModelOutput with Swin->Swinv2
+class ResTV2ModelOutput(ModelOutput):
+    last_hidden_state: torch.FloatTensor = None
+    pooler_output: Optional[torch.FloatTensor] = None
+    hidden_states: Optional[Tuple[torch.FloatTensor]] = None
+    attentions: Optional[Tuple[torch.FloatTensor]] = None
+    reshaped_hidden_states: Optional[Tuple[torch.FloatTensor]] = None
 
 @register_model
 def restv2_tiny(pretrained=False, **kwargs):  # 82.3|4.7G|24M -> |3.92G|30.37M   4.5G|30.33M
