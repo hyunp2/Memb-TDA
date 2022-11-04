@@ -159,6 +159,30 @@ def traj_preprocessing(prot_traj, prot_ref, align_selection):
 def mdtraj_loading(root: str, topology: str):
     return mdtraj.load(os.path.join(root, topology)).xyz[0]
     
+def images_processing(Images_total: dict, make_more_channels=False, index=None):
+    img0 = Images_total[0][index] #(H,W)
+    img1 = Images_total[1][index] #(H,W)
+    img2 = Images_total[2][index] #(H,W)
+    
+    from PIL import Image
+    from torchvision.transforms import ToTensor
+
+    newsize = (128, 128)
+    # imgs0 = list(map(lambda inp: inp, ToTensor(Image.fromarray(inp).resize(newsize)), img0 )) #List[Tensor(PIL.Image)]; ONLY can parse ONE image at a time!
+    # imgs1 = list(map(lambda inp: inp, ToTensor(Image.fromarray(inp).resize(newsize)), img1 )) #List[Tensor(PIL.Image)]
+    # imgs2 = list(map(lambda inp: inp, ToTensor(Image.fromarray(inp).resize(newsize)), img2 )) #List[Tensor(PIL.Image)]
+    imgs0, imgs1, imgs2 = list(map(lambda inp: ToTensor(Image.fromarray(inp).resize(newsize, resample=Image.LANCZOS)), (imgs0, imgs1, imgs2) ))
+    # imgs0, imgs1, imgs2 = torch.tensor(imgs0), torch.tensor(imgs1), torch.tensor(img2) #(batch, H, W)
+
+    imgs = torch.stack([imgs0, imgs1, imgs2], dim=0) #(3HW)
+
+    if make_more_channels:
+        img01 = (imgs0 - imgs1).abs()
+        img02 = (imgs0 - imgs2).abs()
+        img12 = (imgs1 - imgs2).abs()
+    else:
+        return imgs
+    
 # @dataclasses.dataclass
 class PH_Featurizer_Dataset(Dataset):
     def __init__(self, args: argparse.ArgumentParser):
@@ -312,9 +336,10 @@ class PH_Featurizer_Dataset(Dataset):
 #             del Rs[0] #Remove H0
 #             for i in range(1, self.maxdim+1):
 #                 Rs_dict[f"ph{i}"] = order_dgm(Rs[i-1]) #ordered!
-        img_temp = []
-        img = np.stack([self.Images_total[i][idx] for i in range(len(self.Images_total))], axis=0) #(2,H,W)
-        img = np.concatenate((img, 0.5*img[:1, ...] + 0.5*img[1:2, ...]), axis=0) #->(3,H,W)
+#         img_temp = []
+#         img = np.stack([self.Images_total[i][idx] for i in range(len(self.Images_total))], axis=0) #(2,H,W)
+#         img = np.concatenate((img, 0.5*img[:1, ...] + 0.5*img[1:2, ...]), axis=0) #->(3,H,W)
+        img = images_processing(self.Images_total, index=idx) #(3,H,W)
         img = torch.from_numpy(img).type(torch.float) #pin_memory for CPU tensors!
         temps = torch.tensor(self.temperatures).view(-1,1).to(img)[idx]
 #         return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict["ph1"], **Rs_dict)}
