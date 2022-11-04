@@ -265,7 +265,7 @@ class ResTV2(nn.Module):
 #         x = self.head(x)
         
         return ResTV2ModelOutput(
-            last_hidden_state = last_hidden_state
+            last_hidden_state = last_hidden_state,
             pooler_output = pooler_output, #Only thing necessary
             )
 
