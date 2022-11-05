@@ -158,7 +158,8 @@ def traj_preprocessing(prot_traj, prot_ref, align_selection):
 @ray.remote
 def mdtraj_loading(root: str, topology: str):
     return mdtraj.load(os.path.join(root, topology)).xyz[0]
-    
+
+@ray.remote
 def images_processing(Images_total: dict, make_more_channels=False, index=None):
     img0 = Images_total[0][index] #(H,W)
     img1 = Images_total[1][index] #(H,W)
@@ -450,27 +451,34 @@ if __name__ == "__main__":
 
     # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
 
-    with open("./pickled/PH_vit.pickle", "rb") as f:
-        Rs_total = pickle.load(f)
-    maxdim = 1
-    images_total = list(zip(*Rs_total))
-    assert len(images_total) == (maxdim + 1), "images_total must be the same as maxdim!"
-    pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
-    pers_images_total = collections.defaultdict(list)
-    for i, img in enumerate(images_total):
-#         img = list(map(lambda inp: torch.from_numpy(inp), img))
-        img = list(map(order_dgm, img)) #list of Hi 
-#         img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
-        pers.fit(img)
-        bmax, pmax = pers.birth_range[1], pers.pers_range[1]
-        pers.birth_range = (0, bmax+0.5)
-        pers.pers_range = (0, pmax+0.5)
-        img_list = pers.transform(img, n_jobs=-1)
-        temp = np.stack(img_list, axis=0)
-        mins, maxs = temp.min(), temp.max()
-        img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
-        pers_images_total[i] += img_list
-    Images_total = pers_images_total
-    print(Images_total)
-    with open("./pickled/Im_vit.pickle", "wb") as f:
-        pickle.dump(Images_total, f)
+#     with open("./pickled/PH_vit.pickle", "rb") as f:
+#         Rs_total = pickle.load(f)
+#     maxdim = 1
+#     images_total = list(zip(*Rs_total))
+#     assert len(images_total) == (maxdim + 1), "images_total must be the same as maxdim!"
+#     pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
+#     pers_images_total = collections.defaultdict(list)
+#     for i, img in enumerate(images_total):
+# #         img = list(map(lambda inp: torch.from_numpy(inp), img))
+#         img = list(map(order_dgm, img)) #list of Hi 
+# #         img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
+#         pers.fit(img)
+#         bmax, pmax = pers.birth_range[1], pers.pers_range[1]
+#         pers.birth_range = (0, bmax+0.5)
+#         pers.pers_range = (0, pmax+0.5)
+#         img_list = pers.transform(img, n_jobs=-1)
+#         temp = np.stack(img_list, axis=0)
+#         mins, maxs = temp.min(), temp.max()
+#         img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
+#         pers_images_total[i] += img_list
+#     Images_total = pers_images_total
+#     print(Images_total)
+#     with open("./pickled/Im_vit.pickle", "wb") as f:
+#         pickle.dump(Images_total, f)
+
+    with open("./pickled/Im_vit.pickle", "rb") as f:
+        Im_dict = pickle.load(f)
+        futures = [images_processing(Im_dict, ind) for ind in range(len(Im_dict[0]))]
+        imgs = ray.get(futures) #List[np.ndarray] of each shape (3,H,W)
+    f = open("./pickled/ProcessedIm_vit.pickle", "wb")
+    pickle.dump(imgs, f)
