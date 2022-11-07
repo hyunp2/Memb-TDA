@@ -163,7 +163,6 @@ def mdtraj_loading(root: str, topology: str):
 def images_processing(Images_total: dict, make_more_channels=False, index=None):
     img0 = Images_total[0][index] #(H,W)
     img1 = Images_total[1][index] #(H,W)
-    img2 = (img0 + img1) / 2 #(H,W)
 #     img2 = Images_total[2][index] #(H,W)
     
     from PIL import Image
@@ -173,7 +172,8 @@ def images_processing(Images_total: dict, make_more_channels=False, index=None):
     # imgs0 = list(map(lambda inp: inp, ToTensor(Image.fromarray(inp).resize(newsize)), img0 )) #List[Tensor(PIL.Image)]; ONLY can parse ONE image at a time!
     # imgs1 = list(map(lambda inp: inp, ToTensor(Image.fromarray(inp).resize(newsize)), img1 )) #List[Tensor(PIL.Image)]
     # imgs2 = list(map(lambda inp: inp, ToTensor(Image.fromarray(inp).resize(newsize)), img2 )) #List[Tensor(PIL.Image)]
-    imgs0, imgs1, imgs2 = list(map(lambda inp: ToTensor()(Image.fromarray(inp).resize(newsize, resample=Image.LANCZOS)), (imgs0, imgs1, imgs2) )) #(1HW ea.)
+    imgs0, imgs1 = list(map(lambda inp: ToTensor()(Image.fromarray(inp).resize(newsize, resample=Image.LANCZOS)), (imgs0, imgs1) )) #(1HW ea.)
+    img2 = (img0 + img1) / 2 #(1,H,W)
     # imgs0, imgs1, imgs2 = torch.tensor(imgs0), torch.tensor(imgs1), torch.tensor(img2) #(batch, H, W)
 
     imgs = torch.cat([imgs0, imgs1, imgs2], dim=0) #(3HW)
