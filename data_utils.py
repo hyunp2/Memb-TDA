@@ -159,7 +159,7 @@ def traj_preprocessing(prot_traj, prot_ref, align_selection):
 def mdtraj_loading(root: str, topology: str):
     return mdtraj.load(os.path.join(root, topology)).xyz[0]
 
-@ray.remote
+# @ray.remote
 def images_processing(Images_total: dict, make_more_channels=False, index=None):
     img0 = Images_total[0][index] #(H,W)
     img1 = Images_total[1][index] #(H,W)
@@ -479,8 +479,8 @@ if __name__ == "__main__":
 
     with open("./pickled/Im_vit.pickle", "rb") as f:
         Im_dict = pickle.load(f)
-    Im_dict_put = ray.put(Im_dict)
-    futures = [images_processing.remote(Im_dict_put, ind) for ind in range(len(Im_dict[0]))]
-    imgs = ray.get(futures) #List[np.ndarray] of each shape (3,H,W)
+#     Im_dict_put = ray.put(Im_dict)
+    imgs = [images_processing(Im_dict, ind) for ind in range(len(Im_dict[0]))]
+#     imgs = ray.get(futures) #List[np.ndarray] of each shape (3,H,W)
     f = open("./pickled/ProcessedIm_vit.pickle", "wb")
     pickle.dump(imgs, f)
