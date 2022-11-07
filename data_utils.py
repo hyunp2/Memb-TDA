@@ -291,10 +291,16 @@ class PH_Featurizer_Dataset(Dataset):
                 pickle.dump(pers_images_total, f)   
                 print(cf.on_yellow("STEP 3: Persistent image extraction done!"))
                 
+                pbar = tqdm.tqdm(range(len(Images_total[0])))
+                imgs = [images_processing(Images_total, index=ind) for ind in pbar]
+                f = open(os.path.join(self.save_dir, "ProcessedIm_" + self.filename), "wb")
+                pickle.dump(imgs, f)
                 e=time.time()
+                print(cf.on_yellow("STEP 4: PIL resized images done!"))
+
                 print(f"{e-s} seconds taken...")
                 
-                print(cf.on_yellow("STEP 4: Coords and PH and Images files saved!"))
+                print(cf.on_yellow("STEP 5: Coords and PH and Images and Resized files saved!"))
   
 #                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
             else:
@@ -305,13 +311,15 @@ class PH_Featurizer_Dataset(Dataset):
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 maxdims = [self.maxdim] * len(graph_input_list)
 #                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
-                f = open(os.path.join(self.save_dir, "Im_" + self.filename), "rb")
-                Images_total = pickle.load(f) #List of structures: each structure has maxdim PHs
+#                 f = open(os.path.join(self.save_dir, "Im_" + self.filename), "rb")
+#                 Images_total = pickle.load(f) #List of structures: each structure has maxdim PHs #######IGNORE!
+                f = open(os.path.join(self.save_dir, "ProcessedIm_" + self.filename), "rb")
+                Processed_images_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 
         if self.preprocessing_only or self.ignore_topologicallayer:
-            return graph_input_list, Rs_total, Images_total #None #List of structures: each structure has maxdim PHs
+            return graph_input_list, Rs_total, Processed_images_total #None #List of structures: each structure has maxdim PHs
         else:
-            return graph_input_list, Rs_total, Images_total #Rs_list_tensor #List of structures: each structure has maxdim PHs
+            return graph_input_list, Rs_total, Processed_images_total #Rs_list_tensor #List of structures: each structure has maxdim PHs
 
     def get_values(self, ):
         graph_input_list, Rs_total, Images_total = self.get_persistent_diagrams()
@@ -341,8 +349,8 @@ class PH_Featurizer_Dataset(Dataset):
 #         img_temp = []
 #         img = np.stack([self.Images_total[i][idx] for i in range(len(self.Images_total))], axis=0) #(2,H,W)
 #         img = np.concatenate((img, 0.5*img[:1, ...] + 0.5*img[1:2, ...]), axis=0) #->(3,H,W)
-        img = images_processing(self.Images_total, index=idx) #(3,H,W)
-        img = torch.from_numpy(img).type(torch.float) #pin_memory for CPU tensors!
+        img = self.Images_total[idx] #(3,H,W)
+        img = torch.from_numpy(img).type(torch.float) if isinstance(img, np.ndarray) else img.type(torch.float) #pin_memory for CPU tensors!
         temps = torch.tensor(self.temperatures).view(-1,1).to(img)[idx]
 #         return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict["ph1"], **Rs_dict)}
         return {"PH": img, "temp": temps}
@@ -477,12 +485,12 @@ if __name__ == "__main__":
 #     with open("./pickled/Im_vit.pickle", "wb") as f:
 #         pickle.dump(Images_total, f)
     
-    import tqdm
-    with open("./pickled/Im_vit.pickle", "rb") as f:
-        Im_dict = pickle.load(f)
-#     Im_dict_put = ray.put(Im_dict)
-    pbar = tqdm.tqdm(range(len(Im_dict[0])))
-    imgs = [images_processing(Im_dict, index=ind) for ind in pbar]
-#     imgs = ray.get(futures) #List[np.ndarray] of each shape (3,H,W)
-    f = open("./pickled/ProcessedIm_vit.pickle", "wb")
-    pickle.dump(imgs, f)
+#     import tqdm
+#     with open("./pickled/Im_vit.pickle", "rb") as f:
+#         Im_dict = pickle.load(f)
+# #     Im_dict_put = ray.put(Im_dict)
+#     pbar = tqdm.tqdm(range(len(Im_dict[0])))
+#     imgs = [images_processing(Im_dict, index=ind) for ind in pbar]
+# #     imgs = ray.get(futures) #List[np.ndarray] of each shape (3,H,W)
+#     f = open("./pickled/ProcessedIm_vit.pickle", "wb")
+#     pickle.dump(imgs, f)
