@@ -478,7 +478,7 @@ if __name__ == "__main__":
 
     with open("./pickled/Im_vit.pickle", "rb") as f:
         Im_dict = pickle.load(f)
-        futures = [images_processing.remote(Im_dict, ind) for ind in range(len(Im_dict[0]))]
-        imgs = ray.get(futures) #List[np.ndarray] of each shape (3,H,W)
+    futures = [images_processing.remote(Im_dict, ind) for ind in range(len(Im_dict[0]))]
+    imgs = ray.get(futures) #List[np.ndarray] of each shape (3,H,W)
     f = open("./pickled/ProcessedIm_vit.pickle", "wb")
     pickle.dump(imgs, f)
