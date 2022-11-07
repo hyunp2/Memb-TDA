@@ -476,11 +476,13 @@ if __name__ == "__main__":
 #     print(Images_total)
 #     with open("./pickled/Im_vit.pickle", "wb") as f:
 #         pickle.dump(Images_total, f)
-
+    
+    import tqdm
     with open("./pickled/Im_vit.pickle", "rb") as f:
         Im_dict = pickle.load(f)
 #     Im_dict_put = ray.put(Im_dict)
-    imgs = [images_processing(Im_dict, ind) for ind in range(len(Im_dict[0]))]
+    pbar = tqdm.tqdm(range(len(Im_dict[0])))
+    imgs = [images_processing(Im_dict, ind) for ind in pbar]
 #     imgs = ray.get(futures) #List[np.ndarray] of each shape (3,H,W)
     f = open("./pickled/ProcessedIm_vit.pickle", "wb")
     pickle.dump(imgs, f)
