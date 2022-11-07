@@ -264,13 +264,21 @@ class MPNN(torch.nn.Module):
 # Convnext = ConvNextModel.from_pretrained("facebook/convnext-xlarge-384-22k-1k", cache_dir=os.path.join(os.getcwd(), "huggingface_cache"))
 
 class Vision(torch.nn.Module):
+    IMAGE_SIZE = 128
+    PATCH_SIZE = 6
+    NUM_CHANNELS = 3
+    NUM_CLASSES = 48
     def __init__(self, args, **configs):
         super().__init__()
-        config_vit = ViTConfig(image_size=100, patch_size=5, num_channels=3)
-        config_swin = SwinConfig(image_size=100, patch_size=5, num_channels=3)
-        config_swinv2 = Swinv2Config(image_size=100, patch_size=5, num_channels=3)
-        config_convnext = ConvNextConfig(image_size=100, patch_size=5, num_channels=3)
-        config_restv2 = dict(in_chans=3, num_classes=48, embed_dims=[96, 192, 384, 768],num_heads=[1, 2, 4, 8],
+        IMAGE_SIZE = Vision.IMAGE_SIZE
+        PATCH_SIZE = Vision.PATCH_SIZE
+        NUM_CHANNELS = Vision.NUM_CHANNELS
+        NUM_CLASSES = Vision.NUM_CLASSES
+        config_vit = ViTConfig(image_size=IMAGE_SIZE, patch_size=PATCH_SIZE, num_channels=NUM_CHANNELS)
+        config_swin = SwinConfig(image_size=IMAGE_SIZE, patch_size=PATCH_SIZE, num_channels=NUM_CHANNELS)
+        config_swinv2 = Swinv2Config(image_size=IMAGE_SIZE, patch_size=PATCH_SIZE, num_channels=NUM_CHANNELS)
+        config_convnext = ConvNextConfig(image_size=IMAGE_SIZE, patch_size=PATCH_SIZE, num_channels=NUM_CHANNELS)
+        config_restv2 = dict(in_chans=NUM_CHANNELS, num_classes=NUM_CLASSES, embed_dims=[96, 192, 384, 768],num_heads=[1, 2, 4, 8],
                              drop_path_rate=0., depths=[2, 2, 2, 2], sr_ratios=[8, 4, 2, 1])
 
         Vit = ViTModel(config_vit)
@@ -281,22 +289,22 @@ class Vision(torch.nn.Module):
         
         if args.backbone == "vit":
             self.pretrained = Vit
-            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
 #             hidden_from_ = self.pretrained.pooler.dense.out_features
         elif args.backbone == "swin":
             self.pretrained = Swin
-            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.backbone == "swinv2":
             self.pretrained = Swinv2
-            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.backbone == "convnext":
             self.pretrained = Convnext
-            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
         elif args.backbone == "restv2":
             self.pretrained = ResTV2
-            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=100, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
        
         hidden_from_ = self.pretrained.layernorm.weight.size()[0] if args.backbone in ["vit", "swin", "swinv2", "convnext"] else self.pretrained.embed_dims[3]
         self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.SiLU(True), 
