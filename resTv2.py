@@ -234,6 +234,7 @@ class ResTV2(nn.Module):
         if pixel_values is None:
             raise ValueError("You have to specify pixel_values")
             
+        x = pixel_values
         B, _, H, W = x.shape
         x, (H, W) = self.stem(x)
 
