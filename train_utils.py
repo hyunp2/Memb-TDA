@@ -117,7 +117,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
 		     leave=False, disable=(args.silent or get_local_rank() != 0))
     for step, packs in pbar:
         pbar.set_description(f"Epoch {epoch_idx}")
-        if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext"]:
+        if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2"]:
             img_ph, targetT = packs["PH"], packs["temp"]
         else:
             print("Significant error in dataloader!")
@@ -168,7 +168,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
         pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Validation',
 		     leave=False, disable=(args.silent or get_local_rank() != 0))
         for i, packs in pbar:
-            if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext"]:
+            if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2"]:
 #                 coords, phs = packs["Coords"], packs["PH"]
 #                 atom_coords, targetT, cbatch = coords.x, coords.y, coords.batch
 #                 pack =  atom_coords, targetT, cbatch
@@ -213,7 +213,7 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
         pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
 		     leave=False, disable=(args.silent or get_local_rank() != 0))	
         for i, packs in pbar:
-            if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext"]:
+            if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2"]:
                 img_ph, targetT = packs["PH"], packs["temp"]
             else:
                 print("Significant error in dataloader!")
