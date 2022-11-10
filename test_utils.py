@@ -95,8 +95,8 @@ def validate_and_test(model: nn.Module,
         torch.distributed.all_reduce(loss_metrics, op=torch.distributed.ReduceOp.SUM) #Sum to loss
         loss_metrics = (loss_metrics / world_size).item()
     if args.log: 
-        logger.log_metrics({'ALL_REDUCED_val_loss': val_loss}, epoch_idx)
-        logger.log_metrics({'ALL_REDUCED_val_MAE': loss_metrics}, epoch_idx) #zero rank only
+        logger.log_metrics({'ALL_REDUCED_val_loss': val_loss})
+        logger.log_metrics({'ALL_REDUCED_val_MAE': loss_metrics}) #zero rank only
     #zero rank only
     #mae_reduced = tmetrics.compute() #Synced and reduced autometically!
     #logger.log_metrics({'ALL_REDUCED_val_mae_loss': mae_reduced.item()}, epoch_idx) #zero rank only
@@ -113,8 +113,8 @@ def validate_and_test(model: nn.Module,
         torch.distributed.all_reduce(loss_metrics, op=torch.distributed.ReduceOp.SUM) #Sum to loss
         loss_metrics = (loss_metrics / world_size).item()
     if args.log: 
-        logger.log_metrics({'ALL_REDUCED_test_loss': test_loss}, epoch_idx) #zero rank only
-    logger.log_metrics({'ALL_REDUCED_test_MAE': loss_metrics}, epoch_idx) #zero rank only
+        logger.log_metrics({'ALL_REDUCED_test_loss': test_loss}) #zero rank only
+    logger.log_metrics({'ALL_REDUCED_test_MAE': loss_metrics}) #zero rank only
     #mae_reduced = tmetrics.compute() #Synced and reduced autometically!
     #logger.log_metrics({'ALL_REDUCED_test_mae_loss': mae_reduced.item()}, epoch_idx) #zero rank only
     tmetrics.reset()
