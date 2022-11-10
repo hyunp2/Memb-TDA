@@ -119,6 +119,8 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
         pbar.set_description(f"Epoch {epoch_idx}")
         if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2"]:
             img_ph, targetT = packs["PH"], packs["temp"]
+            pack =  img_ph, targetT
+            img_ph, targetT = to_cuda(pack)
         else:
             print("Significant error in dataloader!")
             break
@@ -179,6 +181,8 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
 #                 pack =  atom_ph, phbatch
 #                 atom_ph, phbatch = to_cuda(pack)
                 img_ph, targetT = packs["PH"], packs["temp"]
+                pack =  img_ph, targetT
+                img_ph, targetT = to_cuda(pack)
             else:
                 print("Significant error in dataloader!")
                 break
@@ -222,6 +226,8 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
         for i, packs in pbar:
             if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2"]:
                 img_ph, targetT = packs["PH"], packs["temp"]
+                pack =  img_ph, targetT
+                img_ph, targetT = to_cuda(pack)
             else:
                 print("Significant error in dataloader!")
                 break
