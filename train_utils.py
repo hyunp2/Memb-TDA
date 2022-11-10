@@ -159,7 +159,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
 
 
-def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Logger, tmetrics):
+def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Logger, tmetrics, return_data: bool=False):
     model = model.eval()
     _loss = 0
     _loss_metrics = 0.
@@ -167,6 +167,8 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
     with torch.inference_mode():  
         pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Validation',
 		     leave=False, disable=(args.silent or get_local_rank() != 0))
+        if return_data: data_to_return = []
+		
         for i, packs in pbar:
             if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2"]:
 #                 coords, phs = packs["Coords"], packs["PH"]
@@ -201,10 +203,13 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
             _loss += loss.item()
             _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics)
+            if return_data: 
+                data_to_return.append(y_pred_expected_T) #List[torch.Tensor]
+        if return_data: return torch.cat(data_to_return, dim=0)
 
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
                 
-def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Logger, tmetrics):
+def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Logger, tmetrics, return_data: bool=False):
     model = model.eval()
     _loss = 0
     _loss_metrics = 0.
@@ -212,6 +217,8 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
     with torch.inference_mode():  
         pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
 		     leave=False, disable=(args.silent or get_local_rank() != 0))	
+        if return_data: data_to_return = []
+
         for i, packs in pbar:
             if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2"]:
                 img_ph, targetT = packs["PH"], packs["temp"]
@@ -239,7 +246,11 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
             _loss += loss.item()
             _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics)
-
+		
+            if return_data: 
+                data_to_return.append(y_pred_expected_T) #List[torch.Tensor]
+        if return_data: return torch.cat(data_to_return, dim=0)
+	
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
 	
 def train(model: nn.Module,
