@@ -46,6 +46,7 @@ from train_utils import train as train_function
 from model import MPNN, Vision
 from gpu_utils import *
 from loss_utils import *
+from test_utils import validate_and_test
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -167,6 +168,58 @@ def job_submit(args):
     train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
     #python -m main --which_mode train --ignore_topologicallayer
 
+def infer_submit(args):
+    #Initalize DDP
+    is_distributed = init_distributed() #normal python vs torchrun!
+    local_rank = get_local_rank()
+
+    #WARNING: Call dataloader & logger after initializing DDP
+    dl = dutils.PH_Featurizer_DataLoader(opt=args)
+    
+    train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
+    print(cf.on_blue("STEP 1 of validation and testing: Loading data is done!"))
+    
+    if args.backbone == "mpnn":
+        net = MPNN()
+    elif args.backbone in ["vit", "swin", "swinv2", "convnext", "restv2"]:
+        net = Vision(args)
+        
+    if args.gpu:
+        net = net.to(torch.cuda.current_device())
+        
+    if args.loss == "mse":
+        loss_func = torch.nn.MSELoss()
+    elif args.loss == "mae":
+        loss_func = torch.nn.L1Loss()
+    elif args.loss == "smooth":
+        loss_func = torch.nn.SmoothL1Loss()
+    elif args.loss == "hybrid":
+#         print(args.ce_re_ratio)
+        ce_re_ratio = torch.tensor(args.ce_re_ratio).to(torch.cuda.current_device()).float()
+        loss_func = lambda pred, targ: ce_re_ratio[0] * ce_loss(args, targ, pred) + ce_re_ratio[1] * reg_loss(args, targ, pred)
+    
+    print(cf.red("Forcefully changeing loss function for evaluation to MAE..."))
+    args.loss = "mae" 
+    loss_func = torch.nn.L1Loss()
+    
+    if args.log:
+#         https://docs.wandb.ai/guides/artifacts/storage
+        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+        os.environ["WANDB_DIR"] = os.path.join(os.getcwd(), "wandb")
+        os.environ["WANDB_CACHE_DIR"] = os.path.join(os.getcwd(), ".cache/wandb")
+        os.environ["WANDB_CONFIG_DIR"] = os.path.join(os.getcwd(), ".config/wandb")
+    else:
+        logger = None
+    
+    #Dist training
+    if is_distributed:         
+        nproc_per_node = torch.cuda.device_count()
+        affinity = set_affinity(local_rank, nproc_per_node)
+    increase_l2_fetch_granularity()
+    
+    print(cf.on_yellow("STEP 2 of validation and testing: Initalizing validation and testing..."))
+    validate_and_test(net, loss_func, val_loader, test_loader, logger, args)
+    
 if __name__ == "__main__":
     args = get_args()
     print(args.__dict__)
@@ -177,5 +230,6 @@ if __name__ == "__main__":
         preprocessing(args)
     elif args.which_mode == "train":
         job_submit(args)
-        
+    elif args.which_mode == "infer":
+        infer_submit(args)
     #python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]"
