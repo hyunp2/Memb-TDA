@@ -86,7 +86,7 @@ def validate_and_test(model: nn.Module,
 
     ###EVALUATION
     evaluate = single_val
-    val_loss, loss_metrics, val_predictions = evaluate(args, model, val_dataloader, get_loss_func, optimizer, scheduler, logger, tmetrics, return_data=True) #change to single_val with DDP
+    val_loss, loss_metrics, val_predictions = evaluate(args, model, val_dataloader, get_loss_func, None, None, logger, tmetrics, return_data=True) #change to single_val with DDP
     if dist.is_initialized():
         val_loss = torch.tensor(val_loss, dtype=torch.float, device=device)
         loss_metrics = torch.tensor(loss_metrics, dtype=torch.float, device=device)
@@ -104,7 +104,7 @@ def validate_and_test(model: nn.Module,
     #scheduler_re.step(val_loss) #Not on individual stats but the total stats
 
     ###TESTING
-    test_loss, loss_metrics, test_predictions = single_test(args, model, test_dataloader, get_loss_func, optimizer, scheduler, logger, tmetrics, return_data=True) #change to single_val with DDP
+    test_loss, loss_metrics, test_predictions = single_test(args, model, test_dataloader, get_loss_func, None, None, logger, tmetrics, return_data=True) #change to single_val with DDP
     if dist.is_initialized():
         test_loss = torch.tensor(test_loss, dtype=torch.float, device=device)
         loss_metrics = torch.tensor(loss_metrics, dtype=torch.float, device=device)
