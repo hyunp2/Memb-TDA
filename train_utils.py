@@ -42,7 +42,7 @@ from torch.distributed.fsdp.wrap import (
 from loss_utils import *
 # loss_func = lambda pred, targ: ce_loss(targ, pred) + reg_loss(targ, pred)
 
-__all__ = ["train"]
+__all__ = ["train", "single_val", "single_test", "load_state"]
 
 def save_state(model: nn.Module, optimizer: Optimizer, scheduler_groups: "list of schedulers", epoch: int, val_loss: int, path_and_name: Union[pathlib.Path, str]):
     """ Saves model, optimizer and epoch states to path (only once per node) 
