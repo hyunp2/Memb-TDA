@@ -198,9 +198,9 @@ def infer_submit(args):
         ce_re_ratio = torch.tensor(args.ce_re_ratio).to(torch.cuda.current_device()).float()
         loss_func = lambda pred, targ: ce_re_ratio[0] * ce_loss(args, targ, pred) + ce_re_ratio[1] * reg_loss(args, targ, pred)
     
-    print(cf.red("Forcefully changeing loss function for evaluation to MAE..."))
-    args.loss = "mae" 
-    loss_func = torch.nn.L1Loss()
+#     print(cf.red("Forcefully changeing loss function for evaluation to MAE..."))
+#     args.loss = "mae" 
+#     loss_func = torch.nn.L1Loss()
     
     if args.log:
 #         https://docs.wandb.ai/guides/artifacts/storage
