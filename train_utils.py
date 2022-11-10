@@ -205,7 +205,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics)
             if return_data: 
                 data_to_return.append(y_pred_expected_T) #List[torch.Tensor]
-        if return_data: return torch.cat(data_to_return, dim=0)
+        if return_data: return _loss/len(loader), _loss_metrics/len(loader), torch.cat(data_to_return, dim=0)
 
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
                 
@@ -249,7 +249,7 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
 		
             if return_data: 
                 data_to_return.append(y_pred_expected_T) #List[torch.Tensor]
-        if return_data: return torch.cat(data_to_return, dim=0)
+        if return_data: return _loss/len(loader), _loss_metrics/len(loader), torch.cat(data_to_return, dim=0)
 	
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
 	
