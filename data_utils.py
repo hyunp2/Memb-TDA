@@ -34,7 +34,8 @@ from torch_geometric.loader import DataLoader #Can this handle DDP? yeah!
 import torch.distributed as dist 
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
     using_tensor_cores, increase_l2_fetch_granularity
-from torch.utils.data import DistributedSampler
+from torch.utils.data import DistributedSampler, Subset
+from torch._utils import _accumulate
 from typing import *
 from topologylayer.nn import RipsLayer, AlphaLayer
 import gc
@@ -402,9 +403,18 @@ class PH_Featurizer_DataLoader(abc.ABC):
             dist.barrier(device_ids=[get_local_rank()]) #WAITNG for 0-th core is done!
                     
         full_dataset = PH_Featurizer_Dataset(self.opt)
-        self.ds_train, self.ds_val, self.ds_test = torch.utils.data.random_split(full_dataset, _get_split_sizes(self.opt.train_frac, full_dataset),
+        if opt.which_mode in ["preprocessing", "train"]:
+            self.ds_train, self.ds_val, self.ds_test = torch.utils.data.random_split(full_dataset, _get_split_sizes(self.opt.train_frac, full_dataset),
                                                                 generator=torch.Generator().manual_seed(42))
-    
+        elif opt.which_mode in ["infer"]:
+            """Deterministic Sequential sampling"""
+            len_train, len_val, len_test = _get_split_sizes(self.opt.train_frac, full_dataset)
+            lengths = [len_train, len_val, len_test]
+            indices = torch.arange(sum(lengths)).tolist()
+            if sum(lengths) != len(full_dataset):    # type: ignore[arg-type]
+                raise ValueError("Sum of input lengths does not equal the length of the input dataset!")
+            self.ds_train, self.ds_val, self.ds_test = [Subset(full_dataset, indices[offset - length : offset]) for offset, length in zip(_accumulate(lengths), lengths)]
+
     def prepare_data(self, ):
         """ Method called only once per node. Put here any downloading or preprocessing """
         full_dataset = PH_Featurizer_Dataset(self.opt)
