@@ -100,7 +100,7 @@ def validate_and_test(model: nn.Module,
     dataloader_kwargs = {'pin_memory': args.pin_memory, 'persistent_workers': args.num_workers > 0,
                                         'batch_size': args.batch_size}
     ds = torch.utils.data.ConcatDataset([ds_train, ds_val, ds_test])
-    val_dataloader = get_dataloader(ds, shuffle=False, collate_fn=None, **self.dataloader_kwargs)
+    val_dataloader = get_dataloader(ds, shuffle=False, collate_fn=None, **dataloader_kwargs)
     print(cf.yellow("All the data are concatenated into one! It is still named val_dataloader!"))
 
     ###EVALUATION
