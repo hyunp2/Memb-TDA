@@ -41,6 +41,17 @@ from torch.distributed.fsdp.wrap import (
 
 from train_utils import load_state, single_val, single_test
 
+#https://github.com/taki0112/denoising-diffusion-gan-Tensorflow/blob/571a99022ccc07a31b6c3672f7b5b30cd46a7eb6/src/utils.py#L156:~:text=def%20merge(,return%20img
+def merge(images, size):
+    h, w = images.shape[1], images.shape[2]
+    img = np.zeros((h * size[0], w * size[1], 3))
+    for idx, image in enumerate(images):
+        i = idx % size[1]
+        j = idx // size[1]
+        img[h * j:h * (j + 1), w * i:w * (i + 1), :] = image
+
+    return img
+
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
           val_dataloader: DataLoader,
