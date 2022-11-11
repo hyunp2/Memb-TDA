@@ -38,7 +38,7 @@ from torch.distributed.fsdp.wrap import (
 					enable_wrap,
 					wrap,
 					)
-
+from data_utils import get_dataloader
 from train_utils import load_state, single_val, single_test
 
 #https://github.com/taki0112/denoising-diffusion-gan-Tensorflow/blob/571a99022ccc07a31b6c3672f7b5b30cd46a7eb6/src/utils.py#L156:~:text=def%20merge(,return%20img
@@ -54,6 +54,7 @@ def merge(images, size):
 
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
+          train_dataloader: DataLoader,
           val_dataloader: DataLoader,
 	  test_dataloader: DataLoader,
           logger: Logger,
@@ -94,6 +95,13 @@ def validate_and_test(model: nn.Module,
     init_start_event.record()
     
     model.eval()    	
+	
+    ds_train, ds_val, ds_test = train_dataloader.dataset, val_dataloader.dataset, test_dataloader.dataset
+    dataloader_kwargs = {'pin_memory': args.pin_memory, 'persistent_workers': args.num_workers > 0,
+                                        'batch_size': args.batch_size}
+    ds = torch.utils.data.ConcatDataset([ds_train, ds_val, ds_test])
+    val_dataloader = get_dataloader(ds, shuffle=False, collate_fn=None, **self.dataloader_kwargs)
+    print(cf.yellow("All the data are concatenated into one! It is still named val_dataloader!"))
 
     ###EVALUATION
     evaluate = single_val
@@ -113,22 +121,6 @@ def validate_and_test(model: nn.Module,
     #logger.log_metrics({'ALL_REDUCED_val_mae_loss': mae_reduced.item()}, epoch_idx) #zero rank only
     tmetrics.reset()
     #scheduler_re.step(val_loss) #Not on individual stats but the total stats
-
-    ###TESTING
-    test_loss, loss_metrics, test_predictions = single_test(args, model, test_dataloader, get_loss_func, None, None, logger, tmetrics, return_data=True) #change to single_val with DDP
-    if dist.is_initialized():
-        test_loss = torch.tensor(test_loss, dtype=torch.float, device=device)
-        loss_metrics = torch.tensor(loss_metrics, dtype=torch.float, device=device)
-        torch.distributed.all_reduce(test_loss, op=torch.distributed.ReduceOp.SUM)
-        test_loss = (test_loss / world_size).item()
-        torch.distributed.all_reduce(loss_metrics, op=torch.distributed.ReduceOp.SUM) #Sum to loss
-        loss_metrics = (loss_metrics / world_size).item()
-    if args.log: 
-        logger.log_metrics({'ALL_REDUCED_test_loss': test_loss}) #zero rank only
-    logger.log_metrics({'ALL_REDUCED_test_MAE': loss_metrics}) #zero rank only
-    #mae_reduced = tmetrics.compute() #Synced and reduced autometically!
-    #logger.log_metrics({'ALL_REDUCED_test_mae_loss': mae_reduced.item()}, epoch_idx) #zero rank only
-    tmetrics.reset()
 
     init_end_event.record()
 
