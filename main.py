@@ -218,7 +218,7 @@ def infer_submit(args):
     increase_l2_fetch_granularity()
     
     print(cf.on_yellow("STEP 2 of validation and testing: Initalizing validation and testing..."))
-    validate_and_test(net, loss_func, val_loader, test_loader, logger, args)
+    validate_and_test(net, loss_func, train_loader, val_loader, test_loader, logger, args)
     
 if __name__ == "__main__":
     args = get_args()
