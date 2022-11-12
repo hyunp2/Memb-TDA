@@ -128,10 +128,13 @@ def validate_and_test(model: nn.Module,
         print(f"CUDA event elapsed time: {init_start_event.elapsed_time(init_end_event) / 1000}sec")
 	
     print(cf.on_green("Saving returned validation and test_predictions!"))
-    val_gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0) #B,1
-    test_gts = torch.cat([batch["temp"] for batch in test_dataloader], dim=0) #B,1
+    gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0).reshape(-1,) #B
+    val_predictions = val_predictions..detach().cpu().numpy().reshape(-1,) #B
+    np.savez("PH_all_test.npz", gt=gts, pred=val_predictions)
 
-    np.savez("PH_val_test.npz", validation_gt=val_gts.detach().cpu().numpy(), test_gt=test_gts.detach().cpu().numpy(), validation_pred=val_predictions.detach().cpu().numpy(), test_pred=test_predictions.detach().cpu().numpy())
+#     val_gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0) #B,1
+#     test_gts = torch.cat([batch["temp"] for batch in test_dataloader], dim=0) #B,1
+#     np.savez("PH_val_test.npz", validation_gt=val_gts.detach().cpu().numpy(), test_gt=test_gts.detach().cpu().numpy(), validation_pred=val_predictions.detach().cpu().numpy(), test_pred=test_predictions.detach().cpu().numpy())
     
     print(cf.on_yellow("Validation and test are OVER..."))
     dist.destroy_process_group()
