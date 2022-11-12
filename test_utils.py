@@ -129,7 +129,7 @@ def validate_and_test(model: nn.Module,
 	
     print(cf.on_green("Saving returned validation and test_predictions!"))
     gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0).reshape(-1,) #B
-    val_predictions = val_predictions..detach().cpu().numpy().reshape(-1,) #B
+    val_predictions = val_predictions.detach().cpu().numpy().reshape(-1,) #B
     np.savez("PH_all_test.npz", gt=gts, pred=val_predictions)
 
 #     val_gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0) #B,1
