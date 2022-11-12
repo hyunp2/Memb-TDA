@@ -52,6 +52,10 @@ def merge(images, size):
 
     return img
 
+def plot_analysis(filename: str):
+    data = np.load(filename)
+    keys = list(data)
+
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
           train_dataloader: DataLoader,
