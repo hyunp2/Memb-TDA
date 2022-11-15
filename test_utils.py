@@ -1,6 +1,7 @@
 import logging
 import pathlib
 from typing import List, Union
+import matplotlib.pyplot as plt
 import os, sys
 import pathlib
 import numpy as np
