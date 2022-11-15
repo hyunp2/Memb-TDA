@@ -53,9 +53,15 @@ def merge(images, size):
     return img
 
 def plot_analysis(filename: str):
+    assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
     data = np.load(filename)
     keys = list(data)
-
+    plt.hist(data["gt"])
+    bins, edges = plt.hist(data["pred"], alpha=0.5)
+    plt.show()
+    idx = torch.topk(torch.from_numpy(bins).view(1,-1), dim=-1, k=2).indices #bimodal (1, 2)
+    print(idx)
+	
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
           train_dataloader: DataLoader,
@@ -143,4 +149,5 @@ def validate_and_test(model: nn.Module,
     print(cf.on_yellow("Validation and test are OVER..."))
     dist.destroy_process_group()
 
-
+if __name__ == "__main__":
+    plot_analysis("PH_all_test.npz")
