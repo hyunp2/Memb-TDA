@@ -57,8 +57,8 @@ def plot_analysis(filename: str):
     assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
     data = np.load(filename)
     keys = list(data)
-    plt.hist(data["gt"])
-    bins, edges, patches = plt.hist(data["pred"], alpha=0.5)
+    plt.hist(data["gt"], bins=50)
+    bins, edges, patches = plt.hist(data["pred"], alpha=0.5, bins=50)
     plt.savefig("gt_pred.png")
     idx = torch.topk(torch.from_numpy(bins).view(1,-1), dim=-1, k=2).indices #bimodal (1, 2)
     print(idx)
