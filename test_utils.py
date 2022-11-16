@@ -62,8 +62,8 @@ def plot_analysis(filename: str):
     plt.savefig("gt_pred.png")
     idx = torch.topk(torch.from_numpy(bins).view(1,-1), dim=-1, k=2).indices #bimodal (1, 2)
     print(idx)
-    idx = torch.topk(torch.from_numpy(bins[idx[0]:idx[1]]).view(1,-1), dim=-1, k=2, largest=False).indices #minimum
-    print(idx)
+#     idx = torch.topk(torch.from_numpy(bins[idx[0]:idx[1]]).view(1,-1), dim=-1, k=2, largest=False).indices #minimum
+#     print(idx)
 	
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
