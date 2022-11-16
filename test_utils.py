@@ -58,9 +58,11 @@ def plot_analysis(filename: str):
     data = np.load(filename)
     keys = list(data)
     plt.hist(data["gt"])
-    bins, edges = plt.hist(data["pred"], alpha=0.5)
-    plt.show()
+    bins, edges, patches = plt.hist(data["pred"], alpha=0.5)
+    plt.savefig("gt_pred.png")
     idx = torch.topk(torch.from_numpy(bins).view(1,-1), dim=-1, k=2).indices #bimodal (1, 2)
+    print(idx)
+    idx = torch.topk(torch.from_numpy(bins[idx[0]:idx[1]]).view(1,-1), dim=-1, k=2, largest=False).indices #minimum
     print(idx)
 	
 def validate_and_test(model: nn.Module,
