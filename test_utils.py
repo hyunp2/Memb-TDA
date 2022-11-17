@@ -39,7 +39,7 @@ from torch.distributed.fsdp.wrap import (
 					enable_wrap,
 					wrap,
 					)
-from data_utils import get_dataloader
+from data_utils import get_dataloader, PH_Featurizer_Dataset, mdtraj_loading
 from train_utils import load_state, single_val, single_test
 
 #https://github.com/taki0112/denoising-diffusion-gan-Tensorflow/blob/571a99022ccc07a31b6c3672f7b5b30cd46a7eb6/src/utils.py#L156:~:text=def%20merge(,return%20img
@@ -57,14 +57,24 @@ def plot_analysis(filename: str):
     assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
     data = np.load(filename)
     keys = list(data)
+    BINS = 100
     fig, ax = plt.subplots(2,1)
-    ax[0].hist(data["gt"], bins=100)
-    bins, edges, patches = ax[1].hist(data["pred"], alpha=0.5, bins=100)
+    ax[0].hist(data["gt"], bins=BINS)
+    bins, edges, patches = ax[1].hist(data["pred"], alpha=0.5, bins=BINS)
     fig.savefig("gt_pred.png")
     idx = torch.topk(torch.from_numpy(bins).view(1,-1), dim=-1, k=2).indices #bimodal (1, 2)
     print(idx)
 #     idx = torch.topk(torch.from_numpy(bins[idx[0]:idx[1]]).view(1,-1), dim=-1, k=2, largest=False).indices #minimum
 #     print(idx)
+
+class InferenceDataset(PH_Featurizer_Dataset):
+    def __init__(self, args: argparse.ArgumentParser):
+        super().__init__(args) #Get all the values from inheritance!
+        test_directory = args.test_directory
+        pdbs = os.listdir(test_directory) #all PDBs inside a directory
+        self.coords_traj += [mdtraj.load(os.path.join(direct,top)).xyz[0] for top in pdbs] if not self.multiprocessing else ray.get([mdtraj_loading.remote(root, top) for root, top in zip([test_directory]*len(pdbs), pdbs)])
+        self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(pdbs)
+    
 	
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
