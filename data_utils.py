@@ -46,6 +46,8 @@ from math_utils import wasserstein
 # from main import get_args
 import mdtraj
 
+#https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb#scrollTo=Y6fj2UqWHPbs
+##ABOVE: cubicle-Ripser
 __all__ = ["PH_Featurizer_Dataset", "PH_Featurizer_DataLoader"]
 
 warnings.simplefilter("ignore")
