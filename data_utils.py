@@ -206,7 +206,10 @@ class PH_Featurizer_Dataset(Dataset):
             self.temperatures = []
             directories = sorted(glob.glob(os.path.join(self.pdb_database, "T.*")))
             
-            if not os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)):
+            if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)) ):
                 for direct in directories:
                     pdbs = os.listdir(direct) #all PDBs inside a directory
     #                 print(os.path.join(direct,pdbs[0]))
