@@ -68,12 +68,16 @@ def plot_analysis(filename: str):
 #     print(idx)
 
 class InferenceDataset(PH_Featurizer_Dataset):
-    def __init__(self, args: argparse.ArgumentParser):
-        super().__init__(args) #Get all the values from inheritance!
-        test_directory = args.test_directory
-        pdbs = os.listdir(test_directory) #all PDBs inside a directory
-        self.coords_traj += [mdtraj.load(os.path.join(direct,top)).xyz[0] for top in pdbs] if not self.multiprocessing else ray.get([mdtraj_loading.remote(root, top) for root, top in zip([test_directory]*len(pdbs), pdbs)])
-        self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(pdbs)
+    def __init__(self, args: argparse.ArgumentParser, model: torch.nn.Module):
+        import pathlib
+	assert os.path.basename(args.pdb_database).startswith("inference_"), "pdb_database directory MUST start with a prefix inference_ to differentiate from training directory!"
+        assert os.path.basename(args.save_dir).startswith("inference_"), "saving directory MUST start with a prefix inference_ to differentiate from training directory!"
+        assert args.search_temp != None, "this argument only exists for InferenceDataset!"
+	super().__init__(args) #Get all the values from inheritance!
+        index_for_searchTemp = np.where(np.array(self.temperatures) == int(args.search_temp))[0] 
+	
+    def f():
+        pass
     
 	
 def validate_and_test(model: nn.Module,
