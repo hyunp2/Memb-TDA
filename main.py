@@ -57,6 +57,7 @@ def get_args():
     parser.add_argument('--load_ckpt_path', type=str, default="/Scr/hyunpark/Protein-TDA/saved")
     parser.add_argument('--filename', type=str, default="default.pickle")  
     parser.add_argument('--pdb_database', type=str, default="/Scr/arango/Sobolev-Hyun/2-MembTempredict/testing/") 
+    parser.add_argument('--search_temp', default=123, help="e.g. keyword for T.123 directory") 
 
     #MDAnalysis utils
     parser.add_argument('--psf', type=str, default=None)  
