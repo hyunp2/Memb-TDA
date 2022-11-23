@@ -70,12 +70,14 @@ def plot_analysis(filename: str):
 class InferenceDataset(PH_Featurizer_Dataset):
     def __init__(self, args: argparse.ArgumentParser, model: torch.nn.Module):
         import pathlib
-	assert os.path.basename(args.pdb_database).startswith("inference_"), "pdb_database directory MUST start with a prefix inference_ to differentiate from training directory!"
+        assert os.path.basename(args.pdb_database).startswith("inference_"), "pdb_database directory MUST start with a prefix inference_ to differentiate from training directory!"
         assert os.path.basename(args.save_dir).startswith("inference_"), "saving directory MUST start with a prefix inference_ to differentiate from training directory!"
         assert args.search_temp != None, "this argument only exists for InferenceDataset!"
-	super().__init__(args) #Get all the values from inheritance!
+        super().__init__(args) #Get all the values from inheritance!
         print(cf.on_red(f"Argument args.search_temp {args.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
-        index_for_searchTemp = np.where(np.array(self.temperatures) == int(args.search_temp))[0] 
+        self.index_for_searchTemp = np.where(np.array(self.temperatures) == int(args.search_temp))[0] #Index to get only the correponding temperature-related data!
+        print(cf.on_red(f"Truncating data for specific temperature!"))
+        self.graph_input_list, self.Rs_total, self.Images_total, self.temperature = self.graph_input_list[self.index_for_searchTemp], self.Rs_total[self.index_for_searchTemp], self.Images_total[self.index_for_searchTemp], self.temperature[self.index_for_searchTemp]
 	
     def f():
         pass
