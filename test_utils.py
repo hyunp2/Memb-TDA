@@ -9,6 +9,7 @@ import torch
 import torch.distributed as dist
 import torch.nn as nn
 import importlib
+import pickle
 try:
     importlib.import_module("apex.optimizers")
     from apex.optimizers import FusedAdam, FusedLAMB
@@ -68,20 +69,47 @@ def plot_analysis(filename: str):
 #     print(idx)
 
 class InferenceDataset(PH_Featurizer_Dataset):
-    def __init__(self, args: argparse.ArgumentParser, model: torch.nn.Module):
+    def __init__(self, args: argparse.ArgumentParser, model: torch.nn.Module, directories: str):
         import pathlib
         assert os.path.basename(args.pdb_database).startswith("inference_"), "pdb_database directory MUST start with a prefix inference_ to differentiate from training directory!"
         assert os.path.basename(args.save_dir).startswith("inference_"), "saving directory MUST start with a prefix inference_ to differentiate from training directory!"
         assert args.search_temp != None, "this argument only exists for InferenceDataset!"
-        super().__init__(args) #Get all the values from inheritance!
-        print(cf.on_red(f"Argument args.search_temp {args.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
-        self.index_for_searchTemp = np.where(np.array(self.temperatures) == int(args.search_temp))[0] #Index to get only the correponding temperature-related data!
+        args.filename = args.backbone + args.search_temp + ".pickle" #To save pickle files
+        self.model = model #To call a pretrained model!
+        self.model.eval()
+        directories = [os.path.join(args.pdb_database, f"T.{args.search_temp}")] #e.g. List of str dir ... ["inference_pdbdatabase/T.123"]
+        #index_for_searchTemp is NO LONGER NECESSARY!
+	
+        super().__init__(args=args, directories=directories) #Get all the values from inheritance!
+        print(cf.on_red(f"Argument args.search_temp {self.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
+        self.index_for_searchTemp = np.where(np.array(self.temperatures) == int(self.search_temp))[0] #Index to get only the correponding temperature-related data!
         print(cf.on_red(f"Truncating data for specific temperature!"))
         self.graph_input_list, self.Rs_total, self.Images_total, self.temperature = self.graph_input_list[self.index_for_searchTemp], self.Rs_total[self.index_for_searchTemp], self.Images_total[self.index_for_searchTemp], self.temperature[self.index_for_searchTemp]
-	
-    def f():
-        pass
     
+    @property
+    def infer_all_temperatures():
+        how_many_patches = len(self) #number of temperature patches (i.e. PDBs) inside e.g. T.123 directory 
+        direct = os.path.join(self.pdb_database, f"T.{self.search_temp}")
+        pdbs_ = np.array(list(map(lambda inp: inp.split(".") , os.listdir(direct) )) ) #(num_temps, 3)
+        orders = np.lexsort((pdbs_[:,1].astype(int), pdbs_[:,0].astype(int))) #keyword-wise order --> lexsort((a,b)) is to sort by b and then a
+        pdbs = pdbs_[orders] #e.g. ([0,1,"pdb"], [0,2,"pdb"] ... [199, 24,"pdb"], [199, 25,"pdb"])
+        assert how_many_patches == pdbs.shape[0] and pdbs.ndim == 2, "something is wrong! such as dimension or number of temperature patches!"
+	
+        self.Images_total, self.temperature = self.Images_total[orders], self.temperature[orders] #For a given temperature identifier (i.e. search_temp);; ORDERED!
+        self.pdb2str = list(map(lambda inp: ".".join(inp), pdbs.tolist() )) #e.g. "0.1.pdb,... 199.25.pdb";; ORDERED!
+#         quotient, remainder = divmod(how_many_patches, self.batch_size)
+
+        dataset = torch.utils.data.TensorDataset(self.Images_total)
+        kwargs = {'pin_memory': True, 'persistent_workers': False}
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
+        predictions_all = []
+        with torch.inference_mode():
+            for batch in dataloader:
+                predictions = self.model(batch)
+                predictions_all.append(predictions)
+        predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 1)
+        f = open(os.path.join(self.save_dir, "Im_" + self.filename), "wb")
+        pickle.dump(pers_images_total, f)   
 	
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
