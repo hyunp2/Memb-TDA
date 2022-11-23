@@ -190,7 +190,7 @@ def images_processing(Images_total: dict, make_more_channels=False, index=None):
     
 # @dataclasses.dataclass
 class PH_Featurizer_Dataset(Dataset):
-    def __init__(self, args: argparse.ArgumentParser):
+    def __init__(self, args: argparse.ArgumentParser, directories: str=None):
         super().__init__()
         [setattr(self, key, val) for key, val in args.__dict__.items()]
 #         self.files_to_pg = list(map(lambda inp: os.path.join(self.data_dir, inp), os.listdir(self.data_dir)))
@@ -204,7 +204,7 @@ class PH_Featurizer_Dataset(Dataset):
             self.coords_ref = []
             self.coords_traj = []
             self.temperatures = []
-            directories = sorted(glob.glob(os.path.join(self.pdb_database, "T.*")))
+            directories = sorted(glob.glob(os.path.join(self.pdb_database, "T.*"))) if directories is None else directories #For a specific directory during inference!
             
             if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) 
                     and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) 
