@@ -302,6 +302,7 @@ class PH_Featurizer_Dataset(Dataset):
                 
                 pbar = tqdm.tqdm(range(len(Images_total[0])))
                 imgs = [images_processing(Images_total, index=ind) for ind in pbar]
+                Processed_images_total = imgs
                 f = open(os.path.join(self.save_dir, "ProcessedIm_" + self.filename), "wb")
                 pickle.dump(imgs, f)
                 e=time.time()
