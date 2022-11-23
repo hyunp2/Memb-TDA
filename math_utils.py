@@ -131,3 +131,4 @@ if __name__ == "__main__":
     z.backward()
     print(x.grad)
     print(z.grad)
+    print(torch.autograd.gradcheck(wasserstein, (x, y)))
