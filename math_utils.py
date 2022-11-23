@@ -121,9 +121,9 @@ def wasserstein(dgm1, dgm2, matching=False):
     return matchdist
 
 if __name__ == "__main__":
-    x = torch.randn(100,2)
+    x = torch.randn(100,2).double().data
     x.requires_grad = True
-    y = torch.randn(30, 2)
+    y = torch.randn(30, 2).double().data
     z = wasserstein(x, y)
     print(z)
     z.register_hook(lambda grad: grad)
