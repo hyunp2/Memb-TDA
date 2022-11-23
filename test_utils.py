@@ -74,6 +74,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         assert os.path.basename(args.save_dir).startswith("inference_"), "saving directory MUST start with a prefix inference_ to differentiate from training directory!"
         assert args.search_temp != None, "this argument only exists for InferenceDataset!"
 	super().__init__(args) #Get all the values from inheritance!
+        print(cf.on_red(f"Argument args.search_temp {args.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
         index_for_searchTemp = np.where(np.array(self.temperatures) == int(args.search_temp))[0] 
 	
     def f():
