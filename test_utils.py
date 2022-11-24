@@ -114,8 +114,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         super().__init__(args=args, directories=self.directories) #Get all the values from inheritance!
         print(cf.on_red(f"Argument args.search_temp {self.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
         self.index_for_searchTemp = np.where(np.array(self.temperatures) == int(self.search_temp))[0] #Index to get only the correponding temperature-related data!
-        print(cf.on_red(f"Truncating data for specific temperature!"))
-        self.graph_input_list, self.Rs_total, self.Images_total, self.temperature = self.graph_input_list[self.index_for_searchTemp], self.Rs_total[self.index_for_searchTemp], self.Images_total[self.index_for_searchTemp], self.temperature[self.index_for_searchTemp]
+#         self.graph_input_list, self.Rs_total, self.Images_total, self.temperature = self.graph_input_list[self.index_for_searchTemp], self.Rs_total[self.index_for_searchTemp], self.Images_total[self.index_for_searchTemp], self.temperature[self.index_for_searchTemp]
     
     @property
     def infer_all_temperatures(self, ):
@@ -126,7 +125,8 @@ class InferenceDataset(PH_Featurizer_Dataset):
         pdbs = pdbs_[orders] #e.g. ([0,1,"pdb"], [0,2,"pdb"] ... [199, 24,"pdb"], [199, 25,"pdb"])
         assert how_many_patches == pdbs.shape[0] and pdbs.ndim == 2, "something is wrong! such as dimension or number of temperature patches!"
 	
-        self.Images_total, self.temperature = torch.stack(self.Images_total, dim=0)[orders], np.array(self.temperature)[orders] #For a given temperature identifier (i.e. search_temp);; ORDERED!
+        print(cf.on_red(f"Truncating data for specific temperature!"))
+        self.Images_total, self.temperature = torch.stack(self.Images_total, dim=0)[self.index_for_searchTemp][orders], np.array(self.temperature)[self.index_for_searchTemp][orders] #For a given temperature identifier (i.e. search_temp);; ORDERED!
         self.pdb2str = list(map(lambda inp: ".".join(inp), pdbs.tolist() )) #e.g. "0.1.pdb,... 199.25.pdb";; ORDERED!
 #         quotient, remainder = divmod(how_many_patches, self.batch_size)
 
