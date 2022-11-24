@@ -136,8 +136,8 @@ class InferenceDataset(PH_Featurizer_Dataset):
         predictions_all = []
         with torch.inference_mode():
             for batch in dataloader:
-                print(batch)
-                batch = batch.to(self.device)
+#                 print(batch)
+                batch = batch[0].to(self.device)
                 predictions = self.model(batch)
                 predictions_all.append(predictions)
         predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 48)
