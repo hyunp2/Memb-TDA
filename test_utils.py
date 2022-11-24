@@ -69,7 +69,7 @@ def plot_analysis(filename: str):
 #     print(idx)
 
 class InferenceDataset(PH_Featurizer_Dataset):
-    #-m main --which_mode infer_custom --name convnext_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 512 --ce_re_ratio 1 0.1 --backbone convnext --resume --pdb_database inference_ --save_dir inference_ --search_temp 300
+    #python -m main --which_mode infer_custom --name convnext_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 512 --ce_re_ratio 1 0.1 --backbone convnext --resume --pdb_database inference_folder --save_dir inference_save --search_temp 307
     def __init__(self, args: argparse.ArgumentParser, model: torch.nn.Module):
         import pathlib
         assert os.path.basename(args.pdb_database).startswith("inference_"), "pdb_database directory MUST start with a prefix inference_ to differentiate from training directory!"
