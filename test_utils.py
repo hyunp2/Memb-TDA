@@ -75,8 +75,36 @@ class InferenceDataset(PH_Featurizer_Dataset):
         assert os.path.basename(args.save_dir).startswith("inference_"), "saving directory MUST start with a prefix inference_ to differentiate from training directory!"
         assert args.search_temp != None, "this argument only exists for InferenceDataset!"
         args.filename = args.backbone + args.search_temp + ".pickle" #To save pickle files
+	
+        device = torch.cuda.current_device()
+        model.to(device=device)
+        local_rank = get_local_rank()
+        world_size = dist.get_world_size() if dist.is_initialized() else 1
+        tmetrics = torchmetrics.MeanAbsoluteError()
+    
+        #DDP Model
+        if dist.is_initialized() and not args.shard:
+            model = DistributedDataParallel(model, device_ids=[local_rank], output_device=local_rank)
+            model._set_static_graph()
+            print(f"DDP is enabled {dist.is_initialized()} and this is local rank {local_rank} and sharding is {args.shard}!!")    
+            model.train()
+            if args.log: logger.start_watching(model) #watch a model!
+        elif dist.is_initialized() and args.shard:
+            my_auto_wrap_policy = functools.partial(
+            default_auto_wrap_policy, min_num_params=100
+            )
+            torch.cuda.set_device(local_rank)
+            model = FSDP(model, fsdp_auto_wrap_policy=my_auto_wrap_policy)
+
+#         init_start_event = torch.cuda.Event(enable_timing=True)
+#         init_end_event = torch.cuda.Event(enable_timing=True)
+
+        path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
+        assert args.resume, "Validation and test must be under resumed keyword..."
+        epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name, model_only=True) 
         self.model = model #To call a pretrained model!
         self.model.eval()
+	
         self.directories = [os.path.join(args.pdb_database, f"T.{args.search_temp}")] #e.g. List of str dir ... ["inference_pdbdatabase/T.123"]
         #index_for_searchTemp is NO LONGER NECESSARY!
 	
@@ -95,11 +123,11 @@ class InferenceDataset(PH_Featurizer_Dataset):
         pdbs = pdbs_[orders] #e.g. ([0,1,"pdb"], [0,2,"pdb"] ... [199, 24,"pdb"], [199, 25,"pdb"])
         assert how_many_patches == pdbs.shape[0] and pdbs.ndim == 2, "something is wrong! such as dimension or number of temperature patches!"
 	
-        self.Images_total, self.temperature = self.Images_total[orders], self.temperature[orders] #For a given temperature identifier (i.e. search_temp);; ORDERED!
+        self.Images_total, self.temperature = torch.stack(self.Images_total, dim=0)[orders], np.array(self.temperature)[orders] #For a given temperature identifier (i.e. search_temp);; ORDERED!
         self.pdb2str = list(map(lambda inp: ".".join(inp), pdbs.tolist() )) #e.g. "0.1.pdb,... 199.25.pdb";; ORDERED!
 #         quotient, remainder = divmod(how_many_patches, self.batch_size)
 
-        dataset = torch.utils.data.TensorDataset(torch.stack(self.Images_total, dim=0)) #(how_many_patches,3,H,W)
+        dataset = torch.utils.data.TensorDataset(self.Images_total) #(how_many_patches,3,H,W)
         kwargs = {'pin_memory': True, 'persistent_workers': False}
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
         predictions_all = []
@@ -154,7 +182,7 @@ def validate_and_test(model: nn.Module,
 
     path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
     assert args.resume, "Validation and test must be under resumed keyword..."
-    epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name, model_only=True) 
+    epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
     
     #DDP training: Total stats (But still across multi GPUs)
     init_start_event.record()
