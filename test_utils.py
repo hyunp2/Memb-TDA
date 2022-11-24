@@ -126,7 +126,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         assert how_many_patches == pdbs.shape[0] and pdbs.ndim == 2, "something is wrong! such as dimension or number of temperature patches!"
 	
         print(cf.on_red(f"Truncating data for specific temperature!"))
-        self.Images_total, self.temperature = torch.stack(self.Images_total, dim=0)[self.index_for_searchTemp][orders], np.array(self.temperature)[self.index_for_searchTemp][orders] #For a given temperature identifier (i.e. search_temp);; ORDERED!
+        self.Images_total, self.temperature = torch.stack(self.Images_total, dim=0)[self.index_for_searchTemp][orders], np.array(self.temperatures)[self.index_for_searchTemp][orders] #For a given temperature identifier (i.e. search_temp);; ORDERED!
         self.pdb2str = list(map(lambda inp: ".".join(inp), pdbs.tolist() )) #e.g. "0.1.pdb,... 199.25.pdb";; ORDERED!
 #         quotient, remainder = divmod(how_many_patches, self.batch_size)
 
