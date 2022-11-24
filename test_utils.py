@@ -104,7 +104,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
 
         path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
         assert args.resume, "Validation and test must be under resumed keyword..."
-        epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name, model_only=True) 
+        epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
         self.model = model #To call a pretrained model!
         self.model.eval()
 	
@@ -192,7 +192,7 @@ def validate_and_test(model: nn.Module,
 
     path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
     assert args.resume, "Validation and test must be under resumed keyword..."
-    epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
+    epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name, model_only=True) 
     
     #DDP training: Total stats (But still across multi GPUs)
     init_start_event.record()
