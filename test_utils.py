@@ -19,6 +19,7 @@ from torch.nn.modules.loss import _Loss
 from torch.nn.parallel import DistributedDataParallel
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader, DistributedSampler
+import torch.nn.functional as F
 from tqdm import tqdm
 from transformers import get_linear_schedule_with_warmup
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
@@ -77,7 +78,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         assert args.search_temp != None, "this argument only exists for InferenceDataset!"
         args.filename = args.backbone + args.search_temp + ".pickle" #To save pickle files
 	
-        device = torch.cuda.current_device()
+        self.device = device = torch.cuda.current_device()
         model.to(device=device)
         local_rank = get_local_rank()
         world_size = dist.get_world_size() if dist.is_initialized() else 1
@@ -134,13 +135,19 @@ class InferenceDataset(PH_Featurizer_Dataset):
         predictions_all = []
         with torch.inference_mode():
             for batch in dataloader:
+                batch = batch.to(self.device)
                 predictions = self.model(batch)
                 predictions_all.append(predictions)
-        predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 1)
+        predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 48)
+        ranges = torch.arange(283, 283+48).to(predictions_all).float() #temperatures
+        predictions_all_probs = F.softmax(predictions_all, dim=-1) #-->(Batch, numclass)
+        assert predictions_all_probs.size(-1) == ranges.size(0), "Num class must match!"
+        predictions_all_probs_T = predictions_all_probs * ranges[None, :]  #-->(Batch, numclass)
+        predictions_all_probs_T = predictions_all_probs_T.sum(dim=-1) #-->(Batch,)
 	
         f = open(os.path.join(self.save_dir, "Predicted_" + self.filename), "wb")
         save_as = collections.defaultdict(list)
-        [(save_as[key] = val) for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all, self.Images_total, self.pdb2str])]
+        [(save_as[key] = val) for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all_probs_T, self.Images_total, self.pdb2str])]
         pickle.dump(save_as, f)   
 
     def __call__(self):
