@@ -147,7 +147,8 @@ class InferenceDataset(PH_Featurizer_Dataset):
 	
         f = open(os.path.join(self.save_dir, "Predicted_" + self.filename), "wb")
         save_as = collections.defaultdict(list)
-        [(save_as[key] = val) for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all_probs_T, self.Images_total, self.pdb2str])]
+        for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all_probs_T, self.Images_total, self.pdb2str]):
+            save_as[key] = val
         pickle.dump(save_as, f)   
 
     def __call__(self):
