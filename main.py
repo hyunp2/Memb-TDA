@@ -46,7 +46,7 @@ from train_utils import train as train_function
 from model import MPNN, Vision
 from gpu_utils import *
 from loss_utils import *
-from test_utils import validate_and_test
+from test_utils import validate_and_test, InferenceDataset
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -220,6 +220,37 @@ def infer_submit(args):
     
     print(cf.on_yellow("STEP 2 of validation and testing: Initalizing validation and testing..."))
     validate_and_test(net, loss_func, train_loader, val_loader, test_loader, logger, args)
+    
+def infer_for_customdata(args):
+    #Initalize DDP
+    is_distributed = init_distributed() #normal python vs torchrun!
+    local_rank = get_local_rank()
+    
+    if args.backbone == "mpnn":
+        net = MPNN()
+    elif args.backbone in ["vit", "swin", "swinv2", "convnext", "restv2"]:
+        net = Vision(args)
+        
+    if args.gpu:
+        net = net.to(torch.cuda.current_device())
+        
+    if args.log:
+#         https://docs.wandb.ai/guides/artifacts/storage
+        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+        os.environ["WANDB_DIR"] = os.path.join(os.getcwd(), "wandb")
+        os.environ["WANDB_CACHE_DIR"] = os.path.join(os.getcwd(), ".cache/wandb")
+        os.environ["WANDB_CONFIG_DIR"] = os.path.join(os.getcwd(), ".config/wandb")
+    else:
+        logger = None
+    
+    #Dist training
+    if is_distributed:         
+        nproc_per_node = torch.cuda.device_count()
+        affinity = set_affinity(local_rank, nproc_per_node)
+    increase_l2_fetch_granularity()
+    
+    print(cf.on_yellow("STEP 2 of validation and testing: Initalizing validation and testing..."))
+    InferenceDataset(args, net)
     
 if __name__ == "__main__":
     args = get_args()
