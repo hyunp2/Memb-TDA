@@ -109,7 +109,7 @@ def get_args():
     parser.add_argument('--name', type=str, default="mpnn", help="saved torch model name...")
     
     #Mode utils
-    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer"], default="preprocessing")  
+    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer", "infer_custom"], default="preprocessing")  
 
     args = parser.parse_args()
     return args
@@ -267,4 +267,7 @@ if __name__ == "__main__":
         job_submit(args)
     elif args.which_mode == "infer":
         infer_submit(args)
+    elif args.which_mode == "infer_custom":
+        infer_for_customdata(args)
+        
     #python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]"
