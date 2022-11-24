@@ -87,7 +87,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         self.graph_input_list, self.Rs_total, self.Images_total, self.temperature = self.graph_input_list[self.index_for_searchTemp], self.Rs_total[self.index_for_searchTemp], self.Images_total[self.index_for_searchTemp], self.temperature[self.index_for_searchTemp]
     
     @property
-    def infer_all_temperatures():
+    def infer_all_temperatures(self, ):
         how_many_patches = len(self) #number of temperature patches (i.e. PDBs) inside e.g. T.123 directory 
         direct = os.path.join(self.pdb_database, f"T.{self.search_temp}")
         pdbs_ = np.array(list(map(lambda inp: inp.split(".") , os.listdir(direct) )) ) #(num_temps, 3)
@@ -99,7 +99,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         self.pdb2str = list(map(lambda inp: ".".join(inp), pdbs.tolist() )) #e.g. "0.1.pdb,... 199.25.pdb";; ORDERED!
 #         quotient, remainder = divmod(how_many_patches, self.batch_size)
 
-        dataset = torch.utils.data.TensorDataset(self.Images_total)
+        dataset = torch.utils.data.TensorDataset(torch.stack(self.Images_total, dim=0)) #(how_many_patches,3,H,W)
         kwargs = {'pin_memory': True, 'persistent_workers': False}
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
         predictions_all = []
@@ -108,8 +108,11 @@ class InferenceDataset(PH_Featurizer_Dataset):
                 predictions = self.model(batch)
                 predictions_all.append(predictions)
         predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 1)
-        f = open(os.path.join(self.save_dir, "Im_" + self.filename), "wb")
-        pickle.dump(pers_images_total, f)   
+	
+        f = open(os.path.join(self.save_dir, "Predicted_" + self.filename), "wb")
+        save_as = collections.defaultdict(list)
+        [(save_as[key] = val) for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all, self.Images_total, self.pdb2str])]
+        pickle.dump(save_as, f)   
 	
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
@@ -199,4 +202,5 @@ def validate_and_test(model: nn.Module,
     dist.destroy_process_group()
 
 if __name__ == "__main__":
-    plot_analysis("PH_all_test.npz")
+#     plot_analysis("PH_all_test.npz")
+#     infer_all_temperatures()
