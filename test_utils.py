@@ -69,7 +69,7 @@ def plot_analysis(filename: str):
 #     print(idx)
 
 class InferenceDataset(PH_Featurizer_Dataset):
-    def __init__(self, args: argparse.ArgumentParser, model: torch.nn.Module, directories: str):
+    def __init__(self, args: argparse.ArgumentParser, model: torch.nn.Module):
         import pathlib
         assert os.path.basename(args.pdb_database).startswith("inference_"), "pdb_database directory MUST start with a prefix inference_ to differentiate from training directory!"
         assert os.path.basename(args.save_dir).startswith("inference_"), "saving directory MUST start with a prefix inference_ to differentiate from training directory!"
@@ -77,10 +77,10 @@ class InferenceDataset(PH_Featurizer_Dataset):
         args.filename = args.backbone + args.search_temp + ".pickle" #To save pickle files
         self.model = model #To call a pretrained model!
         self.model.eval()
-        directories = [os.path.join(args.pdb_database, f"T.{args.search_temp}")] #e.g. List of str dir ... ["inference_pdbdatabase/T.123"]
+        self.directories = [os.path.join(args.pdb_database, f"T.{args.search_temp}")] #e.g. List of str dir ... ["inference_pdbdatabase/T.123"]
         #index_for_searchTemp is NO LONGER NECESSARY!
 	
-        super().__init__(args=args, directories=directories) #Get all the values from inheritance!
+        super().__init__(args=args, directories=self.directories) #Get all the values from inheritance!
         print(cf.on_red(f"Argument args.search_temp {self.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
         self.index_for_searchTemp = np.where(np.array(self.temperatures) == int(self.search_temp))[0] #Index to get only the correponding temperature-related data!
         print(cf.on_red(f"Truncating data for specific temperature!"))
@@ -89,7 +89,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
     @property
     def infer_all_temperatures(self, ):
         how_many_patches = len(self) #number of temperature patches (i.e. PDBs) inside e.g. T.123 directory 
-        direct = os.path.join(self.pdb_database, f"T.{self.search_temp}")
+        direct = self.directories[0] #self.directories is a list of str dir!
         pdbs_ = np.array(list(map(lambda inp: inp.split(".") , os.listdir(direct) )) ) #(num_temps, 3)
         orders = np.lexsort((pdbs_[:,1].astype(int), pdbs_[:,0].astype(int))) #keyword-wise order --> lexsort((a,b)) is to sort by b and then a
         pdbs = pdbs_[orders] #e.g. ([0,1,"pdb"], [0,2,"pdb"] ... [199, 24,"pdb"], [199, 25,"pdb"])
@@ -113,6 +113,9 @@ class InferenceDataset(PH_Featurizer_Dataset):
         save_as = collections.defaultdict(list)
         [(save_as[key] = val) for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all, self.Images_total, self.pdb2str])]
         pickle.dump(save_as, f)   
+
+    def __call__(self):
+        self.infer_all_temperatures
 	
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
@@ -202,5 +205,5 @@ def validate_and_test(model: nn.Module,
     dist.destroy_process_group()
 
 if __name__ == "__main__":
-#     plot_analysis("PH_all_test.npz")
+    plot_analysis("PH_all_test.npz")
 #     infer_all_temperatures()
