@@ -249,8 +249,11 @@ def infer_for_customdata(args):
         affinity = set_affinity(local_rank, nproc_per_node)
     increase_l2_fetch_granularity()
     
-    print(cf.on_yellow("STEP 2 of validation and testing: Initalizing validation and testing..."))
-    InferenceDataset(args, net)
+    print(cf.on_yellow("Inferring on given custom dataset!"))
+    
+    infds = InferenceDataset(args, net)
+    infds()
+    
     
 if __name__ == "__main__":
     args = get_args()
