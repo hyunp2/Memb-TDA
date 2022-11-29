@@ -460,7 +460,7 @@ def alphalayer_computer_coords(coords: torch.Tensor, maxdim: int):
 
 if __name__ == "__main__":
     
-    args = get_args()
+#     args = get_args()
 #     ph = PH_Featurizer_Dataset(args)
 #     print(ph[5])
 #     dataloader = PH_Featurizer_DataLoader(opt=args)
