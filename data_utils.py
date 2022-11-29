@@ -190,7 +190,7 @@ def images_processing(Images_total: dict, make_more_channels=False, index=None):
     
 # @dataclasses.dataclass
 class PH_Featurizer_Dataset(Dataset):
-    def __init__(self, args: argparse.ArgumentParser, directories: str=None):
+    def __init__(self, args: argparse.ArgumentParser, directories: str=None, image_stats: collections.namedtuple=None):
         super().__init__()
         [setattr(self, key, val) for key, val in args.__dict__.items()]
 #         self.files_to_pg = list(map(lambda inp: os.path.join(self.data_dir, inp), os.listdir(self.data_dir)))
@@ -205,7 +205,7 @@ class PH_Featurizer_Dataset(Dataset):
             self.coords_traj = []
             self.temperatures = []
             directories = sorted(glob.glob(os.path.join(self.pdb_database, "T.*"))) if directories is None else directories #For a specific directory during inference!
-            
+            self.image_stats = image_stats
             if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) 
                     and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) 
                     and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename)) 
@@ -287,12 +287,22 @@ class PH_Featurizer_Dataset(Dataset):
                     img = list(map(order_dgm, img)) #list of Hi 
 #                     img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
                     pers.fit(img)
-                    bmax, pmax = pers.birth_range[1], pers.pers_range[1]
+                    if self.image_stats is None:
+                        bmax, pmax = pers.birth_range[1], pers.pers_range[1]  
+                    elif self.image_stats is not None and i == 0:
+                        bmax, pmax = self.image_stats.bmax0, self.image_stats.pmax0
+                    elif self.image_stats is not None and i == 1:
+                        bmax, pmax = self.image_stats.bmax1, self.image_stats.pmax1
                     pers.birth_range = (0, bmax+0.5)
                     pers.pers_range = (0, pmax+0.5)
                     img_list = pers.transform(img, n_jobs=-1)
                     temp = np.stack(img_list, axis=0)
-                    mins, maxs = temp.min(), temp.max()
+                    if self.image_stats is None:
+                        mins, maxs = temp.min(), temp.max()
+                    elif self.image_stats is not None and i == 0:
+                        mins, maxs = self.image_stats.mins0, self.image_stats.maxs0
+                    elif self.image_stats is not None and i == 1:
+                        mins, maxs = self.image_stats.mins1, self.image_stats.maxs1
                     img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
                     pers_images_total[i] += img_list
                 Images_total = pers_images_total
