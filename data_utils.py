@@ -501,7 +501,7 @@ if __name__ == "__main__":
         img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
         pers_images_total[i] += img_list
         print(f"br: {bmax} vs pr: {pmax}")
-        print(f"min max {min}-{max}")
+        print(f"min max {mins}-{maxs}")
     Images_total = pers_images_total
 #     print(Images_total)
 #     with open("./pickled/Im_vit.pickle", "wb") as f:
