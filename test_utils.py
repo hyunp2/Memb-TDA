@@ -245,8 +245,9 @@ def validate_and_test(model: nn.Module,
 #     np.savez("PH_val_test.npz", validation_gt=val_gts.detach().cpu().numpy(), test_gt=test_gts.detach().cpu().numpy(), validation_pred=val_predictions.detach().cpu().numpy(), test_pred=test_predictions.detach().cpu().numpy())
     
     print(cf.on_yellow("Validation and test are OVER..."))
-    dist.destroy_process_group()
-
+    if dist.is_initialized():
+    	dist.destroy_process_group()
+	
 if __name__ == "__main__":
     plot_analysis("PH_all_test.npz")
 #     infer_all_temperatures()
