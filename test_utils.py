@@ -114,6 +114,10 @@ class InferenceDataset(PH_Featurizer_Dataset):
 #         image_stats = collections.namedtuple("image_stats", ["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"])
 #         [setattr(image_stats, key, val) for key, val in zip(["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"], 
 # 							    ["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"] )]
+# 	br: 0.0 vs pr: 5.63134450674057
+# 	min max 3.708039700764246e-12-0.004038097944668425
+# 	br: 5.176542000174523 vs pr: 1.3557068485021593
+# 	min max 2.3814288004517375e-13-0.0004667655730385265
         image_stats = None #Placeholder for now!
         super().__init__(args=args, directories=self.directories, image_stats=image_stats) #Get all the values from inheritance!
         print(cf.on_red(f"Argument args.search_temp {self.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
