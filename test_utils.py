@@ -111,8 +111,11 @@ class InferenceDataset(PH_Featurizer_Dataset):
 	
         self.directories = [os.path.join(args.pdb_database, f"T.{args.search_temp}")] #e.g. List of str dir ... ["inference_pdbdatabase/T.123"]
         #index_for_searchTemp is NO LONGER NECESSARY!
-	
-        super().__init__(args=args, directories=self.directories) #Get all the values from inheritance!
+#         image_stats = collections.namedtuple("image_stats", ["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"])
+#         [setattr(image_stats, key, val) for key, val in zip(["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"], 
+# 							    ["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"] )]
+        image_stats = None #Placeholder for now!
+        super().__init__(args=args, directories=self.directories, image_stats=image_stats) #Get all the values from inheritance!
         print(cf.on_red(f"Argument args.search_temp {self.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
         self.index_for_searchTemp = np.where(np.array(self.temperatures) == int(self.search_temp))[0] #Index to get only the correponding temperature-related data!
 #         self.graph_input_list, self.Rs_total, self.Images_total, self.temperature = self.graph_input_list[self.index_for_searchTemp], self.Rs_total[self.index_for_searchTemp], self.Images_total[self.index_for_searchTemp], self.temperature[self.index_for_searchTemp]
