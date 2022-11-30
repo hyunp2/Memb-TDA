@@ -45,6 +45,7 @@ from torch.distributed.fsdp.wrap import (
 					)
 from data_utils import get_dataloader, PH_Featurizer_Dataset, mdtraj_loading
 from train_utils import load_state, single_val, single_test
+from log_utils import *
 
 #https://github.com/taki0112/denoising-diffusion-gan-Tensorflow/blob/571a99022ccc07a31b6c3672f7b5b30cd46a7eb6/src/utils.py#L156:~:text=def%20merge(,return%20img
 def merge(images, size):
@@ -57,19 +58,23 @@ def merge(images, size):
 
     return img
 
-def plot_analysis(filename: str):
-    assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
-    data = np.load(filename)
-    keys = list(data)
+def plot_analysis(filename: str, training: bool=False):
+    assert os.path.splitext(filename)[1] == ".pickle", "File name extension is wrong..."
+    data = pickle.load(open(filename, "rb"))
+    keys = data.keys()
     BINS = 100
-    fig, ax = plt.subplots(2,1)
-    ax[0].hist(data["gt"], bins=BINS)
-    bins, edges, patches = ax[1].hist(data["pred"], alpha=0.5, bins=BINS)
-    fig.savefig("gt_pred.png")
+    if training:
+        fig, ax = plt.subplots(2,1) 
+        ax[0].hist(data["predictions"], bins=BINS)
+        bins, edges, patches = ax[1].hist(data["pred"], alpha=0.5, bins=BINS)
+        fig.savefig("gt_pred.png")
     idx = torch.topk(torch.from_numpy(bins).view(1,-1), dim=-1, k=2).indices #bimodal (1, 2)
     print(idx)
 #     idx = torch.topk(torch.from_numpy(bins[idx[0]:idx[1]]).view(1,-1), dim=-1, k=2, largest=False).indices #minimum
 #     print(idx)
+
+def get_statistics(filename: str, ):
+    pass
 
 class InferenceDataset(PH_Featurizer_Dataset):
     #python -m main --which_mode infer_custom --name convnext_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 512 --ce_re_ratio 1 0.1 --backbone convnext --resume --pdb_database inference_folder --save_dir inference_save --search_temp 307
@@ -84,6 +89,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         model.to(device=device)
         local_rank = get_local_rank()
         world_size = dist.get_world_size() if dist.is_initialized() else 1
+        self.world_size = world_size
         tmetrics = torchmetrics.MeanAbsoluteError()
     
         #DDP Model
@@ -141,27 +147,45 @@ class InferenceDataset(PH_Featurizer_Dataset):
 
         dataset = torch.utils.data.TensorDataset(self.Images_total) #(how_many_patches,3,H,W)
         kwargs = {'pin_memory': True, 'persistent_workers': False}
-        dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
+#         dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
+        dataloader = get_dataloader(dataset, shuffle=False, collate_fn=None, batch_size=self.batch_size, **kwargs)
+	
         predictions_all = []
+        confmat = ConfusionMatrix(num_classes=48)
         with torch.inference_mode():
             for batch in dataloader:
-#                 print(batch)
                 batch = batch[0].to(self.device)
                 predictions = self.model(batch)
+                confmat.update(batch.flatten(), predictions.argmax(1).flatten())
                 predictions_all.append(predictions)
+        confmat.reduce_from_all_processes()
+        print(confmat)
+	
         predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 48)
+        if dist.is_initialized():
+            predictions_all = torch.tensor(predictions_all, dtype=torch.float, device=self.device) #(B,num_classes)
+            predictions_all_list = [predictions_all.new_zeros(predictions_all.size()).to(predictions_all) for _ in range(self.world_size)] #list of (B,num_classes)
+            torch.distributed.all_gather(predictions_all_list, predictions_all) #Gather to empty list!
+            predictions_all = torch.cat([pred for pred in predictions_all_list], dim=0) #(Bs, num_classes)
+	
         ranges = torch.arange(283, 283+48).to(predictions_all).float() #temperatures
         predictions_all_probs = F.softmax(predictions_all, dim=-1) #-->(Batch, numclass)
         assert predictions_all_probs.size(-1) == ranges.size(0), "Num class must match!"
         predictions_all_probs_T = predictions_all_probs * ranges[None, :]  #-->(Batch, numclass)
         predictions_all_probs_T = predictions_all_probs_T.sum(dim=-1) #-->(Batch,)
 	
-        f = open(os.path.join(self.save_dir, "Predicted_" + self.filename), "wb")
-        save_as = collections.defaultdict(list)
-        for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all_probs_T, self.Images_total, self.pdb2str]):
-            save_as[key] = val
-        pickle.dump(save_as, f)   
+        if get_local_rank() == 0:
+            f = open(os.path.join(self.save_dir, "Predicted_" + self.filename), "wb")
+            save_as = collections.defaultdict(list)
+            for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all_probs_T, self.Images_total, self.pdb2str]):
+                save_as[key] = val
+            save_as["METADATA"] = (confmat.mat, *confmat.compute())
+            pickle.dump(save_as, f)   
+        confmat.reset()
 
+        if dist.is_initialized():
+    	    dist.destroy_process_group()
+	
     def __call__(self):
         self.infer_all_temperatures
 	
@@ -214,11 +238,13 @@ def validate_and_test(model: nn.Module,
                                         'batch_size': args.batch_size}
     ds = torch.utils.data.ConcatDataset([ds_train, ds_val, ds_test])
     val_dataloader = get_dataloader(ds, shuffle=False, collate_fn=None, **dataloader_kwargs)
+    gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0).reshape(-1,) #B
     print(cf.yellow("All the data are concatenated into one! It is still named val_dataloader!"))
 
     ###EVALUATION
     evaluate = single_val
     val_loss, loss_metrics, val_predictions = evaluate(args, model, val_dataloader, get_loss_func, None, None, logger, tmetrics, return_data=True) #change to single_val with DDP
+
     if dist.is_initialized():
         val_loss = torch.tensor(val_loss, dtype=torch.float, device=device)
         loss_metrics = torch.tensor(loss_metrics, dtype=torch.float, device=device)
@@ -226,6 +252,17 @@ def validate_and_test(model: nn.Module,
         val_loss = (val_loss / world_size).item()
         torch.distributed.all_reduce(loss_metrics, op=torch.distributed.ReduceOp.SUM) #Sum to loss
         loss_metrics = (loss_metrics / world_size).item()
+	
+        gts = torch.tensor(gts, dtype=torch.float, device=device) #B
+        gts_list = [gts.new_zeros(gts.size()).to(gts) for _ in range(world_size)] #list of (B)
+        torch.distributed.all_gather(gts_list, gts) #Gather to empty list!
+        gts = torch.cat([gt for gt in gts_list], dim=0) #Bs
+	
+        val_predictions = torch.tensor(val_predictions, dtype=torch.float, device=device) #B
+        val_predictions_list = [val_predictions.new_zeros(val_predictions.size()).to(val_predictions) for _ in range(world_size)] #list of (B)
+        torch.distributed.all_gather(val_predictions_list, val_predictions) #Gather to empty list!
+        val_predictions = torch.cat([pred for pred in val_predictions_list], dim=0) #Bs
+
     if args.log: 
         logger.log_metrics({'ALL_REDUCED_val_loss': val_loss})
         logger.log_metrics({'ALL_REDUCED_val_MAE': loss_metrics}) #zero rank only
@@ -241,9 +278,9 @@ def validate_and_test(model: nn.Module,
         print(f"CUDA event elapsed time: {init_start_event.elapsed_time(init_end_event) / 1000}sec")
 	
     print(cf.on_green("Saving returned validation and test_predictions!"))
-    gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0).reshape(-1,) #B
     val_predictions = val_predictions.detach().cpu().numpy().reshape(-1,) #B
-    np.savez("PH_all_test.npz", gt=gts, pred=val_predictions)
+    if local_rank == 0:
+        np.savez("PH_all_test.npz", gt=gts, pred=val_predictions)
 
 #     val_gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0) #B,1
 #     test_gts = torch.cat([batch["temp"] for batch in test_dataloader], dim=0) #B,1
