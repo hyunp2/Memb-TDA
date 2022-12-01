@@ -12,9 +12,35 @@ from typing import Tuple
 import torch
 import torch.nn.functional as F
 from torch import nn, Tensor
-from torchmultimodal.modules.layers.activation import SiLU
-from torchmultimodal.modules.layers.normalizations import Fp32LayerNorm
+
 # https://github.com/facebookresearch/multimodal/blob/39e8d5e2cc4d4075c7ea1e7149d8e8ed8586d475/torchmultimodal/models/clip/image_encoder.py
+
+class SiLU(nn.Module):
+    r"""Sigmoid Linear Unit
+    .. math:: \text{SiLU}(x) = x * \sigma(1.702 * x)
+    where :math:`\sigma(x)` is the cumulative distribution function for Logistic Distribution.
+    Approximation of the exact GeLU for greater forward speed. Note that this is different from
+    ``torch.nn.SiLU`` by the coefficient ``1.702`` from the paper:
+    `"Gaussian error linear units"<https://arxiv.org/pdf/1606.08415.pdf>`_.
+    """
+
+    def forward(self, x: Tensor) -> Tensor:
+        return torch.sigmoid(1.702 * x) * xfrom torchmultimodal.modules.layers.normalizations import Fp32LayerNorm
+
+class Fp32LayerNorm(nn.LayerNorm):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    def forward(self, x: Tensor) -> Tensor:
+        output = nn.functional.layer_norm(
+            x.float(),
+            self.normalized_shape,
+            self.weight.float() if self.weight is not None else None,
+            self.bias.float() if self.bias is not None else None,
+            self.eps,
+        )
+        return output.type_as(x)    
+    
 
 EXPANSION = 4
 
