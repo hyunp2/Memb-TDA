@@ -70,7 +70,7 @@ class SmoothedValue:
     def value(self):
         return self.deque[-1]
     
-    self.__repr__ = self.__str__
+#     self.__repr__ = self.__str__
 
     def __str__(self):
         return self.fmt.format(
@@ -115,7 +115,7 @@ class ConfusionMatrix:
             iu.mean().item() * 100,
         )
     
-    self.__repr__ = self.__str__
+#     self.__repr__ = self.__str__
 
     
 class MetricLogger:
@@ -146,7 +146,7 @@ class MetricLogger:
             loss_str.append(f"{name}: {str(meter)}")
         return self.delimiter.join(loss_str)
     
-    self.__repr__ = self.__str__
+#     self.__repr__ = self.__str__
 
     def synchronize_between_processes(self):
         for meter in self.meters.values():
