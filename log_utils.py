@@ -74,6 +74,8 @@ class SmoothedValue:
         return self.fmt.format(
             median=self.median, avg=self.avg, global_avg=self.global_avg, max=self.max, value=self.value
         )
+    
+    self.__repr__ = self.__str__
 
 
 class ConfusionMatrix:
@@ -102,8 +104,6 @@ class ConfusionMatrix:
 
     def reduce_from_all_processes(self):
         reduce_across_processes(self.mat)
-
-    __repr__ = __str__
     
     def __str__(self):
         acc_global, acc, iu = self.compute()
@@ -113,6 +113,8 @@ class ConfusionMatrix:
             [f"{i:.1f}" for i in (iu * 100).tolist()],
             iu.mean().item() * 100,
         )
+    
+    self.__repr__ = self.__str__
 
     
 class MetricLogger:
@@ -137,13 +139,13 @@ class MetricLogger:
             return self.__dict__[attr]
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{attr}'")
     
-    __repr__ = __str__
-
     def __str__(self):
         loss_str = []
         for name, meter in self.meters.items():
             loss_str.append(f"{name}: {str(meter)}")
         return self.delimiter.join(loss_str)
+    
+    self.__repr__ = self.__str__
 
     def synchronize_between_processes(self):
         for meter in self.meters.values():
