@@ -69,13 +69,14 @@ class SmoothedValue:
     @property
     def value(self):
         return self.deque[-1]
+    
+    self.__repr__ = self.__str__
 
     def __str__(self):
         return self.fmt.format(
             median=self.median, avg=self.avg, global_avg=self.global_avg, max=self.max, value=self.value
         )
     
-    self.__repr__ = self.__str__
 
 
 class ConfusionMatrix:
