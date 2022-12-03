@@ -312,7 +312,8 @@ class ResNetForCLIP(nn.Module):
 
         embed_dim = width * 32  # the ResNet feature dimension
         self.attnpool = AttentionPool2d(
-            input_resolution // 32, embed_dim, heads, output_dim
+#             input_resolution // 32, embed_dim, heads, output_dim
+             input_resolution // 32, embed_dim, heads, output_dim
         )
 
         if use_clip_init:
@@ -363,3 +364,7 @@ class ResNetForCLIP(nn.Module):
         x = self.attnpool(x)
 
         return x
+
+if __name__ == "__main__":
+    x = torch.randn(32, 3, 64, 64)
+    ResNetForCLIP()
