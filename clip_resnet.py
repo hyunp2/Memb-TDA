@@ -12,6 +12,9 @@ from typing import Tuple
 import torch
 import torch.nn.functional as F
 from torch import nn, Tensor
+from transformers.utils.generic import ModelOutput
+from dataclasses import dataclass
+from typing import *
 
 # https://github.com/facebookresearch/multimodal/blob/39e8d5e2cc4d4075c7ea1e7149d8e8ed8586d475/torchmultimodal/models/clip/image_encoder.py
 
@@ -360,11 +363,23 @@ class ResNetForCLIP(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
-        x = self.layer4(x)
-        x = self.attnpool(x)
+        last_hidden_state = self.layer4(x)
+        pooler_output = self.attnpool(last_hidden_state)
+        
+        return ResNetForCLIPOutput(
+            last_hidden_state = last_hidden_state.permute(0,2,1), #BLC
+            pooler_output = pooler_output, #Only thing necessary (BC)
+            )
 
-        return x
-
+@dataclass
+# Copied from transformers.models.swin.modeling_swin.SwinModelOutput with Swin->Swinv2
+class ResNetForCLIPOutput(ModelOutput):
+    last_hidden_state: torch.FloatTensor = None
+    pooler_output: Optional[torch.FloatTensor] = None
+    hidden_states: Optional[Tuple[torch.FloatTensor]] = None
+    attentions: Optional[Tuple[torch.FloatTensor]] = None
+    reshaped_hidden_states: Optional[Tuple[torch.FloatTensor]] = None    
+    
 if __name__ == "__main__":
     x = torch.randn(32, 3, 64, 64)
     ResNetForCLIP()
