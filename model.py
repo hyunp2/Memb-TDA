@@ -19,6 +19,7 @@ import os
 import curtsies.fmtfuncs as cf 
 from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
 from resTv2 import ResTV2 as ResTV2Model
+from clip_resnet import ResNetForCLIP as ResNetForCLIPModel
 
 __all__ = ["MPNN", "Vit", "feature_extractor"]
 
@@ -280,12 +281,14 @@ class Vision(torch.nn.Module):
         config_convnext = ConvNextConfig(image_size=IMAGE_SIZE, patch_size=PATCH_SIZE, num_channels=NUM_CHANNELS)
         config_restv2 = dict(in_chans=NUM_CHANNELS, num_classes=NUM_CLASSES, embed_dims=[96, 192, 384, 768],num_heads=[1, 2, 4, 8],
                              drop_path_rate=0., depths=[2, 2, 2, 2], sr_ratios=[8, 4, 2, 1])
-
+        config_resnetclip= dict(layers = (3, 4, 6, 3), output_dim = 48, heads = 1024, input_resolution = IMAGE_SIZE, width = 64, use_clip_init = True,)
+        
         Vit = ViTModel(config_vit)
         Swin = SwinModel(config_swin)
         Swinv2 = Swinv2Model(config_swinv2)
         Convnext = ConvNextModel(config_convnext)
         ResTV2 = ResTV2Model(**config_restv2)
+        ResNetForCLIP = ResNetForCLIPModel(**config_resnetclip)
         
         if args.backbone == "vit":
             self.pretrained = Vit
