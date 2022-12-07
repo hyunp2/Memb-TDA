@@ -94,7 +94,7 @@ class ConfusionMatrix:
             self.mat += torch.bincount(inds, minlength=n**2).reshape(n, n)
 
     def reset(self):
-        self.mat.zero_()
+        self.mat.detach().zero_()
 
     def compute(self):
         h = self.mat.float()
