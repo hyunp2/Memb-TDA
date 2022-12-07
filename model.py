@@ -281,7 +281,7 @@ class Vision(torch.nn.Module):
         config_convnext = ConvNextConfig(image_size=IMAGE_SIZE, patch_size=PATCH_SIZE, num_channels=NUM_CHANNELS)
         config_restv2 = dict(in_chans=NUM_CHANNELS, num_classes=NUM_CLASSES, embed_dims=[96, 192, 384, 768],num_heads=[1, 2, 4, 8],
                              drop_path_rate=0., depths=[2, 2, 2, 2], sr_ratios=[8, 4, 2, 1])
-        config_resnetclip= dict(layers = (3, 4, 6, 3), output_dim = 48, heads = 1024, input_resolution = IMAGE_SIZE, width = 64, use_clip_init = True,)
+        config_resnetclip= dict(layers = (3, 4, 6, 3), output_dim = 512, heads = 1024, input_resolution = IMAGE_SIZE, width = 64, use_clip_init = True,)
         
         Vit = ViTModel(config_vit)
         Swin = SwinModel(config_swin)
@@ -308,8 +308,17 @@ class Vision(torch.nn.Module):
         elif args.backbone == "restv2":
             self.pretrained = ResTV2
             self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
-       
-        hidden_from_ = self.pretrained.layernorm.weight.size()[0] if args.backbone in ["vit", "swin", "swinv2", "convnext"] else self.pretrained.embed_dims[3]
+        elif args.backbone == "clip_resnet":
+            self.pretrained = ResNetForCLIP
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+        
+        if args.backbone in ["vit", "swin", "swinv2", "convnext"]:
+            hidden_from_ = self.pretrained.layernorm.weight.size()[0]  
+        elif args.backbone == "restv2":
+            hidden_from_ = self.pretrained.embed_dims[3]
+        elif args.backbone == "clip_resnet":
+            hidden_from_ = self.pretrained.output_dim
+            
         self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.SiLU(True), 
                                                             torch.nn.Linear(512,256), torch.nn.SiLU(True), 
                                                                 torch.nn.Linear(256,64), torch.nn.SiLU(True), 
