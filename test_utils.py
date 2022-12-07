@@ -145,7 +145,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         self.pdb2str = list(map(lambda inp: ".".join(inp), pdbs.tolist() )) #e.g. "0.1.pdb,... 199.25.pdb";; ORDERED!
 #         quotient, remainder = divmod(how_many_patches, self.batch_size)
 
-        dataset = torch.utils.data.TensorDataset(self.Images_total) #(how_many_patches,3,H,W)
+        dataset = torch.utils.data.TensorDataset(self.Images_total, torch.from_numpy(self.temperature)) #(how_many_patches,3,H,W)
         kwargs = {'pin_memory': True, 'persistent_workers': False}
 #         dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
         dataloader = get_dataloader(dataset, shuffle=False, collate_fn=None, batch_size=self.batch_size, **kwargs)
@@ -154,10 +154,11 @@ class InferenceDataset(PH_Featurizer_Dataset):
         confmat = ConfusionMatrix(num_classes=48)
         with torch.inference_mode():
             for batch in dataloader:
-                batch = batch[0].to(self.device)
-                predictions = self.model(batch)
-                print(batch.size(), predictions.size())
-                confmat.update(batch.flatten(), predictions.argmax(1).flatten())
+                imgs = batch[0].to(self.device)
+                predictions = self.model(imgs)
+                temps = batch[1].to(self.device)
+#                 print(batch.size(), predictions.size())
+                confmat.update(temps.flatten(), predictions.argmax(1).flatten())
                 predictions_all.append(predictions)
         confmat.reduce_from_all_processes()
         print(confmat)
