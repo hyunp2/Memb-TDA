@@ -161,7 +161,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
                 confmat.update(temps.flatten(), predictions.argmax(1).flatten())
                 predictions_all.append(predictions)
         confmat.reduce_from_all_processes()
-        print(confmat)
+        print(confmat.mat, confmat)
 	
         predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 48)
         if dist.is_initialized():
