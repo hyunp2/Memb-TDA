@@ -156,7 +156,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
             for batch in dataloader:
                 batch = batch[0].to(self.device)
                 predictions = self.model(batch)
-                print(batch.size(), predictinons.size())
+                print(batch.size(), predictions.size())
                 confmat.update(batch.flatten(), predictions.argmax(1).flatten())
                 predictions_all.append(predictions)
         confmat.reduce_from_all_processes()
