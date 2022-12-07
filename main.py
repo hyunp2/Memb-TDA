@@ -101,7 +101,7 @@ def get_args():
     parser.add_argument('--ce_re_ratio', nargs=2, default=[1., 1.], type=float, help="CE and Reg loss weights")
 
     #Model utils
-    parser.add_argument('--backbone', type=str, default='vit', choices=["mpnn", "vit", "swin", "swinv2", "convnext", "restv2"])
+    parser.add_argument('--backbone', type=str, default='vit', choices=["mpnn", "vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"])
     
     #Callback utils
     parser.add_argument('--log', action="store_true", help="to log for W&B")  
@@ -133,7 +133,7 @@ def job_submit(args):
     
     if args.backbone == "mpnn":
         net = MPNN()
-    elif args.backbone in ["vit", "swin", "swinv2", "convnext", "restv2"]:
+    elif args.backbone in ["vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
         net = Vision(args)
         
     if args.gpu:
@@ -182,7 +182,7 @@ def infer_submit(args):
     
     if args.backbone == "mpnn":
         net = MPNN()
-    elif args.backbone in ["vit", "swin", "swinv2", "convnext", "restv2"]:
+    elif args.backbone in ["vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
         net = Vision(args)
         
     if args.gpu:
@@ -228,7 +228,7 @@ def infer_for_customdata(args):
     
     if args.backbone == "mpnn":
         net = MPNN()
-    elif args.backbone in ["vit", "swin", "swinv2", "convnext", "restv2"]:
+    elif args.backbone in ["vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
         net = Vision(args)
         
     if args.gpu:
