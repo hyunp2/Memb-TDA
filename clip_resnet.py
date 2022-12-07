@@ -28,7 +28,7 @@ class SiLU(nn.Module):
     """
 
     def forward(self, x: Tensor) -> Tensor:
-        return torch.sigmoid(1.702 * x) * xfrom torchmultimodal.modules.layers.normalizations import Fp32LayerNorm
+        return torch.sigmoid(1.702 * x) * x
 
 class Fp32LayerNorm(nn.LayerNorm):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
