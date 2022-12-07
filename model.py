@@ -266,7 +266,7 @@ class MPNN(torch.nn.Module):
 
 class Vision(torch.nn.Module):
     IMAGE_SIZE = 128
-    PATCH_SIZE = 8
+    PATCH_SIZE = 6 #change to 8
     NUM_CHANNELS = 3
     NUM_CLASSES = 48
     def __init__(self, args, **configs):
