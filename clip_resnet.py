@@ -350,7 +350,7 @@ class ResNetForCLIP(nn.Module):
                 if name.endswith("bn3.weight"):
                     nn.init.zeros_(param)
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, pixel_values: Tensor) -> Tensor:
         def stem(x: Tensor) -> Tensor:
             x = self.relu1(self.bn1(self.conv1(x)))
             x = self.relu2(self.bn2(self.conv2(x)))
@@ -358,7 +358,7 @@ class ResNetForCLIP(nn.Module):
             x = self.avgpool(x)
             return x
 
-        x = x.type(self.conv1.weight.dtype)
+        x = pixel_values.type(self.conv1.weight.dtype)
         x = stem(x)
         x = self.layer1(x)
         x = self.layer2(x)
