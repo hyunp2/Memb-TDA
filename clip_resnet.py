@@ -367,7 +367,7 @@ class ResNetForCLIP(nn.Module):
         pooler_output = self.attnpool(last_hidden_state)
         
         return ResNetForCLIPOutput(
-            last_hidden_state = last_hidden_state.permute(0,2,1), #BLC
+            last_hidden_state = last_hidden_state, #BCHW
             pooler_output = pooler_output, #Only thing necessary (BC)
             )
 
