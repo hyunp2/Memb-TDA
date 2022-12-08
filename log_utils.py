@@ -21,6 +21,38 @@ from collections import defaultdict, deque
 import torch
 import torch.distributed as dist
 
+class LogWriter(object):
+    #https://github.com/torchmd/torchmd/blob/46bb3f263a5cab50d58737aecac0493fd7a95b9c/torchmd/utils.py#L9
+    # kind of inspired form openai.baselines.bench.monitor
+    # We can add here an optional Tensorboard logger as well
+    def __init__(self, path, keys, header="", name="monitor.csv"):
+        self.keys = tuple(keys) + ("t",)
+        assert path is not None
+
+        os.makedirs(path, exist_ok=True)
+        filename = os.path.join(path, name)
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        print("Writing logs to ", filename)
+
+        self.f = open(filename, "wt")
+        if isinstance(header, dict):
+            header = "# {} \n".format(json.dumps(header))
+        self.f.write(header)
+        self.logger = csv.DictWriter(self.f, fieldnames=self.keys)
+        self.logger.writeheader()
+        self.f.flush()
+        self.tstart = time.time()
+
+    def write_row(self, epinfo):
+        if self.logger:
+            t = time.time() - self.tstart
+            epinfo["t"] = t
+            self.logger.writerow(epinfo)
+            self.f.flush()
+
+
 class SmoothedValue:
     """Track a series of values and provide access to smoothed values over a
     window or the global series average.
