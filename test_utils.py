@@ -156,9 +156,9 @@ class InferenceDataset(PH_Featurizer_Dataset):
             for batch in dataloader:
                 imgs = batch[0].to(self.device)
                 predictions = self.model(imgs)
-                temps = batch[1].to(self.device)
+                temps = batch[1].to(self.device) - 283 #confmat must have a range from 0-47
 #                 print(batch.size(), predictions.size())
-                confmat.update(temps.flatten(), predictions.argmax(1).flatten())
+                confmat.update(temps.flatten().long(), predictions.argmax(1).flatten())
                 predictions_all.append(predictions)
         confmat.reduce_from_all_processes()
         print(confmat.mat, confmat)
