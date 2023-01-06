@@ -253,6 +253,7 @@ def infer_for_customdata(args):
     
     infds = InferenceDataset(args, net)
     infds()
+    logger.experiment.finish()
     
     
 if __name__ == "__main__":
