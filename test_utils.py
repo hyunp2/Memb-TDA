@@ -83,7 +83,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         assert os.path.basename(args.pdb_database).startswith("inference_") or os.path.basename(args.pdb_database).startswith("individual_"), "pdb_database directory MUST start with a prefix inference_ to differentiate from training directory!"
         assert os.path.basename(args.save_dir).startswith("inference_"), "saving directory MUST start with a prefix inference_ to differentiate from training directory!"
         assert args.search_temp != None, "this argument only exists for InferenceDataset!"
-        args.filename = args.backbone + args.search_temp + ".pickle" #To save pickle files
+        args.filename = args.backbone + "_" + args.search_temp + ".pickle" #To save pickle files
 	
         self.device = device = torch.cuda.current_device()
         model.to(device=device)
