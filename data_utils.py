@@ -188,6 +188,12 @@ def images_processing(Images_total: dict, make_more_channels=False, index=None):
     else:
         return imgs
     
+def sanity_check_mdtraj(directory: str, pdbs: List[str]) -> List[int]:
+    valid_pdbs = []
+    valid_pdbs = list(filter(lambda inp: os.stat(os.path.join(directory, inp)).st_size != 0, pdbs ))
+    print(cf.on_red(f"{len(pdbs)} - {len(valid_pdbs)} PDBs have been removed!"))
+    return valid_pdbs
+    
 # @dataclasses.dataclass
 class PH_Featurizer_Dataset(Dataset):
     def __init__(self, args: argparse.ArgumentParser, directories: str=None, image_stats: collections.namedtuple=None):
@@ -206,6 +212,7 @@ class PH_Featurizer_Dataset(Dataset):
             self.coords_ref = []
             self.coords_traj = []
             self.temperatures = []
+            
             directories = sorted(glob.glob(os.path.join(self.pdb_database, "T.*"))) if directories is None else directories #For a specific directory during inference!
             self.image_stats = image_stats
             if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) 
@@ -217,8 +224,9 @@ class PH_Featurizer_Dataset(Dataset):
     #                 print(os.path.join(direct,pdbs[0]))
     #                 univ_pdbs = [mda.Universe(os.path.join(direct,top)) for top in pdbs] #List PDB universes
     #                 self.coords_traj += [self.get_coordinates_for_md(univ_pdb)[0] for univ_pdb in univ_pdbs]
-                    self.coords_traj += [mdtraj.load(os.path.join(direct,top)).xyz[0] for top in pdbs] if not self.multiprocessing else ray.get([mdtraj_loading.remote(root, top) for root, top in zip([direct]*len(pdbs), pdbs)])
-                    self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(pdbs)
+                    valid_pdbs = sanity_check_mdtraj(direct, pdbs) #List[str]
+                    self.coords_traj += [ mdtraj.load(os.path.join(direct,top)).xyz[0] for top in valid_pdbs ] if not self.multiprocessing else ray.get([mdtraj_loading.remote(root, top) for root, top in zip([direct]*len(pdbs), valid_pdbs)])
+                    self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(valid_pdbs)
                 f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "wb")
                 pickle.dump(self.temperatures, f)   
                 assert len(self.coords_traj) == len(self.temperatures), "coords traj and temperatures must have the same data length..."
