@@ -33,11 +33,18 @@ from fairscale.nn.data_parallel import ShardedDataParallel as ShardedDDP #Shardi
 from fairscale.optim.oss import OSS #Sharding
 import shutil
 from torch.distributed.fsdp import FullyShardedDataParallel, CPUOffload
-from torch.distributed.fsdp.wrap import (
-					default_auto_wrap_policy,
-					enable_wrap,
-					wrap,
-					)
+if torch.__version__.startswith('1.11'):
+    from torch.distributed.fsdp.wrap import (
+                        default_auto_wrap_policy,
+                        enable_wrap,
+                        wrap,
+                        )
+elif torch.__version__.startswith('1.13'):
+    from torch.distributed.fsdp.wrap import (
+                        size_based_auto_wrap_policy,
+                        enable_wrap,
+                        wrap,
+                        )
 
 from loss_utils import *
 # loss_func = lambda pred, targ: ce_loss(targ, pred) + reg_loss(targ, pred)
