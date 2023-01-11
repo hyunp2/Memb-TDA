@@ -32,7 +32,7 @@ from fairscale.optim.adascale import AdaScale #DDP
 from fairscale.nn.data_parallel import ShardedDataParallel as ShardedDDP #Sharding
 from fairscale.optim.oss import OSS #Sharding
 import shutil
-from torch.distributed.fsdp import FullyShardedDataParallel, CPUOffload
+from torch.distributed.fsdp import FullyShardedDataParallel, CPUOffload, BackwardPrefetch
 if torch.__version__.startswith('1.11'):
     from torch.distributed.fsdp.wrap import (
                         default_auto_wrap_policy,
