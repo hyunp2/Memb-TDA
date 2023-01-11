@@ -37,12 +37,20 @@ from fairscale.optim.adascale import AdaScale #DDP
 from fairscale.nn.data_parallel import ShardedDataParallel as ShardedDDP #Sharding
 from fairscale.optim.oss import OSS #Sharding
 import shutil
-from torch.distributed.fsdp import FullyShardedDataParallel, CPUOffload
-from torch.distributed.fsdp.wrap import (
-					default_auto_wrap_policy,
-					enable_wrap,
-					wrap,
-					)
+from torch.distributed.fsdp import FullyShardedDataParallel, CPUOffload, BackwardPrefetch
+if torch.__version__.startswith('1.11'):
+    from torch.distributed.fsdp.wrap import (
+                        default_auto_wrap_policy,
+                        enable_wrap,
+                        wrap,
+                        )
+elif torch.__version__.startswith('1.13'):
+    from torch.distributed.fsdp.wrap import (
+                        size_based_auto_wrap_policy,
+                        enable_wrap,
+                        wrap,
+                        )
+
 from data_utils import get_dataloader, PH_Featurizer_Dataset, mdtraj_loading
 from train_utils import load_state, single_val, single_test
 from log_utils import *
