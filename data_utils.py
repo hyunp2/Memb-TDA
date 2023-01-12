@@ -191,7 +191,7 @@ def images_processing(Images_total: dict, make_more_channels=False, index=None):
 def sanity_check_mdtraj(directory: str, pdbs: List[str]) -> List[int]:
     valid_pdbs = []
     valid_pdbs = list(filter(lambda inp: os.stat(os.path.join(directory, inp)).st_size != 0, pdbs ))
-    print(cf.on_red(f"{len(pdbs)} - {len(valid_pdbs)} PDBs have been removed!"))
+    print(cf.on_red(f"{len(pdbs) - len(valid_pdbs)} PDBs have been removed!"))
     return valid_pdbs
     
 # @dataclasses.dataclass
