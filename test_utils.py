@@ -156,8 +156,8 @@ class InferenceDataset(PH_Featurizer_Dataset):
     def infer_all_temperatures(self, ):
         how_many_patches = len(self) #number of temperature patches (i.e. PDBs) inside e.g. T.123 directory 
         direct = self.directories[0] #self.directories is a list of str dir!
-	all_pdbs = os.listdir(direct)
-	valid_pdbs = sanity_check_mdtraj(direct, all_pdbs)
+        all_pdbs = os.listdir(direct)
+        valid_pdbs = sanity_check_mdtraj(direct, all_pdbs)
         pdbs_ = np.array(list(map(lambda inp: inp.split(".") ,  valid_pdbs)) ) #(vallid_num_temps, 3)
 	
         orders = np.lexsort((pdbs_[:,1].astype(int), pdbs_[:,0].astype(int))) #keyword-wise order --> lexsort((a,b)) is to sort by b and then a
