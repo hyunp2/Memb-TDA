@@ -526,7 +526,8 @@ if __name__ == "__main__":
     assert len(images_total) == (maxdim + 1), "images_total must be the same as maxdim!"
     pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
     pers_images_total = collections.defaultdict(list)
-    for i, img in enumerate(images_total):
+    for i, img in enumerate(images_total[1:]):
+        i = 1
 #         img = list(map(lambda inp: torch.from_numpy(inp), img))
         img = list(map(order_dgm, img)) #list of Hi 
 #         img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
@@ -547,6 +548,7 @@ if __name__ == "__main__":
         del pers_images_total[i]
 #     Images_total = pers_images_total
 #     print(Images_total)
+    print("Now concat...")
     with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
         f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
         d0 = pickle.load(f0) #List[np.ndarray]
