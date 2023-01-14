@@ -488,8 +488,7 @@ def alphalayer_computer_coords(coords: torch.Tensor, maxdim: int):
     return ph #List[List[torch.Tensor]]  
 
 if __name__ == "__main__":
-    pass
-#     args = get_args()
+    args = get_args()
 #     ph = PH_Featurizer_Dataset(args)
 #     print(ph[5])
 #     dataloader = PH_Featurizer_DataLoader(opt=args)
@@ -508,7 +507,18 @@ if __name__ == "__main__":
 #     print(graph_input_list[0], Rs_total[0])
 
     # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
-
+    
+    f = open(os.path.join(args.save_dir, "coords_" + args.filename), "rb")
+    graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
+    graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
+    maxdims = [args.maxdim] * len(graph_input_list)
+    tensor_flags = [args.tensor] * len(graph_input_list)
+    futures = [persistent_diagram_mp.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(graph_input_list, maxdims, tensor_flags)] 
+    Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
+    f = open(os.path.join(args.save_dir, "PH_" + args.filename), "wb")
+    pickle.dump(Rs_total, f)   
+    print(cf.on_yellow("STEP 2: Persistent diagram extraction done!"))
+    
 #     with open("./pickled/PH_vit.pickle", "rb") as f:
 #         Rs_total = pickle.load(f)
 #     maxdim = 1
