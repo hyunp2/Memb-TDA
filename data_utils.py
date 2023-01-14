@@ -541,9 +541,20 @@ if __name__ == "__main__":
         pers_images_total[i] += img_list
         print(f"br: {bmax} vs pr: {pmax}")
         print(f"min max {mins}-{maxs}")
-    Images_total = pers_images_total
-    print(Images_total)
+        print(f"PH {i}-th image is generated...")
+        with open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp{i}"), "wb") as f:
+            pickle.dump(pers_images_total[i], f) #List
+        del pers_images_total[i]
+#     Images_total = pers_images_total
+#     print(Images_total)
     with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
+        f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
+        d0 = pickle.load(f0) #List[np.ndarray]
+        pers_images_total[0] += d0
+        f1 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp1"), "rb")
+        d1 = pickle.load(f1) #List[np.ndarray]
+        pers_images_total[1] += d1
+        Images_total = pers_images_total
         pickle.dump(Images_total, f)
     
 #     import tqdm
