@@ -528,36 +528,46 @@ if __name__ == "__main__":
     pers_images_total = collections.defaultdict(list)
     for i, img in enumerate(images_total[1:]):
         i = 1
+        bmax, pmax, mins, maxs = 1.639571475684643, 0.768688747882843, 4.088960698780252e-08, 2.4840175665985345e-05
+        ALL_IMAGES = copy.deepcopy(img) #List[np.ndarray]
+        lens = len(ALL_IMAGES)
+        slices_for_efficiency = [slice(None,lens//4), slice(lens//4, lens//2), slice(lens//2, 3*lens//4), slice(3*lens//4, None)]
 #         img = list(map(lambda inp: torch.from_numpy(inp), img))
-        img = list(map(order_dgm, img)) #list of Hi 
-#         img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
-        pers.fit(img)
-        bmax, pmax = pers.birth_range[1], pers.pers_range[1]
-        pers.birth_range = (0, bmax+0.5)
-        pers.pers_range = (0, pmax+0.5)
-        img_list = pers.transform(img, n_jobs=-1)
-        temp = np.stack(img_list, axis=0)
-        mins, maxs = temp.min(), temp.max()
-        img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
-        pers_images_total[i] += img_list
-        print(f"br: {bmax} vs pr: {pmax}")
-        print(f"min max {mins}-{maxs}")
-        print(f"PH {i}-th image is generated...")
-        with open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp{i}"), "wb") as f:
-            pickle.dump(pers_images_total[i], f) #List
-        del pers_images_total[i]
+        
+        for j, sl in enumerate(slices_for_efficiency):
+            img = ALL_IMAGES[sl] #sliced List[np.ndarray]
+            img = list(map(order_dgm, img)) #list of Hi 
+    #         img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
+            pers.fit(img)
+    #         bmax, pmax = pers.birth_range[1], pers.pers_range[1]
+            pers.birth_range = (0, bmax+0.5)
+            pers.pers_range = (0, pmax+0.5)
+            img_list = pers.transform(img, n_jobs=-1)
+#             temp = np.stack(img_list, axis=0)
+    #         mins, maxs = temp.min(), temp.max()
+            img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
+            pers_images_total[i] += img_list
+            print(f"br: {bmax} vs pr: {pmax}")
+            print(f"min max {mins}-{maxs}")
+            print(f"PH {i}-th image is generated...")
+            with open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp{i}_{j}"), "wb") as f:
+                pickle.dump(pers_images_total[i], f) #List
+            del pers_images_total[i]
+            del img
+            del img_list
 #     Images_total = pers_images_total
 #     print(Images_total)
-    print("Now concat...")
-    with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
-        f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
-        d0 = pickle.load(f0) #List[np.ndarray]
-        pers_images_total[0] += d0
-        f1 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp1"), "rb")
-        d1 = pickle.load(f1) #List[np.ndarray]
-        pers_images_total[1] += d1
-        Images_total = pers_images_total
-        pickle.dump(Images_total, f)
+
+#     print("Now concat...")
+#     with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
+#         f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
+#         d0 = pickle.load(f0) #List[np.ndarray]
+#         pers_images_total[0] += d0
+#         f1 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp1"), "rb")
+#         d1 = pickle.load(f1) #List[np.ndarray]
+#         pers_images_total[1] += d1
+#         Images_total = pers_images_total
+#         pickle.dump(Images_total, f)
     
 #     import tqdm
 #     with open(os.path.join(args.save_dir, "Im_" + args.filename), "rb") as f:
