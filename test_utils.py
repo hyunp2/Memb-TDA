@@ -132,15 +132,26 @@ class InferenceDataset(PH_Featurizer_Dataset):
 						################KEY STATISTICS##############
 						############################################
 						############################################
-        image_stats = collections.namedtuple("image_stats", ["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"])
-        [setattr(image_stats, key, val) for key, val in zip(["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"], 
-							    [0.0, 5.63134450674057, 3.708039700764246e-12,0.004038097944668425,
-							     5.176542000174523, 1.3557068485021593, 2.3814288004517375e-13, 0.0004667655730385265] )]
+#         image_stats = collections.namedtuple("image_stats", ["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"])
+#         [setattr(image_stats, key, val) for key, val in zip(["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"], 
+# 							    [0.0, 5.63134450674057, 3.708039700764246e-12,0.004038097944668425,
+# 							     5.176542000174523, 1.3557068485021593, 2.3814288004517375e-13, 0.0004667655730385265] )]
+						# BELOW Patches
 						#         br: 0.0 vs pr: 5.63134450674057
 						#         min max 3.708039700764246e-12-0.004038097944668425
 						#         br: 5.176542000174523 vs pr: 1.3557068485021593
 						#         min max 2.3814288004517375e-13-0.0004667655730385265
 						#         image_stats = None #Placeholder for now!
+        image_stats = collections.namedtuple("image_stats", ["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"])
+        [setattr(image_stats, key, val) for key, val in zip(["bmax0","pmax0","mins0","maxs0","bmax1","pmax1","mins1","maxs1"], 
+							    [0.0, 0.17649484410881996, 0.00019561807973112353, 0.0002599278183368139,
+							     1.639571475684643, 0.768688747882843, 4.088960698780252e-08, 2.4840175665985345e-05] )]
+
+						# BELOW Individiuals
+						# Preprocessing BD:  0 0.0 0.17649484410881996
+						# Preprocessing mimmax:  0 0.00019561807973112353 0.0002599278183368139
+						# Preprocessing BD:  1 1.639571475684643 0.768688747882843
+						# Preprocessing mimmax:  1 4.088960698780252e-08 2.4840175665985345e-05
 						############################################
 						############################################
 						############################################
