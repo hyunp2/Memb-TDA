@@ -508,50 +508,50 @@ if __name__ == "__main__":
 
     # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
     
-    f = open(os.path.join(args.save_dir, "coords_" + args.filename), "rb")
-    graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
-#     graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
-    maxdims = [args.maxdim] * len(graph_input_list)
-    tensor_flags = [args.tensor] * len(graph_input_list)
-    futures = [persistent_diagram_mp.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(graph_input_list, maxdims, tensor_flags)] 
-    Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
-    f = open(os.path.join(args.save_dir, "PH_" + args.filename), "wb")
-    pickle.dump(Rs_total, f)   
-    print(cf.on_yellow("STEP 2: Persistent diagram extraction done!"))
+#     f = open(os.path.join(args.save_dir, "coords_" + args.filename), "rb")
+#     graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
+# #     graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
+#     maxdims = [args.maxdim] * len(graph_input_list)
+#     tensor_flags = [args.tensor] * len(graph_input_list)
+#     futures = [persistent_diagram_mp.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(graph_input_list, maxdims, tensor_flags)] 
+#     Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
+#     f = open(os.path.join(args.save_dir, "PH_" + args.filename), "wb")
+#     pickle.dump(Rs_total, f)   
+#     print(cf.on_yellow("STEP 2: Persistent diagram extraction done!"))
     
-#     with open("./pickled/PH_vit.pickle", "rb") as f:
-#         Rs_total = pickle.load(f)
-#     maxdim = 1
-#     images_total = list(zip(*Rs_total))
-#     assert len(images_total) == (maxdim + 1), "images_total must be the same as maxdim!"
-#     pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
-#     pers_images_total = collections.defaultdict(list)
-#     for i, img in enumerate(images_total):
-# #         img = list(map(lambda inp: torch.from_numpy(inp), img))
-#         img = list(map(order_dgm, img)) #list of Hi 
-# #         img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
-#         pers.fit(img)
-#         bmax, pmax = pers.birth_range[1], pers.pers_range[1]
-#         pers.birth_range = (0, bmax+0.5)
-#         pers.pers_range = (0, pmax+0.5)
-#         img_list = pers.transform(img, n_jobs=-1)
-#         temp = np.stack(img_list, axis=0)
-#         mins, maxs = temp.min(), temp.max()
-#         img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
-#         pers_images_total[i] += img_list
-#         print(f"br: {bmax} vs pr: {pmax}")
-#         print(f"min max {mins}-{maxs}")
-#     Images_total = pers_images_total
-#     print(Images_total)
-#     with open("./pickled/Im_vit.pickle", "wb") as f:
-#         pickle.dump(Images_total, f)
+    with open(os.path.join(args.save_dir, "PH_" + args.filename), "rb") as f:
+        Rs_total = pickle.load(f)
+    maxdim = 1
+    images_total = list(zip(*Rs_total))
+    assert len(images_total) == (maxdim + 1), "images_total must be the same as maxdim!"
+    pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
+    pers_images_total = collections.defaultdict(list)
+    for i, img in enumerate(images_total):
+#         img = list(map(lambda inp: torch.from_numpy(inp), img))
+        img = list(map(order_dgm, img)) #list of Hi 
+#         img = list(map(lambda inp: inp.detach().cpu().numpy(), img))
+        pers.fit(img)
+        bmax, pmax = pers.birth_range[1], pers.pers_range[1]
+        pers.birth_range = (0, bmax+0.5)
+        pers.pers_range = (0, pmax+0.5)
+        img_list = pers.transform(img, n_jobs=-1)
+        temp = np.stack(img_list, axis=0)
+        mins, maxs = temp.min(), temp.max()
+        img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
+        pers_images_total[i] += img_list
+        print(f"br: {bmax} vs pr: {pmax}")
+        print(f"min max {mins}-{maxs}")
+    Images_total = pers_images_total
+    print(Images_total)
+    with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
+        pickle.dump(Images_total, f)
     
 #     import tqdm
-#     with open("./pickled/Im_vit.pickle", "rb") as f:
+#     with open(os.path.join(args.save_dir, "Im_" + args.filename), "rb") as f:
 #         Im_dict = pickle.load(f)
 # #     Im_dict_put = ray.put(Im_dict)
 #     pbar = tqdm.tqdm(range(len(Im_dict[0])))
 #     imgs = [images_processing(Im_dict, index=ind) for ind in pbar]
 # #     imgs = ray.get(futures) #List[np.ndarray] of each shape (3,H,W)
-#     f = open("./pickled/ProcessedIm_vit.pickle", "wb")
+#     f = open(os.path.join(args.save_dir, "ProcessedIm_" + args.filename), "wb")
 #     pickle.dump(imgs, f)
