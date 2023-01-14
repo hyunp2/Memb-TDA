@@ -292,6 +292,9 @@ class PH_Featurizer_Dataset(Dataset):
                 assert len(images_total) == (self.maxdim + 1), "images_total must be the same as maxdim!"
                 pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
                 pers_images_total = collections.defaultdict(list)
+                
+                PREPROCESS_FLAG = self.which_mode == "preprocessing"
+                
                 for i, img in enumerate(images_total):
 #                     img = list(map(lambda inp: torch.from_numpy(inp), img))
                     img = list(map(order_dgm, img)) #list of Hi 
@@ -303,6 +306,8 @@ class PH_Featurizer_Dataset(Dataset):
                         bmax, pmax = self.image_stats.bmax0, self.image_stats.pmax0
                     elif self.image_stats is not None and i == 1:
                         bmax, pmax = self.image_stats.bmax1, self.image_stats.pmax1
+                    if PREPROCESS_FLAG:
+                        print("Preprocessing BD: ", i, bmax, pmax)
                     pers.birth_range = (0, bmax+0.5)
                     pers.pers_range = (0, pmax+0.5)
                     img_list = pers.transform(img, n_jobs=-1)
@@ -313,6 +318,8 @@ class PH_Featurizer_Dataset(Dataset):
                         mins, maxs = self.image_stats.mins0, self.image_stats.maxs0
                     elif self.image_stats is not None and i == 1:
                         mins, maxs = self.image_stats.mins1, self.image_stats.maxs1
+                    if PREPROCESS_FLAG:
+                        print("Preprocessing mimmax: ", i, mins, maxs)
                     img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
                     pers_images_total[i] += img_list
                 Images_total = pers_images_total
