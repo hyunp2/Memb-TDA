@@ -1,5 +1,5 @@
 from __future__ import print_function, division
-import abc, sys
+import abc, sys, copy
 import collections
 import torch_geometric
 from torch_geometric.data import Data, Dataset
