@@ -510,7 +510,7 @@ if __name__ == "__main__":
     
     f = open(os.path.join(args.save_dir, "coords_" + args.filename), "rb")
     graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
-    graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
+#     graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
     maxdims = [args.maxdim] * len(graph_input_list)
     tensor_flags = [args.tensor] * len(graph_input_list)
     futures = [persistent_diagram_mp.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(graph_input_list, maxdims, tensor_flags)] 
