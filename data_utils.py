@@ -43,7 +43,6 @@ from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
 from math_utils import wasserstein
-# from main import get_args
 import mdtraj
 
 #https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb#scrollTo=Y6fj2UqWHPbs
@@ -488,6 +487,7 @@ def alphalayer_computer_coords(coords: torch.Tensor, maxdim: int):
     return ph #List[List[torch.Tensor]]  
 
 if __name__ == "__main__":
+    from main import get_args
     args = get_args()
 #     ph = PH_Featurizer_Dataset(args)
 #     print(ph[5])
