@@ -204,6 +204,8 @@ class PH_Featurizer_Dataset(Dataset):
 
         if self.trajs is not None:
             #args.trajs is now DEPRECATED!
+            #Do not use args.data_dir either!
+            
             assert self.trajs is None, "DCD trajectories is NOT passed and MDAnalysis is NOT used!"
             self.reference, self.prot_traj = self.load_traj(data_dir=self.data_dir, pdb=self.pdb, psf=self.psf, trajs=self.trajs, selection=self.atom_selection)
             self.coords_ref, self.coords_traj = self.get_coordinates_for_md(self.reference), self.get_coordinates_for_md(self.prot_traj)
