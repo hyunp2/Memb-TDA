@@ -563,15 +563,26 @@ if __name__ == "__main__":
     with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
         f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
         d0 = pickle.load(f0) #List[np.ndarray]
-        pers_images_total[0] += d0
-        del d0
+#         pers_images_total[0] += d0
+#         del d0
+        lens = len(d0)
+        slices_for_efficiency = [slice(None,lens//4), slice(lens//4, lens//2), slice(lens//2, 3*lens//4), slice(3*lens//4, None)]
+        all_images = []
         for j in range(4):
+            pers_images_total[0] = d0[j]
             f1 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp1_{j}"), "rb")
             d1 = pickle.load(f1) #List[np.ndarray]
-            pers_images_total[1] += d1
+            pers_images_total[1] = d1
+            pbar = tqdm.tqdm(range(len(pers_images_total[0])))
+            imgs = [images_processing(pers_images_total, index=ind) for ind in pbar]
+            del pers_images_total[0]
+            del pers_images_total[1]
             del d1
-        Images_total = pers_images_total
-        pickle.dump(Images_total, f)
+            all_images += imgs #List[Tensor]
+        f = open(os.path.join(args.save_dir, "ProcessedIm_" + args.filename), "wb")
+        pickle.dump(all_images, f)
+#         Images_total = pers_images_total
+#         pickle.dump(Images_total, f)
     
 #     import tqdm
 #     with open(os.path.join(args.save_dir, "Im_" + args.filename), "rb") as f:
