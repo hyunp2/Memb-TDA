@@ -569,10 +569,10 @@ if __name__ == "__main__":
         slices_for_efficiency = [slice(None,lens//4), slice(lens//4, lens//2), slice(lens//2, 3*lens//4), slice(3*lens//4, None)]
         all_images = []
         for j in range(4):
-            pers_images_total[0] = d0[j]
+            pers_images_total[0] += d0[slices_for_efficiency[j]]
             f1 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp1_{j}"), "rb")
             d1 = pickle.load(f1) #List[np.ndarray]
-            pers_images_total[1] = d1
+            pers_images_total[1] += d1
             pbar = tqdm.tqdm(range(len(pers_images_total[0])))
             imgs = [images_processing(pers_images_total, index=ind) for ind in pbar]
             del pers_images_total[0]
