@@ -560,7 +560,14 @@ if __name__ == "__main__":
 
     print("Now concat...")
     pers_images_total = collections.defaultdict(list)
-    with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
+#     with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
+    root_dir = pathlib.Path(args.save_dir)
+    scr = root_dir.parent.parent.name #/Scr
+    user = root_dir.parent.name + "-new" #hyunpark-new
+    github = root_dir.name #Protein-TDA
+    new_root_dir = os.path.join("/", scr, user, github) #/Scr/hyunpark-new/Protein-TDA
+    
+    with open(new_root_dir, "ProcessedIm_" + args.filename), "wb") as f:
         f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
         d0 = pickle.load(f0) #List[np.ndarray]
 #         pers_images_total[0] += d0
@@ -579,7 +586,6 @@ if __name__ == "__main__":
             del pers_images_total[1]
             del d1
             all_images += imgs #List[Tensor]
-        f = open(os.path.join(args.save_dir, "ProcessedIm_" + args.filename), "wb")
         pickle.dump(all_images, f)
 #         Images_total = pers_images_total
 #         pickle.dump(Images_total, f)
