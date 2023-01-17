@@ -567,7 +567,7 @@ if __name__ == "__main__":
     github = root_dir.name #Protein-TDA
     new_root_dir = os.path.join("/", scr, user, github, "pickled_indiv") #/Scr/hyunpark-new/Protein-TDA/pickled_indiv
     
-    with open(new_root_dir, "ProcessedIm_" + args.filename), "wb") as f:
+    with open(os.path.join(new_root_dir, "ProcessedIm_" + args.filename), "wb") as f:
         f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
         d0 = pickle.load(f0) #List[np.ndarray]
 #         pers_images_total[0] += d0
