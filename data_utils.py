@@ -565,7 +565,7 @@ if __name__ == "__main__":
     scr = root_dir.parent.parent.name #/Scr
     user = root_dir.parent.name + "-new" #hyunpark-new
     github = root_dir.name #Protein-TDA
-    new_root_dir = os.path.join("/", scr, user, github) #/Scr/hyunpark-new/Protein-TDA
+    new_root_dir = os.path.join("/", scr, user, github, "pickled_indiv") #/Scr/hyunpark-new/Protein-TDA/pickled_indiv
     
     with open(new_root_dir, "ProcessedIm_" + args.filename), "wb") as f:
         f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
