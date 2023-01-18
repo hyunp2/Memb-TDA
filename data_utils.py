@@ -342,12 +342,14 @@ class PH_Featurizer_Dataset(Dataset):
   
 #                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
             else:
-                f = open(os.path.join(self.save_dir, "coords_" + self.filename), "rb")
-                graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
-                graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
-                f = open(os.path.join(self.save_dir, "PH_" + self.filename), "rb")
-                Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
-                maxdims = [self.maxdim] * len(graph_input_list)
+                
+#                 f = open(os.path.join(self.save_dir, "coords_" + self.filename), "rb")
+#                 graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
+#                 graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
+#                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "rb")
+#                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
+#                 maxdims = [self.maxdim] * len(graph_input_list)
+                
 #                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
 #                 f = open(os.path.join(self.save_dir, "Im_" + self.filename), "rb")
 #                 Images_total = pickle.load(f) #List of structures: each structure has maxdim PHs #######IGNORE!
@@ -357,7 +359,7 @@ class PH_Featurizer_Dataset(Dataset):
         if self.preprocessing_only or self.ignore_topologicallayer:
             return graph_input_list, Rs_total, Processed_images_total #None #List of structures: each structure has maxdim PHs
         else:
-            return graph_input_list, Rs_total, Processed_images_total #Rs_list_tensor #List of structures: each structure has maxdim PHs
+            return None, None, Processed_images_total #Rs_list_tensor #List of structures: each structure has maxdim PHs
 
     def get_values(self, ):
         graph_input_list, Rs_total, Images_total = self.get_persistent_diagrams()
