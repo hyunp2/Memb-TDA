@@ -53,7 +53,7 @@ def get_args():
     
     #Directories
     parser.add_argument('--data_dir', type=str, default="/Scr/hyunpark/Monster/vaegan_md_gitlab/data", help="DEPRECATED!") 
-    parser.add_argument('--save_dir', type=str, default="/Scr/hyunpark-new/Protein-TDA/pickled/")  
+    parser.add_argument('--save_dir', type=str, default="/Scr/hyunpark-new/Protein-TDA/pickled_indiv/")  
     parser.add_argument('--load_ckpt_path', type=str, default="/Scr/hyunpark/Protein-TDA/saved")
     parser.add_argument('--filename', type=str, default="dppc.pickle")  
     parser.add_argument('--pdb_database', type=str, default="/Scr/arango/Sobolev-Hyun/2-MembTempredict/testing/") 
