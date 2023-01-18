@@ -47,7 +47,7 @@ elif torch.__version__.startswith('1.13'):
                         wrap,
                         )
 
-from loss_utils import *
+from loss_utils import * #TEMP_RANGES variable
 # loss_func = lambda pred, targ: ce_loss(targ, pred) + reg_loss(targ, pred)
 
 __all__ = ["train", "single_val", "single_test", "load_state"]
@@ -137,7 +137,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
             preds = model(img_ph)
             loss_mse = loss_func(preds, targetT) #get_loss_func
             preds_prob = torch.nn.functional.softmax(preds, dim=-1)
-            ranges = torch.arange(283, 283+48).to(preds).float() #temperatures
+            ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() #temperatures
             assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
             y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
             y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
@@ -200,7 +200,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
                 preds = model(img_ph)
                 loss_mse = loss_func(preds, targetT) #get_loss_func
                 preds_prob = torch.nn.functional.softmax(preds, dim=-1)
-                ranges = torch.arange(283, 283+48).to(preds).float() #temperatures
+                ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() #temperatures
                 assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
                 y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
                 y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
@@ -245,7 +245,7 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
                 preds = model(img_ph)
                 loss_mse = loss_func(preds, targetT) #get_loss_func
                 preds_prob = torch.nn.functional.softmax(preds, dim=-1)
-                ranges = torch.arange(283, 283+48).to(preds).float() #temperatures
+                ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() #temperatures
                 assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
                 y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
                 y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
