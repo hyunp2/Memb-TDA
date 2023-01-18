@@ -511,6 +511,22 @@ if __name__ == "__main__":
     # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
     
     ###RECENTLY MODIFIED###
+    directories = None
+    coords_traj = []
+    temperatures = []
+    directories = sorted(glob.glob(os.path.join(args.pdb_database, "T.*"))) if directories is None else directories #For a specific directory during inference!
+    for direct in directories:
+        pdbs = os.listdir(direct) #all PDBs inside a directory
+#                 print(os.path.join(direct,pdbs[0]))
+#                 univ_pdbs = [mda.Universe(os.path.join(direct,top)) for top in pdbs] #List PDB universes
+#                 self.coords_traj += [self.get_coordinates_for_md(univ_pdb)[0] for univ_pdb in univ_pdbs]
+        valid_pdbs = sanity_check_mdtraj(direct, pdbs) #List[str]
+        coords_traj += [ mdtraj.load(os.path.join(direct,top)).xyz[0] for top in valid_pdbs ] if not args.multiprocessing else ray.get([mdtraj_loading.remote(root, top) for root, top in zip([direct]*len(pdbs), valid_pdbs)])
+        temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(valid_pdbs)
+    f = open(os.path.join(args.save_dir, "temperature_" + args.filename), "wb")
+    pickle.dump(temperatures, f)   
+    
+    ###RECENTLY MODIFIED###
 #     f = open(os.path.join(args.save_dir, "coords_" + args.filename), "rb")
 #     graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
 # #     graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
@@ -563,37 +579,37 @@ if __name__ == "__main__":
 #     print(Images_total)
 
     ###RECENTLY MODIFIED###
-    print("Now concat...")
-    pers_images_total = collections.defaultdict(list)
-#     with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
-    root_dir = pathlib.Path(args.save_dir)
-    root = root_dir.root #/
-    scr = root_dir.parent.parent.parent.name #/Scr
-    user = root_dir.parent.parent.name + "-new" #hyunpark-new
-    github = root_dir.parent.name #Protein-TDA
-    save_dir = root_dir.name
-    new_root_dir = os.path.join(root, scr, user, github, save_dir) #/Scr/hyunpark-new/Protein-TDA/pickled_indiv
+#     print("Now concat...")
+#     pers_images_total = collections.defaultdict(list)
+# #     with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
+#     root_dir = pathlib.Path(args.save_dir)
+#     root = root_dir.root #/
+#     scr = root_dir.parent.parent.parent.name #/Scr
+#     user = root_dir.parent.parent.name + "-new" #hyunpark-new
+#     github = root_dir.parent.name #Protein-TDA
+#     save_dir = root_dir.name
+#     new_root_dir = os.path.join(root, scr, user, github, save_dir) #/Scr/hyunpark-new/Protein-TDA/pickled_indiv
     
-    with open(os.path.join(new_root_dir, "ProcessedIm_" + args.filename), "wb") as f:
-        f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
-        d0 = pickle.load(f0) #List[np.ndarray]
-#         pers_images_total[0] += d0
-#         del d0
-        lens = len(d0)
-        slices_for_efficiency = [slice(None,lens//4), slice(lens//4, lens//2), slice(lens//2, 3*lens//4), slice(3*lens//4, None)]
-        all_images = []
-        for j in range(4):
-            pers_images_total[0] += d0[slices_for_efficiency[j]]
-            f1 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp1_{j}"), "rb")
-            d1 = pickle.load(f1) #List[np.ndarray]
-            pers_images_total[1] += d1
-            pbar = tqdm.tqdm(range(len(pers_images_total[0])))
-            imgs = [images_processing(pers_images_total, index=ind) for ind in pbar]
-            del pers_images_total[0]
-            del pers_images_total[1]
-            del d1
-            all_images += imgs #List[Tensor]
-        pickle.dump(all_images, f)
+#     with open(os.path.join(new_root_dir, "ProcessedIm_" + args.filename), "wb") as f:
+#         f0 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp0"), "rb")
+#         d0 = pickle.load(f0) #List[np.ndarray]
+# #         pers_images_total[0] += d0
+# #         del d0
+#         lens = len(d0)
+#         slices_for_efficiency = [slice(None,lens//4), slice(lens//4, lens//2), slice(lens//2, 3*lens//4), slice(3*lens//4, None)]
+#         all_images = []
+#         for j in range(4):
+#             pers_images_total[0] += d0[slices_for_efficiency[j]]
+#             f1 = open(os.path.join(args.save_dir, "Im_" + args.filename + f"_temp1_{j}"), "rb")
+#             d1 = pickle.load(f1) #List[np.ndarray]
+#             pers_images_total[1] += d1
+#             pbar = tqdm.tqdm(range(len(pers_images_total[0])))
+#             imgs = [images_processing(pers_images_total, index=ind) for ind in pbar]
+#             del pers_images_total[0]
+#             del pers_images_total[1]
+#             del d1
+#             all_images += imgs #List[Tensor]
+#         pickle.dump(all_images, f)
 #         Images_total = pers_images_total
 #         pickle.dump(Images_total, f)
     
