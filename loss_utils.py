@@ -4,6 +4,8 @@ from typing import *
 from torch_geometric.data import Data, Batch
 import argparse
 
+TEMP_RANGES = (280, 330, 51)
+
 __all__ = ["ce_loss", "reg_loss"]
 
 def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
@@ -11,8 +13,8 @@ def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch
 #     onehots = F.one_hot(torch.arange(0, 48), num_classes=48) #48 temp bins
 #     onehots.index_select(dim=0, index = y_true.view(-1,).long() - 283) # -->(Batch, numclass)
     assert y_true.size(0) == y_pred.size(0), "Batch size must match!"
-    ranges = torch.arange(0, 48).to(y_pred).long() #48 temp bins
-    y_true = ranges.index_select(dim=0, index = y_true.to(y_pred).view(-1,).long() - 283) # --> (Batch, ) of LongTensor;; y_pred is (Batch, numclasses)
+    ranges = torch.arange(0, TEMP_RANGES[2]).to(y_pred).long() #48 temp bins
+    y_true = ranges.index_select(dim=0, index = y_true.to(y_pred).view(-1,).long() - TEMP_RANGES[0]) # --> (Batch, ) of LongTensor;; y_pred is (Batch, numclasses)
     weights = torch.tensor(args.ce_weights).to(y_pred)
     ce = torch.nn.CrossEntropyLoss(weight=weights)
     loss = ce(y_pred, y_true)
@@ -21,7 +23,7 @@ def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch
 def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
     """Get expected temperature and regress on True Temp"""
     assert y_true.size(0) == y_pred.size(0), "Batch size must match!"
-    ranges = torch.arange(283, 283+48).to(y_pred).float() #temperatures
+    ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(y_pred).float() #temperatures
     y_pred_probs = F.softmax(y_pred, dim=-1) #-->(Batch, numclass)
     assert y_pred_probs.size(-1) == ranges.size(0), "Num class must match!"
     y_pred_expected_T = y_pred_probs * ranges[None, :]  #-->(Batch, numclass)
@@ -37,7 +39,7 @@ def contrastive_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred_
         data = Data(x=one_tensor.view(1,-1), y=y_true.view(1,-1))
         data_list.append(data)
     batch = Batch.from_data_list(data_list)
-    ranges = torch.arange(283, 283+48).to(y_true).long() #temperatures
+    ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(y_true).long() #temperatures
     mean_list = []
     random_list = []
     for t in ranges:
