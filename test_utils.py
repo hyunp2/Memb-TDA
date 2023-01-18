@@ -54,7 +54,7 @@ elif torch.__version__.startswith('1.13'):
 
 from data_utils import get_dataloader, PH_Featurizer_Dataset, mdtraj_loading, sanity_check_mdtraj
 from train_utils import load_state, single_val, single_test
-from log_utils import *
+from log_utils import * #TEMP_RANGES variable
 
 #https://github.com/taki0112/denoising-diffusion-gan-Tensorflow/blob/571a99022ccc07a31b6c3672f7b5b30cd46a7eb6/src/utils.py#L156:~:text=def%20merge(,return%20img
 def merge(images, size):
@@ -191,7 +191,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
             for batch in dataloader:
                 imgs = batch[0].to(self.device)
                 predictions = self.model(imgs)
-                temps = batch[1].to(self.device) - 283 #confmat must have a range from 0-47
+                temps = batch[1].to(self.device) - TEMP_RANGES[0] #confmat must have a range from 0-47
 #                 print(batch.size(), predictions.size())
                 confmat.update(temps.flatten().long(), predictions.argmax(1).flatten())
                 predictions_all.append(predictions)
@@ -205,7 +205,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
             torch.distributed.all_gather(predictions_all_list, predictions_all) #Gather to empty list!
             predictions_all = torch.cat([pred for pred in predictions_all_list], dim=0) #(Bs, num_classes)
 	
-        ranges = torch.arange(283, 283+48).to(predictions_all).float() #temperatures
+        ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(predictions_all).float() #temperatures
         predictions_all_probs = F.softmax(predictions_all, dim=-1) #-->(Batch, numclass)
         assert predictions_all_probs.size(-1) == ranges.size(0), "Num class must match!"
         predictions_all_probs_T = predictions_all_probs * ranges[None, :]  #-->(Batch, numclass)
