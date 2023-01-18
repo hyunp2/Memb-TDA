@@ -35,7 +35,7 @@ python -m main  --which_mode preprocessing --pdb_database /Scr/arango/Sobolev-Hy
 </code> 
 </br>
 <code>
-  python -m main --which_mode train --load_ckpt_path /Scr/hyunpark/Protein-TDA/saved --name vit_model --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1
+  python -m main --which_mode train --load_ckpt_path /Scr/hyunpark/Protein-TDA/saved --name vit_model --backbone vit --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1
 </code>
 
 <br><br> For distributed data parallelization <br>
@@ -45,7 +45,7 @@ python -m main  --which_mode preprocessing --pdb_database /Scr/arango/Sobolev-Hy
 </code>
 </br>
 <code>
-  python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --which_mode train --name vit_model --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1
+  python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --which_mode train --name vit_model --backbone vit --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1
 </code>
   
 <br><br> For DGX-3 submission, assuming submit_local contains proper job scheduling...<br>
@@ -54,12 +54,12 @@ python -m main  --which_mode preprocessing --pdb_database /Scr/arango/Sobolev-Hy
 </code>
 <br><br> To continue training...<br>
 <code>
-python -m main --which_mode train --name vit_model --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
+python -m main --which_mode train --name vit_model --backbone vit --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
 </code>
 
 <br><br> To infer on all data...<br>
 <code>
-python -m main --which_mode infer --name vit_model --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
+python -m main --which_mode infer --name vit_model --backbone vit --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
 </code>
 
 <br><br> To infer PDB patches' temperatures inside e.g. **inference_save/T.123** directory, and to save inside **inference_save** directory as pickles<br>
