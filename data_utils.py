@@ -510,6 +510,7 @@ if __name__ == "__main__":
 
     # python -m data_utils --psf reference_autopsf.psf --pdb reference_autopsf.pdb --trajs adk.dcd --save_dir . --data_dir /Scr/hyunpark/Monster/vaegan_md_gitlab/data --multiprocessing --filename temp2.pickle
     
+    ###RECENTLY MODIFIED###
 #     f = open(os.path.join(args.save_dir, "coords_" + args.filename), "rb")
 #     graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
 # #     graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
@@ -521,6 +522,7 @@ if __name__ == "__main__":
 #     pickle.dump(Rs_total, f)   
 #     print(cf.on_yellow("STEP 2: Persistent diagram extraction done!"))
     
+    ###RECENTLY MODIFIED###
 #     with open(os.path.join(args.save_dir, "PH_" + args.filename), "rb") as f:
 #         Rs_total = pickle.load(f)
 #     maxdim = 1
@@ -560,6 +562,7 @@ if __name__ == "__main__":
 #     Images_total = pers_images_total
 #     print(Images_total)
 
+    ###RECENTLY MODIFIED###
     print("Now concat...")
     pers_images_total = collections.defaultdict(list)
 #     with open(os.path.join(args.save_dir, "Im_" + args.filename), "wb") as f:
@@ -593,6 +596,9 @@ if __name__ == "__main__":
         pickle.dump(all_images, f)
 #         Images_total = pers_images_total
 #         pickle.dump(Images_total, f)
+    
+    
+    
     
 #     import tqdm
 #     with open(os.path.join(args.save_dir, "Im_" + args.filename), "rb") as f:
