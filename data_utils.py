@@ -366,7 +366,7 @@ class PH_Featurizer_Dataset(Dataset):
         return graph_input_list, Rs_total, Images_total
 
     def len(self, ):
-        return len(self.graph_input_list)
+        return len(self.temperatures)
 
     def get(self, idx):
         if self.preprocessing_only:
