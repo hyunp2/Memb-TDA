@@ -363,6 +363,8 @@ class PH_Featurizer_Dataset(Dataset):
 
     def get_values(self, ):
         graph_input_list, Rs_total, Images_total = self.get_persistent_diagrams()
+        if self.truncated:
+            print(cf.on_yellow("Truncated dataset is chosen!"))
         return graph_input_list, Rs_total, Images_total
 
     def len(self, ):
