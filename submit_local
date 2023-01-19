@@ -22,12 +22,8 @@ fi
 
 qsub -q $MACHINENAME -N $JOBNAME -j y -o ~/Jobs << EOF
 cd "$PWD"
-/Scr/hyunpark/anaconda3/envs/deeplearning/bin/torchrun --nnodes=1 --nproc_per_node=gpu --max_restarts=0 --module Conv_3D_train_test --DDP_train --cin 2 --h5_times 49 --lr 1e-3 --loss05 2.5 --loss_peak 0.01 --loss_tv 0. --loss_com 0. --log --activation sigmoid --which_model unet_attention_custom --batch_size 32 --norm group --gpu --optimizer torch_adam --name sphere_transpose_relu_group_vol2.5.pth --epoches 5000 --h5_path /Scr/hyunpark/uchicago/data.h5 /Scr/hyunpark/uchicago/spherical_wall.h5 --mask --aug_flip --aug_rot90 --aug_shift 0 --unet_atten --resume
+/Scr/hyunpark/anaconda3/envs/aidev/bin/torchrun --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --standalone --module main --which_mode train --name convnext_model_indiv --backbone convnext --filename dppc.pickle --multiprocessing --optimizer torch_adam --gpu --epoches 1000 --ce_re_ratio 1 0.1 --load_ckpt_path /Scr/hyunpark-new/Protein-TDA/saved --save_dir /Scr/hyunpark-new/Protein-TDA/pickled_indiv --truncated --batch_size 512
 EOF
 
-#/Scr/hyunpark/anaconda3/envs/deeplearning/bin/python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts=0 --module Conv_3D_train_test --DDP_train --lr 1e-3 --loss05 0.5 --loss_peak 0.01 --log --activation sigmoid --which_model unet --batch_size 4 --gpu --optimizer torch_adam --epoches 200 --h5_path /Scr/hyunpark/uchicago/data.h5 /Scr/hyunpark/uchicago/flat_wall.h5 /Scr/hyunpark/uchicago/spherical_wall.h5 --mask --masking_value 0.5 --inter_activation relu --gradient_clip 1 --accumulate_grad_batches 1 --aug_flip --aug_rot90 --name all_data 
-#/Scr/hyunpark/anaconda3/envs/deeplearning/bin/python $JOBNAME.py --log --with_force False --gpu --name physnet --backbone physnet --epoches 100 --batch_size 128 --optimizer sgd --data_dir /Scr/hyunpark/ArgonneGNN/argonne_gnn/data --load_ckpt_path /Scr/hyunpark/ArgonneGNN/argonne_gnn/save
-
-#/Scr/hyunpark/anaconda3/envs/deeplearning/bin/torchrun
 
 
