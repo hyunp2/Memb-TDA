@@ -6,7 +6,7 @@ import argparse
 
 TEMP_RANGES = (280, 330, 51)
 
-__all__ = ["ce_loss", "reg_loss"]
+__all__ = ["ce_loss", "reg_loss", "TEMP_RANGES"]
 
 def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
     """Get temperature class prediction"""
