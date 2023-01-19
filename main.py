@@ -78,6 +78,7 @@ def get_args():
     parser.add_argument('--batch_size', type=int, default=32)  
     parser.add_argument('--preprocessing_only', action="store_true", help="to get RIPSER based PH!")  
     parser.add_argument('--ignore_topologicallayer', action="store_true", help="forcefully use RIPSER for subscription!")  
+    parser.add_argument('--truncated', action="store_true", help="Use only 10% of data. It MUST have original dataset, however.")  
 
     #Training utils
     parser.add_argument('--epoches', type=int, default=2)
