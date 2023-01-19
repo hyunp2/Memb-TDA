@@ -20,6 +20,8 @@ import curtsies.fmtfuncs as cf
 from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
 from resTv2 import ResTV2 as ResTV2Model
 from clip_resnet import ResNetForCLIP as ResNetForCLIPModel
+from loss_utils import * #TEMP_RANGES
+ 
 
 __all__ = ["MPNN", "Vit", "feature_extractor"]
 
@@ -268,7 +270,7 @@ class Vision(torch.nn.Module):
     IMAGE_SIZE = 128
     PATCH_SIZE = 6 #change to 8
     NUM_CHANNELS = 3
-    NUM_CLASSES = 48
+    NUM_CLASSES = TEMP_RANGES[2]
     def __init__(self, args, **configs):
         super().__init__()
         IMAGE_SIZE = Vision.IMAGE_SIZE
@@ -322,7 +324,7 @@ class Vision(torch.nn.Module):
         self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.SiLU(True), 
                                                             torch.nn.Linear(512,256), torch.nn.SiLU(True), 
                                                                 torch.nn.Linear(256,64), torch.nn.SiLU(True), 
-                                                                torch.nn.Linear(64,48), )) #48 temperature classes
+                                                                torch.nn.Linear(64, NUM_CLASSES), )) #48 temperature classes
 
     def forward(self, img_ph: torch.FloatTensor):
         img_ph : List[torch.FloatTensor] = img_ph.detach().cpu().unbind(dim=0)
