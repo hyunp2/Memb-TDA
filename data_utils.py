@@ -433,7 +433,7 @@ class PH_Featurizer_DataLoader(abc.ABC):
                                         'batch_size': opt.batch_size}
 
         if get_local_rank() == 0:
-            self.prepare_data()
+#             self.prepare_data()
             print(f"{get_local_rank()}-th core is parsed!")
 #             self.prepare_data(opt=self.opt, data=self.data, mode=self.mode) #torch.utils.data.Dataset; useful when DOWNLOADING!
 
