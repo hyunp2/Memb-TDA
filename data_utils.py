@@ -233,7 +233,7 @@ class PH_Featurizer_Dataset(Dataset):
                 assert len(self.coords_traj) == len(self.temperatures), "coords traj and temperatures must have the same data length..."
                 print(cf.on_blue("STEP 0: Saved temperature!"))
             else:
-                f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "rb")
+                f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "rb") if not self.truncated else os.path.join(self.save_dir, "truncated_temperature_" + self.filename)
                 self.temperatures = pickle.load(f)
                 print(cf.on_blue("STEP0: Loaded temperature!"))
                 
@@ -353,7 +353,7 @@ class PH_Featurizer_Dataset(Dataset):
 #                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
 #                 f = open(os.path.join(self.save_dir, "Im_" + self.filename), "rb")
 #                 Images_total = pickle.load(f) #List of structures: each structure has maxdim PHs #######IGNORE!
-                f = open(os.path.join(self.save_dir, "ProcessedIm_" + self.filename), "rb")
+                f = open(os.path.join(self.save_dir, "ProcessedIm_" + self.filename), "rb") if not self.truncated else os.path.join(self.save_dir, "truncated_ProcessedIm_" + self.filename)
                 Processed_images_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 
         if self.preprocessing_only or self.ignore_topologicallayer:
