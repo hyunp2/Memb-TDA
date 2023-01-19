@@ -45,7 +45,7 @@ from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everythin
 from train_utils import train as train_function
 from model import MPNN, Vision
 from gpu_utils import *
-from loss_utils import *
+from loss_utils import * #TEMP_RANGES
 from test_utils import validate_and_test, InferenceDataset
 
 def get_args():
@@ -98,7 +98,7 @@ def get_args():
     parser.add_argument('--gpu', action='store_true')
     parser.add_argument('--shard', action='store_true')
     parser.add_argument('--loss', choices=["mse", "mae", "smooth", "hybrid"], default="hybrid")
-    parser.add_argument('--ce_weights', nargs=48, default=[1]*48, type=float, help="CE weights for class")
+    parser.add_argument('--ce_weights', nargs=48, default=[1]*TEMP_RANGES[2], type=float, help="CE weights for class")
     parser.add_argument('--ce_re_ratio', nargs=2, default=[1., 1.], type=float, help="CE and Reg loss weights")
 
     #Model utils
