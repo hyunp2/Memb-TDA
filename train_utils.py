@@ -143,8 +143,8 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
             y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
             loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
 #             loss_metrics = 0
-            loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * y_pred_probs).sum(dim=-1).sqrt().view(-1, ).detach().cpu() #(Batch, )
-            loss_metrics = torch.stack([loss_metrics_mean, loss_metrics_std], dim=-1) #(Batch, 2)
+            loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ).detach().cpu().mean() #
+            loss_metrics = torch.tensor([loss_metrics_mean, loss_metrics_std]) #(2, );; std is not an error but uncertainty!!
         if args.log:
             logger.log_metrics({'rank0_specific_train_loss_mse': loss_mse.item()})
             logger.log_metrics({'rank0_specific_train_loss_mae': loss_metrics})
@@ -163,7 +163,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
             #scheduler.step() #stepwise (self.last_epoch is called (as a step) internally)  
 #         losses.append(loss)
         _loss += loss.item()
-        _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics
+        _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics.detach().cpu().numpy() #numpy conversion to reduce GPU overload!
         #if step % 10 == 0: save_state(model, optimizer, scheduler, epoch_idx, path_and_name) #Deprecated
         pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics)
 
@@ -206,7 +206,9 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
                 assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
                 y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
                 y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
-                loss_metrics = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
+                loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
+                loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ).detach().cpu().mean() #
+                loss_metrics = torch.tensor([loss_metrics_mean, loss_metrics_std]) #(2, );; std is not an error but uncertainty!!
 #             loss_metrics = 0
 
             if args.log:
@@ -215,7 +217,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
 
             loss = loss_mse
             _loss += loss.item()
-            _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics
+            _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics.detach().cpu().numpy() #numpy conversion to reduce GPU overload!
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics)
             if return_data: 
                 data_to_return.append(y_pred_expected_T) #List[torch.Tensor]
@@ -251,7 +253,9 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
                 assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
                 y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
                 y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
-                loss_metrics = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
+                loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
+                loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ).detach().cpu().mean() #
+                loss_metrics = torch.tensor([loss_metrics_mean, loss_metrics_std]) #(2, );; std is not an error but uncertainty!!
 #             loss_metrics = 0
 
             if args.log:
@@ -260,7 +264,7 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
 
             loss = loss_mse
             _loss += loss.item()
-            _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics
+            _loss_metrics += loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics.detach().cpu().numpy() #numpy conversion to reduce GPU overload!
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if hasattr(loss_metrics, "item") else loss_metrics)
 		
             if return_data: 
@@ -397,7 +401,7 @@ def train(model: nn.Module,
             #print(f"Sanity check: all_reduced GPU mean loss {loss} AND all_gather GPU mean loss {losses.mean()}...")
             logging.info(f'Train loss: {loss}')
             torch.distributed.all_reduce(loss_metrics, op=torch.distributed.ReduceOp.SUM) #Sum to loss
-            loss_metrics = (loss_metrics / world_size).item()
+            loss_metrics = (loss_metrics / world_size).item() if hasattr(loss_metrics, "item") else (loss_metrics / world_size)
             #print(f"Sanity check: all_reduced GPU mean loss {loss} AND all_gather GPU mean loss {losses.mean()}...")
             logging.info(f'Train MAE: {loss_metrics}')
 	
@@ -417,7 +421,7 @@ def train(model: nn.Module,
             torch.distributed.all_reduce(val_loss, op=torch.distributed.ReduceOp.SUM)
             val_loss = (val_loss / world_size).item()
             torch.distributed.all_reduce(loss_metrics, op=torch.distributed.ReduceOp.SUM) #Sum to loss
-            loss_metrics = (loss_metrics / world_size).item()
+            loss_metrics = (loss_metrics / world_size).item() if hasattr(loss_metrics, "item") else (loss_metrics / world_size)
         if args.log: 
             logger.log_metrics({'ALL_REDUCED_val_loss': val_loss}, epoch_idx)
             logger.log_metrics({'ALL_REDUCED_val_MAE': loss_metrics}, epoch_idx) #zero rank only
@@ -444,7 +448,7 @@ def train(model: nn.Module,
             torch.distributed.all_reduce(test_loss, op=torch.distributed.ReduceOp.SUM)
             test_loss = (test_loss / world_size).item()
             torch.distributed.all_reduce(loss_metrics, op=torch.distributed.ReduceOp.SUM) #Sum to loss
-            loss_metrics = (loss_metrics / world_size).item()
+            loss_metrics = (loss_metrics / world_size).item() if hasattr(loss_metrics, "item") else (loss_metrics / world_size)
         if args.log: 
             logger.log_metrics({'ALL_REDUCED_test_loss': test_loss}, epoch_idx) #zero rank only
             logger.log_metrics({'ALL_REDUCED_test_MAE': loss_metrics}, epoch_idx) #zero rank only
