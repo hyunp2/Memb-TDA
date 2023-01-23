@@ -207,8 +207,8 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
                 y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
                 y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
                 loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
-                loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ).detach().cpu().mean() #
-                loss_metrics = torch.tensor([loss_metrics_mean, loss_metrics_std]) #(2, );; std is not an error but uncertainty!!
+                loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
+                loss_metrics = torch.tensor([loss_metrics_mean, loss_metrics_std.detach().cpu().mean()]) #(2, );; std is not an error but uncertainty!!
 #             loss_metrics = 0
 
             if args.log:
@@ -220,7 +220,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
             _loss_metrics += loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics.detach().cpu().numpy() #numpy conversion to reduce GPU overload!
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics)
             if return_data: 
-                data_to_return.append(y_pred_expected_T) #List[torch.Tensor]
+                data_to_return.append(torch.stack([y_pred_expected_T, loss_metrics_std], dim=1)) #List[torch.Tensor] --> makes (Batch, 2)
         if return_data: return _loss/len(loader), _loss_metrics/len(loader), torch.cat(data_to_return, dim=0)
 
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
@@ -254,8 +254,8 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
                 y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
                 y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
                 loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
-                loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ).detach().cpu().mean() #
-                loss_metrics = torch.tensor([loss_metrics_mean, loss_metrics_std]) #(2, );; std is not an error but uncertainty!!
+                loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
+                loss_metrics = torch.tensor([loss_metrics_mean, loss_metrics_std.detach().cpu().mean()]) #(2, );; std is not an error but uncertainty!!
 #             loss_metrics = 0
 
             if args.log:
@@ -268,7 +268,7 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics)
 		
             if return_data: 
-                data_to_return.append(y_pred_expected_T) #List[torch.Tensor]
+                data_to_return.append(torch.stack([y_pred_expected_T, loss_metrics_std], dim=1)) #List[torch.Tensor] --> makes (Batch, 2)
         if return_data: return _loss/len(loader), _loss_metrics/len(loader), torch.cat(data_to_return, dim=0)
 	
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
