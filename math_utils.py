@@ -120,6 +120,17 @@ def wasserstein(dgm1, dgm2, matching=False):
 
     return matchdist
 
+# https://github.com/ku-milab/LEAR/blob/e3b087ea100cc84b7f8da541cbd2e084284013c7/MNIST/M_test.py#L7
+def calculate_fid(act1, act2):
+    mu1, sigma1 = np.mean(act1), np.cov(act1, rowvar=False)
+    mu2, sigma2 = np.mean(act2), np.cov(act2, rowvar=False)
+    ssdiff = np.sum((mu1 - mu2) ** 2.0)
+    covmean = sqrtm(sigma1.dot(sigma2))
+    if np.iscomplexobj(covmean):
+        covmean = covmean.real
+    fid = ssdiff + np.trace(sigma1 + sigma2 - 2.0 * covmean)
+    return fid
+
 if __name__ == "__main__":
     x = torch.randn(100,2).double().data
     x.requires_grad = True
