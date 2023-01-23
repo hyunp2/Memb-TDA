@@ -210,11 +210,12 @@ class InferenceDataset(PH_Featurizer_Dataset):
         assert predictions_all_probs.size(-1) == ranges.size(0), "Num class must match!"
         predictions_all_probs_T = predictions_all_probs * ranges[None, :]  #-->(Batch, numclass)
         predictions_all_probs_T = predictions_all_probs_T.sum(dim=-1) #-->(Batch,)
+        predictions_all_probs_T_std = ((ranges[None, :] - predictions_all_probs_T.view(-1,)[:, None]).pow(2) * predictions_all_probs).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
 	
         if get_local_rank() == 0:
             f = open(os.path.join(self.save_dir, "Predicted_" + self.filename), "wb")
             save_as = collections.defaultdict(list)
-            for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all_probs_T, self.Images_total, self.pdb2str]):
+            for key, val in zip(["predictions", "predictions_std", "images", "pdbnames"], [predictions_all_probs_T, predictions_all_probs_T_std, self.Images_total, self.pdb2str]):
                 save_as[key] = val
             save_as["METADATA"] = (confmat.mat, *confmat.compute())
             pickle.dump(save_as, f)   
@@ -298,7 +299,7 @@ def validate_and_test(model: nn.Module,
         val_predictions = torch.tensor(val_predictions, dtype=torch.float, device=device) #B
         val_predictions_list = [val_predictions.new_zeros(val_predictions.size()).to(val_predictions) for _ in range(world_size)] #list of (B)
         torch.distributed.all_gather(val_predictions_list, val_predictions) #Gather to empty list!
-        val_predictions = torch.cat([pred for pred in val_predictions_list], dim=0) #Bs
+        val_predictions = torch.cat([pred for pred in val_predictions_list], dim=0) #(Bs, 2)
 
     if args.log: 
         logger.log_metrics({'ALL_REDUCED_val_loss': val_loss})
@@ -315,9 +316,9 @@ def validate_and_test(model: nn.Module,
         print(f"CUDA event elapsed time: {init_start_event.elapsed_time(init_end_event) / 1000}sec")
 	
     print(cf.on_green("Saving returned validation and test_predictions!"))
-    val_predictions = val_predictions.detach().cpu().numpy().reshape(-1,) #B
+    val_predictions = val_predictions.detach().cpu().numpy().reshape(-1, 2) #(B,2)
     if local_rank == 0:
-        np.savez("PH_all_test.npz", gt=gts, pred=val_predictions)
+        np.savez("PH_all_test.npz", gt=gts, pred=val_predictions[:,0], pred_std=val_predictions[:,1]) #(B,) for pred and pred_std
 
 #     val_gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0) #B,1
 #     test_gts = torch.cat([batch["temp"] for batch in test_dataloader], dim=0) #B,1
