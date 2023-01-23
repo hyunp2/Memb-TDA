@@ -4,6 +4,7 @@ from scipy import optimize
 import warnings
 import math
 import torch
+from scipy.linalg import sqrtm
 
 class linear_sum_assignment(torch.autograd.Function):
     @staticmethod
