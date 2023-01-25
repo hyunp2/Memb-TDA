@@ -316,6 +316,7 @@ def validate_and_test(model: nn.Module,
         print(f"CUDA event elapsed time: {init_start_event.elapsed_time(init_end_event) / 1000}sec")
 	
     print(cf.on_green("Saving returned validation and test_predictions!"))
+    gts = gts.detach().cpu().numpy()
     val_predictions = val_predictions.detach().cpu().numpy().reshape(-1, 2) #(B,2)
     if local_rank == 0:
         np.savez("PH_all_test.npz", gt=gts, pred=val_predictions[:,0], pred_std=val_predictions[:,1]) #(B,) for pred and pred_std
