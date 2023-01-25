@@ -289,7 +289,7 @@ def validate_and_test(model: nn.Module,
         torch.distributed.all_reduce(val_loss, op=torch.distributed.ReduceOp.SUM)
         val_loss = (val_loss / world_size).item()
         torch.distributed.all_reduce(loss_metrics, op=torch.distributed.ReduceOp.SUM) #Sum to loss
-        loss_metrics = (loss_metrics / world_size).item()
+        loss_metrics = (loss_metrics / world_size).item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics
 	
         gts = torch.tensor(gts, dtype=torch.float, device=device) #B
         gts_list = [gts.new_zeros(gts.size()).to(gts) for _ in range(world_size)] #list of (B)
