@@ -137,8 +137,8 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
             preds = model(img_ph)
             loss_mse = loss_func(preds, targetT) #get_loss_func	\
 
-            ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() #temperatures
-            targetT = ranges.index_select(dim=0, index = targetT.to(y_pred).view(-1,).long() - TEMP_RANGES[0]) # --> (Batch, ) of LongTensor;; y_pred is (Batch, numclasses)
+            ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() ##To DEBUG
+            targetT = ranges.index_select(dim=0, index = targetT.to(preds).view(-1,).long() - TEMP_RANGES[0]) # #To DEBUG
             loss_ce_tmp = torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(preds), label_smoothing=args.label_smoothing)(preds, targetT) #To DEBUG
 	
             preds_prob = torch.nn.functional.softmax(preds, dim=-1)
