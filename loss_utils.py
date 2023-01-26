@@ -8,7 +8,7 @@ TEMP_RANGES = (280, 330, 51)
 
 __all__ = ["ce_loss", "reg_loss", "TEMP_RANGES"]
 
-def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
+def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor, label_smoothing: float=0.):
     """Get temperature class prediction"""
 #     onehots = F.one_hot(torch.arange(0, 48), num_classes=48) #48 temp bins
 #     onehots.index_select(dim=0, index = y_true.view(-1,).long() - 283) # -->(Batch, numclass)
@@ -16,7 +16,7 @@ def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch
     ranges = torch.arange(0, TEMP_RANGES[2]).to(y_pred).long() #48 temp bins
     y_true = ranges.index_select(dim=0, index = y_true.to(y_pred).view(-1,).long() - TEMP_RANGES[0]) # --> (Batch, ) of LongTensor;; y_pred is (Batch, numclasses)
     weights = torch.tensor(args.ce_weights).to(y_pred)
-    ce = torch.nn.CrossEntropyLoss(weight=weights)
+    ce = torch.nn.CrossEntropyLoss(weight=weights, label_smoothing=label_smoothing)
     loss = ce(y_pred, y_true)
     return loss
   
