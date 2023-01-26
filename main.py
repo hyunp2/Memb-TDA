@@ -82,6 +82,7 @@ def get_args():
 
     #Training utils
     parser.add_argument('--epoches', type=int, default=2)
+    parser.add_argument('--label_smoothing', '-ls', type=float, default=0.)
     parser.add_argument('--learning_rate','-lr', type=float, default=1e-3)
     parser.add_argument('--weight_decay', type=float, default=2e-5)
     parser.add_argument('--warm_up_split', type=int, default=5)
