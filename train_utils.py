@@ -231,10 +231,13 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
             _loss += loss.item()
             _loss_metrics += loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics.detach().cpu().numpy() #numpy conversion to reduce GPU overload!
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics)
+		
+            data_to_return.append(torch.stack([y_pred_expected_T, loss_metrics_std], dim=1)) #DEBUG
+	
             if return_data: 
                 data_to_return.append(torch.stack([y_pred_expected_T, loss_metrics_std], dim=1)) #List[torch.Tensor] --> makes (Batch, 2)
         if return_data: return _loss/len(loader), _loss_metrics/len(loader), torch.cat(data_to_return, dim=0)
-        print(torch.cat(data_to_return, dim=0)[:,0])
+        print(torch.cat(data_to_return, dim=0)[:,0]) #DEBUG
 
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
                 
@@ -281,6 +284,8 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
             _loss_metrics += loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics.detach().cpu().numpy() #numpy conversion to reduce GPU overload!
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics)
 		
+            data_to_return.append(torch.stack([y_pred_expected_T, loss_metrics_std], dim=1)) #DEBUG
+
             if return_data: 
                 data_to_return.append(torch.stack([y_pred_expected_T, loss_metrics_std], dim=1)) #List[torch.Tensor] --> makes (Batch, 2)
         print(torch.cat(data_to_return, dim=0)[:,0])
