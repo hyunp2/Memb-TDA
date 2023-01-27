@@ -191,6 +191,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
         pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Validation',
 		     leave=False, disable=(args.silent or get_local_rank() != 0))
         if return_data: data_to_return = []
+        data_to_return = []
 		
         for i, packs in pbar:
             if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
@@ -246,6 +247,7 @@ def single_test(args, model, loader, loss_func, optimizer, scheduler, logger: Lo
         pbar = tqdm(enumerate(loader), total=len(loader), unit='batch', desc=f'Testing',
 		     leave=False, disable=(args.silent or get_local_rank() != 0))	
         if return_data: data_to_return = []
+        data_to_return = []
 
         for i, packs in pbar:
             if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
