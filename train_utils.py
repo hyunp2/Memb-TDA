@@ -139,7 +139,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
 
 #             ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() ##To DEBUG
 #             targetT = ranges.index_select(dim=0, index = targetT.to(preds).view(-1,).long() - TEMP_RANGES[0]) # #To DEBUG
-            loss_ce_tmp = torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(preds), label_smoothing=args.label_smoothing)(preds, targetT.long()-TEMP_RANGES[0]) #To DEBUG
+            loss_ce_tmp = torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(preds), label_smoothing=args.label_smoothing)(preds, targetT.long().view(-1, ) - TEMP_RANGES[0]) #To DEBUG
 	
             preds_prob = torch.nn.functional.softmax(preds, dim=-1)
             ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() #temperatures
