@@ -36,7 +36,9 @@ def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torc
     return loss
   
 def contrastive_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred_tensor: torch.FloatTensor):
-    """WIP: Extract tensor from forward hook and do contrastive learning"""
+    """WIP: Extract tensor from forward hook and do contrastive learning
+    SEE: ProtoNet: https://pytorch-lightning.readthedocs.io/en/stable/notebooks/course_UvA-DL/12-meta-learning.html#:~:text=class%20ProtoNet(pl.LightningModule)%3A
+    """
     data_list = []
     for one_tensor, one_temp in zip(y_pred_tensor.unbind(dim=0), y_true.unbind(dim=0)):
         data = Data(x=one_tensor.view(1,-1), y=y_true.view(1,-1))
