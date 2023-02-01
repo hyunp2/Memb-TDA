@@ -270,6 +270,8 @@ class Vision(torch.nn.Module):
     IMAGE_SIZE = 128
     PATCH_SIZE = 6 #change to 8
     NUM_CHANNELS = 3
+    IMAGE_MEAN = [0.5] * NUM_CHANNELS
+    IMAGE_STD = [0.5] * NUM_CHANNELS
     NUM_CLASSES = TEMP_RANGES[2]
     def __init__(self, args, **configs):
         super().__init__()
@@ -294,25 +296,25 @@ class Vision(torch.nn.Module):
         
         if args.backbone == "vit":
             self.pretrained = Vit
-            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
 #             hidden_from_ = self.pretrained.pooler.dense.out_features
         elif args.backbone == "swin":
             self.pretrained = Swin
-            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.backbone == "swinv2":
             self.pretrained = Swinv2
-            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.backbone == "convnext":
             self.pretrained = Convnext
-            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
         elif args.backbone == "restv2":
             self.pretrained = ResTV2
-            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
         elif args.backbone == "clip_resnet":
             self.pretrained = ResNetForCLIP
-            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=[0.5,0.5,0.5], image_std=[0.5,0.5,0.5])
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
         
         if args.backbone in ["vit", "swin", "swinv2", "convnext"]:
             hidden_from_ = self.pretrained.layernorm.weight.size()[0]  
