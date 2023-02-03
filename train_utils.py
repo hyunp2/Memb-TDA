@@ -139,7 +139,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
 
 #             ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() ##To DEBUG
 #             targetT = ranges.index_select(dim=0, index = targetT.to(preds).view(-1,).long() - TEMP_RANGES[0]) # #To DEBUG
-#             loss_ce_tmp = torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(preds), label_smoothing=args.label_smoothing)(preds, targetT.long().view(-1, ) - TEMP_RANGES[0]) #To DEBUG
+            loss_ce_tmp = torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(preds), label_smoothing=args.label_smoothing)(preds, targetT.long().view(-1, ) - TEMP_RANGES[0]) #To DEBUG
 	
             preds_prob = torch.nn.functional.softmax(preds, dim=-1)
             ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() #temperatures
@@ -147,7 +147,7 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
             y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
             y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
 		
-#             mse_indiv_loss_tmp = torch.nn.SmoothL1Loss()(targetT.view(-1,).to(y_pred_expected_T), y_pred_expected_T.view(-1,)) #To DEBUG
+            mse_indiv_loss_tmp = torch.nn.SmoothL1Loss()(targetT.view(-1,).to(y_pred_expected_T), y_pred_expected_T.view(-1,)) #To DEBUG
 	
             loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
 #             loss_metrics = 0
@@ -174,9 +174,9 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
         _loss_metrics += loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics.detach().cpu().numpy() #numpy conversion to reduce GPU overload!
         #if step % 10 == 0: save_state(model, optimizer, scheduler, epoch_idx, path_and_name) #Deprecated
         pbar.set_postfix(mse_loss=loss.item(), 
-			 mae_loss=loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics, )
-# 			 ce_loss=loss_ce_tmp.item(), 
-# 			 mse_indiv_loss=mse_indiv_loss_tmp.item())
+			 mae_loss=loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics, 
+			 ce_loss=loss_ce_tmp.item(), 
+			 mse_indiv_loss=mse_indiv_loss_tmp.item())
 
 #     return torch.cat(losses, dim=0).mean() #Not MAE
     return _loss/len(loader), _loss_metrics/len(loader) #mean loss; Not MAE
