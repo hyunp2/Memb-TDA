@@ -279,6 +279,8 @@ class Vision(torch.nn.Module):
         PATCH_SIZE = Vision.PATCH_SIZE
         NUM_CHANNELS = Vision.NUM_CHANNELS
         NUM_CLASSES = Vision.NUM_CLASSES
+        IMAGE_MEAN = Vision.IMAGE_MEAN
+        IMAGE_STD = Vision.IMAGE_STD
         config_vit = ViTConfig(image_size=IMAGE_SIZE, patch_size=PATCH_SIZE, num_channels=NUM_CHANNELS)
         config_swin = SwinConfig(image_size=IMAGE_SIZE, patch_size=PATCH_SIZE, num_channels=NUM_CHANNELS)
         config_swinv2 = Swinv2Config(image_size=IMAGE_SIZE, patch_size=PATCH_SIZE, num_channels=NUM_CHANNELS)
