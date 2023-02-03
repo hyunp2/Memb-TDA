@@ -4,7 +4,7 @@ from typing import *
 from torch_geometric.data import Data, Batch
 import argparse
 
-TEMP_RANGES = (280, 330, 51)
+TEMP_RANGES = (283, 330, 48)
 
 __all__ = ["ce_loss", "reg_loss", "TEMP_RANGES"]
 
