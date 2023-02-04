@@ -54,7 +54,7 @@ elif torch.__version__.startswith('1.13'):
 
 from data_utils import get_dataloader, PH_Featurizer_Dataset, mdtraj_loading, sanity_check_mdtraj
 from train_utils import load_state, single_val, single_test
-from log_utils import * #TEMP_RANGES variable
+from loss_utils import * #TEMP_RANGES variable
 
 #https://github.com/taki0112/denoising-diffusion-gan-Tensorflow/blob/571a99022ccc07a31b6c3672f7b5b30cd46a7eb6/src/utils.py#L156:~:text=def%20merge(,return%20img
 def merge(images, size):
