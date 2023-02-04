@@ -18,7 +18,7 @@ import re
 from scipy.spatial import Delaunay
 import plotly
 from plotly.graph_objs import graph_objs as go
-# import ipywidgets as widgets
+import ipywidgets as widgets
 # plotly.offline.init_notebook_mode(connected=True)
 from plotly.offline import iplot
 import gudhi, gudhi.hera, gudhi.wasserstein, persim
