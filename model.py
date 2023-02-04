@@ -268,7 +268,7 @@ class MPNN(torch.nn.Module):
 
 class Vision(torch.nn.Module):
     IMAGE_SIZE = 128
-    PATCH_SIZE = 8 #change to 8
+    PATCH_SIZE = 6 #change to 8
     NUM_CHANNELS = 3
     IMAGE_MEAN = [0.5] * NUM_CHANNELS
     IMAGE_STD = [0.5] * NUM_CHANNELS
