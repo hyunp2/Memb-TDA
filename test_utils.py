@@ -191,12 +191,15 @@ class InferenceDataset(PH_Featurizer_Dataset):
         dataloader = get_dataloader(dataset, shuffle=False, collate_fn=None, batch_size=self.batch_size, **kwargs)
 	
         predictions_all = []
-        confmat = ConfusionMatrix(num_classes=TEMP_RANGES[2])
+#         confmat = ConfusionMatrix(num_classes=TEMP_RANGES[2])
+        confmat = ConfusionMatrix(num_classes=48)
+
         with torch.inference_mode():
             for batch in dataloader:
                 imgs = batch[0].to(self.device)
                 predictions = self.model(imgs)
-                temps = batch[1].to(self.device) - TEMP_RANGES[0] #confmat must have a range from 0-47
+#                 temps = batch[1].to(self.device) - TEMP_RANGES[0] #confmat must have a range from 0-47
+                temps = batch[1].to(self.device) - 283 #confmat must have a range from 0-47
 #                 print(batch.size(), predictions.size())
                 confmat.update(temps.flatten().long(), predictions.argmax(1).flatten())
                 predictions_all.append(predictions)
@@ -210,19 +213,21 @@ class InferenceDataset(PH_Featurizer_Dataset):
             torch.distributed.all_gather(predictions_all_list, predictions_all) #Gather to empty list!
             predictions_all = torch.cat([pred for pred in predictions_all_list], dim=0) #(Bs, num_classes)
 	
-        ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(predictions_all).float() #temperatures
+#         ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(predictions_all).float() #temperatures
+        ranges = torch.arange(283, 331).to(predictions_all).float() #temperatures
+
         predictions_all_probs = F.softmax(predictions_all, dim=-1) #-->(Batch, numclass)
         print(predictions_all_probs[0])
         assert predictions_all_probs.size(-1) == ranges.size(0), "Num class must match!"
         predictions_all_probs_T = predictions_all_probs * ranges[None, :]  #-->(Batch, numclass)
         print(predictions_all_probs_T[0])
         predictions_all_probs_T = predictions_all_probs_T.sum(dim=-1) #-->(Batch,)
-        predictions_all_probs_T_std = ((ranges[None, :] - predictions_all_probs_T.view(-1,)[:, None]).pow(2) * predictions_all_probs).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
+#         predictions_all_probs_T_std = ((ranges[None, :] - predictions_all_probs_T.view(-1,)[:, None]).pow(2) * predictions_all_probs).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
 	
         if get_local_rank() == 0:
             f = open(os.path.join(self.save_dir, "Predicted_" + self.filename), "wb")
             save_as = collections.defaultdict(list)
-            for key, val in zip(["predictions", "predictions_std", "images", "pdbnames"], [predictions_all_probs_T, predictions_all_probs_T_std, self.Images_total, self.pdb2str]):
+            for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all_probs_T, self.Images_total, self.pdb2str]):
                 save_as[key] = val
             save_as["METADATA"] = (confmat.mat, *confmat.compute())
             pickle.dump(save_as, f)   
