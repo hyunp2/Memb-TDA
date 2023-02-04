@@ -55,7 +55,7 @@ elif torch.__version__.startswith('1.13'):
 from data_utils import get_dataloader, PH_Featurizer_Dataset, mdtraj_loading, sanity_check_mdtraj
 from train_utils import load_state, single_val, single_test
 from loss_utils import * #TEMP_RANGES variable
-from log_utils import * #TEMP_RANGES variable
+from log_utils import * #Confusion matrix func
 
 #https://github.com/taki0112/denoising-diffusion-gan-Tensorflow/blob/571a99022ccc07a31b6c3672f7b5b30cd46a7eb6/src/utils.py#L156:~:text=def%20merge(,return%20img
 def merge(images, size):
@@ -191,7 +191,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         dataloader = get_dataloader(dataset, shuffle=False, collate_fn=None, batch_size=self.batch_size, **kwargs)
 	
         predictions_all = []
-        confmat = ConfusionMatrix(num_classes=48)
+        confmat = ConfusionMatrix(num_classes=TEMP_RANGES[2])
         with torch.inference_mode():
             for batch in dataloader:
                 imgs = batch[0].to(self.device)
