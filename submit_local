@@ -22,7 +22,7 @@ fi
 
 qsub -q $MACHINENAME -N $JOBNAME -j y -o ~/Jobs << EOF
 cd "$PWD"
-/Scr/hyunpark/anaconda3/envs/aidev/bin/torchrun --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --standalone --module main --which_mode train --name convnext_model_indiv --backbone convnext --filename dppc.pickle --multiprocessing --optimizer torch_adam --gpu --epoches 1000 --ce_re_ratio 1 0.1 --load_ckpt_path /Scr/hyunpark-new/Protein-TDA/saved --save_dir /Scr/hyunpark-new/Protein-TDA/pickled_indiv --truncated --batch_size 512
+/Scr/hyunpark/anaconda3/envs/ai/bin/torchrun --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --which_mode train --name convnext_model_indiv_2 --backbone convnext --filename dppc.pickle --multiprocessing --optimizer torch_adam --gpu --epoches 1000 --ce_re_ratio 1 0.1 --load_ckpt_path /Scr/hyunpark-new/Protein-TDA/saved --save_dir /Scr/hyunpark-new/Protein-TDA/pickled_indiv --truncated --batch_size 512 --resume
 EOF
 
 
