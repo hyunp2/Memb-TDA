@@ -212,10 +212,10 @@ class InferenceDataset(PH_Featurizer_Dataset):
 	
         ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(predictions_all).float() #temperatures
         predictions_all_probs = F.softmax(predictions_all, dim=-1) #-->(Batch, numclass)
-	print(predictions_all_probs)
+        print(predictions_all_probs)
         assert predictions_all_probs.size(-1) == ranges.size(0), "Num class must match!"
         predictions_all_probs_T = predictions_all_probs * ranges[None, :]  #-->(Batch, numclass)
-	print(predictions_all_probs_T)
+        print(predictions_all_probs_T)
         predictions_all_probs_T = predictions_all_probs_T.sum(dim=-1) #-->(Batch,)
         predictions_all_probs_T_std = ((ranges[None, :] - predictions_all_probs_T.view(-1,)[:, None]).pow(2) * predictions_all_probs).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
 	
