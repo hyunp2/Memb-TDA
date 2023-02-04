@@ -187,4 +187,4 @@ if __name__ == "__main__":
     args = get_args()
     pdb = args.pdb
     data = mdtraj.load(pdb, top=pdb)
-    genAlphaSlider(data.xyz, initial=1, step=1, maximum=10, titlePrefix="")
+    genAlphaSlider(data.xyz[0], initial=1, step=1, maximum=10, titlePrefix="")
