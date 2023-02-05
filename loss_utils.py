@@ -17,7 +17,7 @@ def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch
     y_true = ranges.index_select(dim=0, index = y_true.to(y_pred).view(-1,).long() - TEMP_RANGES[0]) # --> (Batch, ) of LongTensor;; y_pred is (Batch, numclasses)
     weights = torch.tensor(args.ce_weights).to(y_pred)
     ce = torch.nn.CrossEntropyLoss(weight=weights, label_smoothing=label_smoothing)
-    print(y_pred.shape, y_true.shape)
+    print("ce_loss inside loss_utils", y_pred.shape, y_true.shape)
     loss = ce(y_pred, y_true)
     return loss
   
