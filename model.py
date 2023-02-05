@@ -358,7 +358,7 @@ class Vision(torch.nn.Module):
         img_inputs = dict(pixel_values=img_inputs["pixel_values"].to(device))
         out_ph = self.pretrained(**img_inputs).pooler_output #batch, dim
         out = self.last_layer_together(out_ph)
-        
+        print(out.shape)
         return out
 
 if __name__ == "__main__":
