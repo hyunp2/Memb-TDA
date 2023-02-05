@@ -325,10 +325,30 @@ class Vision(torch.nn.Module):
         elif args.backbone == "clip_resnet":
             hidden_from_ = self.pretrained.output_dim
             
-        self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.SiLU(True), 
-                                                            torch.nn.Linear(512,256), torch.nn.SiLU(True), 
-                                                                torch.nn.Linear(256,64), torch.nn.SiLU(True), 
+        self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.ReLU(True), 
+                                                            torch.nn.Linear(512,256), torch.nn.ReLU(True), 
+                                                                torch.nn.Linear(256,128), torch.nn.ReLU(True), 
+                                                                torch.nn.Linear(128,64), torch.nn.ReLU(True), 
                                                                 torch.nn.Linear(64, NUM_CLASSES), )) #48 temperature classes
+        self.reset_all_weights()
+
+    def reset_all_weights(self, ) -> None:
+        """
+        refs:
+        - https://discuss.pytorch.org/t/how-to-re-set-alll-parameters-in-a-network/20819/6
+        - https://stackoverflow.com/questions/63627997/reset-parameters-of-a-neural-network-in-pytorch
+        - https://pytorch.org/docs/stable/generated/torch.nn.Module.html
+        """
+
+        @torch.no_grad()
+        def weight_reset(m: torch.nn.Module):
+             # - check if the current module has reset_parameters & if it's callabed called it on m
+            reset_parameters = getattr(m, "reset_parameters", None)
+            if callable(reset_parameters):
+                m.reset_parameters()
+
+        # Applies fn recursively to every submodule see: https://pytorch.org/docs/stable/generated/torch.nn.Module.html
+        self.apply(fn=weight_reset)
 
     def forward(self, img_ph: torch.FloatTensor):
         device = img_ph.device
