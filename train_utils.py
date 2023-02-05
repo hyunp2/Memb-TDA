@@ -457,7 +457,7 @@ def train(model: nn.Module,
         if val_loss < best_loss:
             path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
             save_state(model, optimizer, scheduler_groups, epoch_idx, val_loss, path_and_name)
-            if args.log: logger.log_artifacts(name=f"{args.name}_model_objects", dtype="pytorch_models", path_and_name=path_and_name) #version will be appended to name; path_and_name is model(.pt)
+#             if args.log: logger.log_artifacts(name=f"{args.name}_model_objects", dtype="pytorch_models", path_and_name=path_and_name) #version will be appended to name; path_and_name is model(.pt)
             best_loss = val_loss
 		
         ###TESTING
