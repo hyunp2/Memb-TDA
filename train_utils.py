@@ -135,16 +135,23 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
 		
         with torch.cuda.amp.autocast(enabled=args.amp):
             preds = model(img_ph)
+            print(preds)
             loss_mse = loss_func(preds, targetT) #get_loss_func	\
+            print(targetT.shape)
 
 #             ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() ##To DEBUG
 #             targetT = ranges.index_select(dim=0, index = targetT.to(preds).view(-1,).long() - TEMP_RANGES[0]) # #To DEBUG
             loss_ce_tmp = torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(preds), label_smoothing=args.label_smoothing)(preds, targetT.long().view(-1, ) - TEMP_RANGES[0]) #To DEBUG
 	
             preds_prob = torch.nn.functional.softmax(preds, dim=-1)
+            print(preds_prob)
+
             ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(preds).float() #temperatures
+            print(ranges.shape)
+
             assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
             y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
+		
             y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
 		
             mse_indiv_loss_tmp = torch.nn.MSELoss()(targetT.view(-1,).to(y_pred_expected_T), y_pred_expected_T.view(-1,)) #To DEBUG
