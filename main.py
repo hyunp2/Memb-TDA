@@ -256,7 +256,7 @@ def infer_for_customdata(args):
     infds = InferenceDataset(args, net)
     infds()
     
-    if not dist.is_initialized() or dist.get_rank() == 0:
+    if args.log and (not dist.is_initialized() or dist.get_rank() == 0):
         logger.experiment.finish()
     
     
