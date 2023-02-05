@@ -334,7 +334,7 @@ class Vision(torch.nn.Module):
         img_ph : List[torch.FloatTensor] = img_ph.detach().cpu().unbind(dim=0)
         img_ph : List[np.ndarray] = list(map(lambda inp: inp.numpy(), img_ph ))
         img_inputs: Dict[str, torch.FloatTensor] = self.feature_extractor(img_ph, return_tensors="pt") #range [-1, 1]
-        img_inputs = dict(pixel_values=img_inputs["pixel_values"].to(torch.cuda.current_device()))
+        img_inputs = dict(pixel_values=img_inputs["pixel_values"].to(img_ph))
         out_ph = self.pretrained(**img_inputs).pooler_output #batch, dim
         out = self.last_layer_together(out_ph)
         
