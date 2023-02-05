@@ -17,6 +17,7 @@ def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch
     y_true = ranges.index_select(dim=0, index = y_true.to(y_pred).view(-1,).long() - TEMP_RANGES[0]) # --> (Batch, ) of LongTensor;; y_pred is (Batch, numclasses)
     weights = torch.tensor(args.ce_weights).to(y_pred)
     ce = torch.nn.CrossEntropyLoss(weight=weights, label_smoothing=label_smoothing)
+    print(y_pred.shape, y_true.shape)
     loss = ce(y_pred, y_true)
     return loss
   
@@ -30,6 +31,7 @@ def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torc
     y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
     mse = torch.nn.MSELoss()
 #     mse = torch.nn.SmoothL1Loss()
+    print(y_true.to(y_pred).view(-1,).shape, y_pred_expected_T.view(-1,).shape)
     loss_mean = mse(y_true.to(y_pred).view(-1,), y_pred_expected_T.view(-1,) )
 #     loss_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * y_pred_probs).sum(dim=-1).sqrt().mean()
     loss = loss_mean #+ loss_std
