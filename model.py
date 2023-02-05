@@ -331,7 +331,7 @@ class Vision(torch.nn.Module):
                                                                 torch.nn.Linear(64, NUM_CLASSES), )) #48 temperature classes
 
     def forward(self, img_ph: torch.FloatTensor):
-        device = image_ph.device
+        device = img_ph.device
         img_ph : List[torch.FloatTensor] = img_ph.detach().cpu().unbind(dim=0)
         img_ph : List[np.ndarray] = list(map(lambda inp: inp.numpy(), img_ph ))
         img_inputs: Dict[str, torch.FloatTensor] = self.feature_extractor(img_ph, return_tensors="pt") #range [-1, 1]
