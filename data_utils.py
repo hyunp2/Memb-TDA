@@ -239,7 +239,8 @@ class PH_Featurizer_Dataset(Dataset):
                 
 #         self.graph_input_list, self.Rs_total, self.Rs_list_tensor = self.get_values()
         self.graph_input_list, self.Rs_total, self.Images_total = self.get_values()
-
+        print("IMAGES STATS", self.image_stats)
+        
         del self.coords_ref
         del self.coords_traj
         gc.collect()
