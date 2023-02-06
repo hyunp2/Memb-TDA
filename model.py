@@ -325,10 +325,10 @@ class Vision(torch.nn.Module):
         elif args.backbone == "clip_resnet":
             hidden_from_ = self.pretrained.output_dim
             
-        self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.ReLU(True), 
-                                                            torch.nn.Linear(512,256), torch.nn.ReLU(True), 
-                                                                torch.nn.Linear(256,128), torch.nn.ReLU(True), 
-                                                                torch.nn.Linear(128,64), torch.nn.ReLU(True), 
+        self.add_module("last_layer_together", torch.nn.Sequential(torch.nn.Linear(hidden_from_, 512), torch.nn.SiLU(True), 
+                                                            torch.nn.Linear(512,256), torch.nn.SiLU(True), 
+                                                                torch.nn.Linear(256,64), torch.nn.SiLU(True), 
+#                                                                 torch.nn.Linear(128,64), torch.nn.ReLU(True), 
                                                                 torch.nn.Linear(64, NUM_CLASSES), )) #48 temperature classes
         self.reset_all_weights()
 
