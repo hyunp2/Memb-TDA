@@ -354,7 +354,7 @@ class Vision(torch.nn.Module):
         device = img_ph.device
         img_ph : List[torch.FloatTensor] = img_ph.detach().cpu().unbind(dim=0)
         img_ph : List[np.ndarray] = list(map(lambda inp: inp.numpy(), img_ph ))
-        img_inputs: Dict[str, torch.FloatTensor] = self.feature_extractor.preprocess(img_ph, do_resize=False, 
+        img_inputs: Dict[str, torch.FloatTensor] = self.feature_extractor(img_ph, do_resize=False, 
                                                                                      size=Vision.IMAGE_SIZE, do_normalize=True, 
                                                                                      image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, 
                                                                                      return_tensors="pt") #range [-1, 1]
