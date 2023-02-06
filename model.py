@@ -298,7 +298,7 @@ class Vision(torch.nn.Module):
         
         if args.backbone == "vit":
             self.pretrained = Vit
-            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD, do_rescale=False)
 #             hidden_from_ = self.pretrained.pooler.dense.out_features
         elif args.backbone == "swin":
             self.pretrained = Swin
