@@ -226,7 +226,7 @@ class PH_Featurizer_Dataset(Dataset):
     #                 univ_pdbs = [mda.Universe(os.path.join(direct,top)) for top in pdbs] #List PDB universes
     #                 self.coords_traj += [self.get_coordinates_for_md(univ_pdb)[0] for univ_pdb in univ_pdbs]
                     valid_pdbs = sanity_check_mdtraj(direct, pdbs) #List[str]
-                    self.coords_traj += [ mdtraj.load(os.path.join(direct,top)).xyz[0] for top in valid_pdbs ] if not self.multiprocessing else ray.get([mdtraj_loading.remote(root, top) for root, top in zip([direct]*len(pdbs), valid_pdbs)])
+                    self.coords_traj += [ mdtraj.load(os.path.join(direct,top)).xyz[0] for top in valid_pdbs ] if not self.multiprocessing else ray.get([mdtraj_loading.remote(root, top) for root, top in zip([direct]*len(valid_pdbs), valid_pdbs)])
                     self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(valid_pdbs)
                 f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "wb")
                 pickle.dump(self.temperatures, f)   
