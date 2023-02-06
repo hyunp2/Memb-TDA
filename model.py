@@ -302,21 +302,21 @@ class Vision(torch.nn.Module):
 #             hidden_from_ = self.pretrained.pooler.dense.out_features
         elif args.backbone == "swin":
             self.pretrained = Swin
-            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD, do_rescale=False)
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.backbone == "swinv2":
             self.pretrained = Swinv2
-            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
+            self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD, do_rescale=False)
 #             hidden_from_ = self.pretrained.layernorm.weight.size()[0]
         elif args.backbone == "convnext":
             self.pretrained = Convnext
-            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD, do_rescale=False)
         elif args.backbone == "restv2":
             self.pretrained = ResTV2
-            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD, do_rescale=False)
         elif args.backbone == "clip_resnet":
             self.pretrained = ResNetForCLIP
-            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD)
+            self.feature_extractor = ConvNextFeatureExtractor(do_resize=False, size=IMAGE_SIZE, do_normalize=True, image_mean=IMAGE_MEAN, image_std=IMAGE_STD, do_rescale=False)
         
         if args.backbone in ["vit", "swin", "swinv2", "convnext"]:
             hidden_from_ = self.pretrained.layernorm.weight.size()[0]  
@@ -354,10 +354,7 @@ class Vision(torch.nn.Module):
         device = img_ph.device
         img_ph : List[torch.FloatTensor] = img_ph.detach().cpu().unbind(dim=0)
         img_ph : List[np.ndarray] = list(map(lambda inp: inp.numpy(), img_ph ))
-        img_inputs: Dict[str, torch.FloatTensor] = self.feature_extractor(img_ph, do_resize=False, 
-                                                                                     size=Vision.IMAGE_SIZE, do_normalize=True, 
-                                                                                     image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, 
-                                                                                     return_tensors="pt") #range [-1, 1]
+        img_inputs: Dict[str, torch.FloatTensor] = self.feature_extractor(img_ph) #range [-1, 1]
         img_inputs = dict(pixel_values=img_inputs["pixel_values"].to(device))
         out_ph = self.pretrained(**img_inputs).pooler_output #batch, dim
         out = self.last_layer_together(out_ph)
