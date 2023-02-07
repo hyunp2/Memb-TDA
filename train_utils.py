@@ -151,10 +151,9 @@ def single_train(args, model, loader, loss_func, epoch_idx, optimizer, scheduler
 
             assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
             y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
-		
             y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
 		
-            mse_indiv_loss_tmp = torch.nn.MSELoss()(targetT.view(-1,).to(y_pred_expected_T), y_pred_expected_T.view(-1,)) #To DEBUG
+            mse_indiv_loss_tmp = torch.nn.SmoothL1Loss()(targetT.view(-1,).to(y_pred_expected_T), y_pred_expected_T.view(-1,)) #To DEBUG
 	
             loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
 #             loss_metrics = 0
