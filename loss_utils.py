@@ -29,12 +29,12 @@ def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torc
     assert y_pred_probs.size(-1) == ranges.size(0), "Num class must match!"
     y_pred_expected_T = y_pred_probs * ranges[None, :]  #-->(Batch, numclass)
     y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
-    mse = torch.nn.MSELoss()
-#     mse = torch.nn.SmoothL1Loss()
+#     mse = torch.nn.MSELoss()
+    mse = torch.nn.SmoothL1Loss()
 #     print(y_true.to(y_pred).view(-1,).shape, y_pred_expected_T.view(-1,).shape)
     loss_mean = mse(y_true.to(y_pred).view(-1,), y_pred_expected_T.view(-1,) )
-#     loss_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * y_pred_probs).sum(dim=-1).sqrt().mean()
-    loss = loss_mean #+ loss_std
+    loss_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * y_pred_probs).sum(dim=-1).sqrt().mean()
+    loss = loss_mean + loss_std
     return loss
   
 def contrastive_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred_tensor: torch.FloatTensor):
