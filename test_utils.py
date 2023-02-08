@@ -222,12 +222,12 @@ class InferenceDataset(PH_Featurizer_Dataset):
         predictions_all_probs_T = predictions_all_probs * ranges[None, :]  #-->(Batch, numclass)
         print(predictions_all_probs_T[0])
         predictions_all_probs_T = predictions_all_probs_T.sum(dim=-1) #-->(Batch,)
-#         predictions_all_probs_T_std = ((ranges[None, :] - predictions_all_probs_T.view(-1,)[:, None]).pow(2) * predictions_all_probs).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
+        predictions_all_probs_T_std = ((ranges[None, :] - predictions_all_probs_T.view(-1,)[:, None]).pow(2) * predictions_all_probs).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
 	
         if get_local_rank() == 0:
             f = open(os.path.join(self.save_dir, "Predicted_" + self.filename), "wb")
             save_as = collections.defaultdict(list)
-            for key, val in zip(["predictions", "images", "pdbnames"], [predictions_all_probs_T, self.Images_total, self.pdb2str]):
+            for key, val in zip(["predictions", "predictions_std", "images", "pdbnames"], [predictions_all_probs_T, predictions_all_probs_T_std, self.Images_total, self.pdb2str]):
                 save_as[key] = val
             save_as["METADATA"] = (confmat.mat, *confmat.compute())
             pickle.dump(save_as, f)   
