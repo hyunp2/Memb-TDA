@@ -240,7 +240,7 @@ def single_val(args, model, loader, loss_func, optimizer, scheduler, logger: Log
             _loss_metrics += loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics.detach().cpu().numpy() #numpy conversion to reduce GPU overload!
             pbar.set_postfix(mse_loss=loss.item(), mae_loss=loss_metrics.item() if (hasattr(loss_metrics, "item") and loss_metrics.numel() == 1) else loss_metrics)
 		
-            data_to_return.append(torch.stack([y_pred_expected_T, loss_metrics_std], dim=1)) #DEBUG
+#             data_to_return.append(torch.stack([y_pred_expected_T, loss_metrics_std], dim=1)) #DEBUG
 #             data_to_return.append(y_pred_expected_T) #DEBUG
 
             if return_data: 
