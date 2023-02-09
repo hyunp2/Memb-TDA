@@ -332,7 +332,7 @@ def validate_and_test(model: nn.Module,
     val_predictions = val_predictions.detach().cpu().numpy().reshape(-1, 2) #(B,2)
     if local_rank == 0:
         np.savez(os.path.join(args.save_dir, f"{args.name}_all_temps.npz"), gt=gts, pred=val_predictions[:,0], pred_std=val_predictions[:,1]) #(B,) for pred and pred_std
-
+        shutil.copyfile(os.path.join(args.save_dir, f"{args.backbone}_all_temps.npz"), os.path.join(pathlib.Path(args.save_dir).parent, "inference_save", f"{args.backbone}_all_temps.npz"))
 #     val_gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0) #B,1
 #     test_gts = torch.cat([batch["temp"] for batch in test_dataloader], dim=0) #B,1
 #     np.savez("PH_val_test.npz", validation_gt=val_gts.detach().cpu().numpy(), test_gt=test_gts.detach().cpu().numpy(), validation_pred=val_predictions.detach().cpu().numpy(), test_pred=test_predictions.detach().cpu().numpy())
