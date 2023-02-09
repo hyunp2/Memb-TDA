@@ -331,7 +331,7 @@ def validate_and_test(model: nn.Module,
     gts = gts.detach().cpu().numpy()
     val_predictions = val_predictions.detach().cpu().numpy().reshape(-1, 2) #(B,2)
     if local_rank == 0:
-        np.savez("PH_all_test.npz", gt=gts, pred=val_predictions[:,0], pred_std=val_predictions[:,1]) #(B,) for pred and pred_std
+        np.savez(os.path.join(args.save_dir, f"{args.name}_all_temps.npz"), gt=gts, pred=val_predictions[:,0], pred_std=val_predictions[:,1]) #(B,) for pred and pred_std
 
 #     val_gts = torch.cat([batch["temp"] for batch in val_dataloader], dim=0) #B,1
 #     test_gts = torch.cat([batch["temp"] for batch in test_dataloader], dim=0) #B,1
