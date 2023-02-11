@@ -9,7 +9,7 @@ try:
 except ImportError:
     from torchvision._internally_replaced_utils import load_state_dict_from_url
 
-from spikingjelly.activation_based import neuron, surrogate, functional, layer
+from spikingjelly.clock_driven import neuron, surrogate, functional, layer
 
 __all__ = ['SpikingResNet', 'spiking_resnet18', 'spiking_resnet34', 'spiking_resnet50', 'spiking_resnet101',
            'spiking_resnet152', 'spiking_resnext50_32x4d', 'spiking_resnext101_32x8d',
