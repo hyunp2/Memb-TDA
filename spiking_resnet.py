@@ -425,4 +425,4 @@ if __name__ == "__main__":
     model = spiking_resnet18(surrogate_function=surrogate.ATan(), spiking_neuron=neuron.IFNode)
     x = torch.randn(10, 16, 3, 64, 64) #(T,B,C,H,W)
     functional.set_step_mode(model, step_mode="m")
-    model(x) = #(T,B,D)
+    model(x) #(T,B,D)
