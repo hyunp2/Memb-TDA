@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from typing import *
 from torch_geometric.data import Data, Batch
@@ -6,7 +7,7 @@ import argparse
 
 TEMP_RANGES = (280, 330, 51)
 
-__all__ = ["ce_loss", "reg_loss", "TEMP_RANGES"]
+__all__ = ["ce_loss", "reg_loss", "distillation", "TEMP_RANGES"]
 
 def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor, label_smoothing: float=0.):
     """Get temperature class prediction"""
@@ -36,6 +37,9 @@ def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torc
     loss_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * y_pred_probs).sum(dim=-1).sqrt().mean()
     loss = loss_mean + loss_std
     return loss
+
+def distillation(y, labels, teacher_scores, T, alpha):
+    return nn.KLDivLoss()(F.log_softmax(y/T), F.softmax(teacher_scores/T)) * (T*T * 2.0 * alpha) + F.cross_entropy(y, labels) * (1. - alpha)
   
 def contrastive_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred_tensor: torch.FloatTensor):
     """WIP: Extract tensor from forward hook and do contrastive learning
