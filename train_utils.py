@@ -50,7 +50,7 @@ elif torch.__version__.startswith('1.13'):
 from loss_utils import * #TEMP_RANGES variable
 # loss_func = lambda pred, targ: ce_loss(targ, pred) + reg_loss(targ, pred)
 
-__all__ = ["train", "single_val", "single_test", "load_state"]
+__all__ = ["train", "single_val", "single_test", "load_state", "save_state"]
 
 def save_state(model: nn.Module, optimizer: Optimizer, scheduler_groups: "list of schedulers", epoch: int, val_loss: int, path_and_name: Union[pathlib.Path, str]):
     """ Saves model, optimizer and epoch states to path (only once per node) 
