@@ -420,3 +420,8 @@ def spiking_wide_resnet101_2(pretrained=False, progress=True, spiking_neuron: ca
     """
     kwargs['width_per_group'] = 64 * 2
     return _spiking_resnet('wide_resnet101_2', Bottleneck, [3, 4, 23, 3], pretrained, progress, spiking_neuron, **kwargs)
+
+if __name__ == "__main__":
+    model = spiking_resnet18(surrogate_function=surrogate.ATan(), spiking_neuron=neuron.IFNode)
+    x = torch.randn(10, 16, 3, 64, 64) #(T,B,C,H,W)
+    model(x) = #(T,B,D)
