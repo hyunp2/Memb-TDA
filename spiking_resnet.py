@@ -9,7 +9,7 @@ try:
 except ImportError:
     from torchvision._internally_replaced_utils import load_state_dict_from_url
 
-from spikingjelly.clock_driven import neuron, surrogate, functional, layer
+from spikingjelly.clock_driven import neuron, surrogate, functional, layer, base
 
 __all__ = ['SpikingResNet', 'spiking_resnet18', 'spiking_resnet34', 'spiking_resnet50', 'spiking_resnet101',
            'spiking_resnet152', 'spiking_resnext50_32x4d', 'spiking_resnext101_32x8d',
@@ -40,6 +40,42 @@ def conv1x1(in_planes, out_planes, stride=1):
     """1x1 convolution"""
     return layer.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
 
+class BatchNorm2d(nn.BatchNorm2d, base.StepModule):
+    def __init__(
+            self,
+            num_features,
+            eps=1e-5,
+            momentum=0.1,
+            affine=True,
+            track_running_stats=True,
+            step_mode='s'
+    ):
+        """
+        * :ref:`API in English <BatchNorm2d-en>`
+        .. _BatchNorm2d-cn:
+        :param step_mode: 步进模式，可以为 `'s'` (单步) 或 `'m'` (多步)
+        :type step_mode: str
+        其他的参数API参见 :class:`torch.nn.BatchNorm2d`
+        * :ref:`中文 API <BatchNorm2d-cn>`
+        .. _BatchNorm2d-en:
+        :param step_mode: the step mode, which can be `s` (single-step) or `m` (multi-step)
+        :type step_mode: str
+        Refer to :class:`torch.nn.BatchNorm2d` for other parameters' API
+        """
+        super().__init__(num_features, eps, momentum, affine, track_running_stats)
+        self.step_mode = step_mode
+
+    def extra_repr(self):
+        return super().extra_repr() + f', step_mode={self.step_mode}'
+
+    def forward(self, x: Tensor):
+        if self.step_mode == 's':
+            return super().forward(x)
+
+        elif self.step_mode == 'm':
+            if x.dim() != 5:
+                raise ValueError(f'expected x with shape [T, N, C, H, W], but got x with shape {x.shape}!')
+            return functional.seq_to_ann_forward(x, super().forward)
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -95,7 +131,7 @@ class Bottleneck(nn.Module):
                  base_width=64, dilation=1, norm_layer=None, spiking_neuron: callable = None, **kwargs):
         super(Bottleneck, self).__init__()
         if norm_layer is None:
-            norm_layer = layer.BatchNorm2d
+            norm_layer = BatchNorm2d
         width = int(planes * (base_width / 64.)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv1x1(inplanes, width)
