@@ -38,8 +38,8 @@ def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torc
     loss = loss_mean + loss_std
     return loss
 
-def distillation_loss(y, labels, teacher_scores, T, alpha):
-    return nn.KLDivLoss()(F.log_softmax(y/T), F.softmax(teacher_scores/T)) * (T*T * 2.0 * alpha) + F.cross_entropy(y, labels) * (1. - alpha)
+def distillation_loss(args: argparse.ArgumentParser, y_true, y_pred, teacher_scores: torch.FloatTensor, T: float, alpha: float):
+    return nn.KLDivLoss()(F.log_softmax(y_pred/T), F.softmax(teacher_scores/T)) * (T*T * 2.0 * alpha) + F.cross_entropy(y_pred, y_true) * (1. - alpha)
   
 def contrastive_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred_tensor: torch.FloatTensor):
     """WIP: Extract tensor from forward hook and do contrastive learning
