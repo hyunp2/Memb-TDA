@@ -231,8 +231,9 @@ class SpikingResNet(nn.Module):
     def forward(self, x):
         return self._forward_impl(x)
 
-spiking_neuron=neuron.IFNode,
-surrogate_function=surrogate.ATan(), detach_reset=Tru    
+spiking_neuron=neuron.IFNode
+surrogate_function=surrogate.ATan()
+detach_reset=True 
     
 def _spiking_resnet(arch, block, layers, pretrained, progress, spiking_neuron, **kwargs):
     model = SpikingResNet(block, layers, spiking_neuron=spiking_neuron, **kwargs)
