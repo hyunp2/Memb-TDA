@@ -87,7 +87,7 @@ def plot_one_temp_parallel(args: argparse.ArgumentParser):
     t_start = perf_counter()
     from multiprocessing import Pool
     with Pool(processes=psutil.cpu_count()) as pool:
-        results = pool.map_async(plot_one_temp, filenames)
+        results = pool.map(plot_one_temp, filenames)
     t_stop = perf_counter()
     print(f"Multiprocessing took {t_stop - t_start} seconds...")
 
