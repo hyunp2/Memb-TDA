@@ -93,7 +93,7 @@ def plot_one_temp_parallel(args: argparse.ArgumentParser):
 
     t_start = perf_counter()
     import dask
-    results = [dask.dalayed(plot_one_temp(filename)) for filename in filenames] #analogous to [func.remote(args) for args in args_list]
+    results = [dask.delayed(plot_one_temp(filename)) for filename in filenames] #analogous to [func.remote(args) for args in args_list]
     results = dask.compute(results)
     t_stop = perf_counter()
     print(f"Dask took {t_stop - t_start} seconds...")
