@@ -39,8 +39,11 @@ def plot_total_temps(filename: str):
     sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k')
     ax.set_xlim(280, 330)
     ax.set_ylim(0, 0.08)
-
-    ax.set_title("Sth")
+    ax.set_xlabel("Temperatures")
+    ax.set_ylabel("PDF")
+    ax.set_ticks([280, 290, 300, 310, 320, 330])
+    
+    ax.set_title("All Temperatures")
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
