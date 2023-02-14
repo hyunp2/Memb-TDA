@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import os
 
 from skimage.filters import threshold_otsu
 from scipy.ndimage.morphology import distance_transform_edt
