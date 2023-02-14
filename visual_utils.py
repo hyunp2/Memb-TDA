@@ -36,15 +36,15 @@ def plot_total_temps(filename: str):
     BINS = 100
     
     fig, ax = plt.subplots() 
-    ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2) #npz has pred; pickle has predictions
-    sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', mp)
+    ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
+    sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     ax.set_xlim(280, 330)
     ax.set_ylim(0, 0.08)
     ax.set_xlabel("Temperatures")
     ax.set_ylabel("PDF")
     ax.set_xticks([280, 290, 300, 310, 320, 330])
     
-    ax.set_title("All Temperatures")
+    ax.set_title("Effective Temperature Distribution - All")
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
@@ -61,15 +61,15 @@ def plot_one_temp(filename: str):
     BINS = 100
     
     fig, ax = plt.subplots() 
-    ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2) #npz has pred; pickle has predictions
-    sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k')
+    ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
+    sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     ax.set_xlim(280, 330)
     ax.set_ylim(0, 0.08)
     ax.set_xlabel("Temperatures")
     ax.set_ylabel("PDF")
     ax.set_xticks([280, 290, 300, 310, 320, 330])
     
-    ax.set_title(f"Indiv Lipid Temp Predictions at { int(os.path.basename(os.path.splitext(filename)[0]).split('_')[-1]) } Kelvin")
+    ax.set_title(f"Effective Temperature Distribution - { int(os.path.basename(os.path.splitext(filename)[0]).split('_')[-1]) } K")
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
