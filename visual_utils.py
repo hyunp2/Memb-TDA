@@ -25,7 +25,6 @@ import ipywidgets as widgets
 from plotly.offline import iplot
 import gudhi, gudhi.hera, gudhi.wasserstein, persim
 import mdtraj
-from joblib import Parallel, delayed
 import psutil
 import argparse
 from main import get_args
@@ -83,8 +82,35 @@ def plot_one_temp_parallel(args: argparse.ArgumentParser):
     filenames = np.array(filenames)[~np.array(filenames_bools)].tolist() #only without pngs
     print(filenames)
     
+    from time import perf_counter
+    
+    t_start = perf_counter()
+    from multiprocessing import Pool
+    with Pool(processes=psutil.cpu_count()) as pool:
+        results = pool.map_async(plot_one_temp, filenames)
+    t_stop = perf_counter()
+    print(f"Multiprocessing took {t_stop - t_start} seconds...")
+
+    t_start = perf_counter()
+    import dask
+    results = [dask.dalayed(plot_one_temp(filename)) for filename in filenames] #analogous to [func.remote(args) for args in args_list]
+    results = dask.compute(results)
+    t_stop = perf_counter()
+    print(f"Dask took {t_stop - t_start} seconds...")
+    
+    t_start = perf_counter()
+    import ray.multiprocessing as mp
+    with mp.Pool(processes=psutil.cpu_count()) as pool:
+        results = pool.map_async(plot_one_temp, filenames)
+    t_stop = perf_counter()
+    print(f"Ray took {t_stop - t_start} seconds...")
+    
+    t_start = perf_counter()
+    from joblib import Parallel, delayed
     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
         results = parallel(delayed(plot_one_temp)(filename) for idx, filename in enumerate(filenames)) #List[None]
+    t_stop = perf_counter()
+    print(f"Joblib took {t_stop - t_start} seconds...")
     
 def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D for now
     ac = gudhi.AlphaComplex(dat)
