@@ -27,6 +27,7 @@ import gudhi, gudhi.hera, gudhi.wasserstein, persim
 import mdtraj
 from joblib import Parallel, delayed
 import psutil
+import argparse
 from main import get_args
 
 def plot_total_temps(filename: str):
