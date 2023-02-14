@@ -27,6 +27,7 @@ import gudhi, gudhi.hera, gudhi.wasserstein, persim
 import mdtraj
 from joblib import Parallel, delayed
 import psutil
+from main import get_args
 
 def plot_total_temps(filename: str):
     assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
@@ -75,7 +76,7 @@ def plot_one_temp(filename: str):
 def plot_one_temp_parallel(args: argparse.ArgumentParser):
     ROOT_DIR = args.save_dir
     filenames = os.listdir(ROOT_DIR)
-    filenames = list(filter(lambda inp: (os.path.basename(inp).startswith("Predicted") and os.path.splitext(inp)[1] == ".pickle"), filenames ))
+    filenames = list(filter(lambda inp: ("Predicted" in os.path.basename(inp) and os.path.splitext(inp)[1] == ".pickle"), filenames ))
     filenames_bools = list(map(lambda inp: os.path.splitext(inp)[1] == ".png"), filenames )) #List[bool]
     filenames = list(map(lambda inp: os.path.join(ROOT_DIR, inp), filenames ))
     filenames = np.array(filenames)[~np.array(filenames_bools)].tolist() #only without pngs
@@ -245,6 +246,7 @@ def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D f
 if __name__ == "__main__":
     from main import get_args
     args = get_args()
-    pdb = args.pdb
-    data = mdtraj.load(pdb, top=pdb)
-    genAlphaSlider(data.xyz[0], initial=1, step=1, maximum=10, titlePrefix="")
+    plot_one_temp_parallel(args)
+#     pdb = args.pdb
+#     data = mdtraj.load(pdb, top=pdb)
+#     genAlphaSlider(data.xyz[0], initial=1, step=1, maximum=10, titlePrefix="")
