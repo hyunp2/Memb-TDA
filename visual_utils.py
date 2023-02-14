@@ -77,7 +77,7 @@ def plot_one_temp_parallel(args: argparse.ArgumentParser):
     ROOT_DIR = args.save_dir
     filenames = os.listdir(ROOT_DIR)
     filenames = list(filter(lambda inp: ("Predicted" in os.path.basename(inp) and os.path.splitext(inp)[1] == ".pickle"), filenames ))
-    filenames_bools = list(map(lambda inp: os.path.splitext(inp)[1] == ".png"), filenames )) #List[bool]
+    filenames_bools = list(map(lambda inp: os.path.splitext(inp)[1] == ".png", filenames )) #List[bool]
     filenames = list(map(lambda inp: os.path.join(ROOT_DIR, inp), filenames ))
     filenames = np.array(filenames)[~np.array(filenames_bools)].tolist() #only without pngs
     print(filenames)
