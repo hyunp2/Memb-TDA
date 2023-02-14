@@ -80,7 +80,7 @@ def plot_one_temp_parallel():
     print(filenames)
     
     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
-        results = parallel(delayed(plot_one_temp)(filename) for filename in enumerate(filenames)) #List[None]
+        results = parallel(delayed(plot_one_temp)(filename) for idx, filename in enumerate(filenames)) #List[None]
     
 def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D for now
     ac = gudhi.AlphaComplex(dat)
