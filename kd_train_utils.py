@@ -50,16 +50,18 @@ elif torch.__version__.startswith('1.13'):
 from train_utils import load_state, save_state
 from loss_utils import * #TEMP_RANGES, distillation
 
-optimizer.zero_grad()
-output = model(data) #Vit
-teacher_output = teacher_model(data) #Convnext
-teacher_output = teacher_output.detach()
-# teacher_output = Variable(teacher_output.data, requires_grad=False) #alternative approach to load teacher_output
-loss = distillation_loss(output, target, teacher_output, T=20.0, alpha=0.7)
+# optimizer.zero_grad()
+# output = model(data) #Vit
+# teacher_output = teacher_model(data) #Convnext
+# teacher_output = teacher_output.detach()
+# # teacher_output = Variable(teacher_output.data, requires_grad=False) #alternative approach to load teacher_output
+# loss = distillation_loss(output, target, teacher_output, T=20.0, alpha=0.7)
 
 def single_train(args, model, teacher_model, loader, loss_func, epoch_idx, optimizer, scheduler, grad_scaler, local_rank, logger: Logger, tmetrics):
     #add grad_scaler, local_rank,
     model = model.train()
+    teacher_model = teacher_model.eval()
+
     losses = []
     path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
     _loss = 0.
@@ -133,6 +135,8 @@ def single_train(args, model, teacher_model, loader, loss_func, epoch_idx, optim
 
 def single_val(args, model, teacher_model, loader, loss_func, optimizer, scheduler, logger: Logger, tmetrics, return_data: bool=False):
     model = model.eval()
+    teacher_model = teacher_model.eval()
+
     _loss = 0
     _loss_metrics = 0.
 
@@ -198,6 +202,8 @@ def single_val(args, model, teacher_model, loader, loss_func, optimizer, schedul
                 
 def single_test(args, model, teacher_model, loader, loss_func, optimizer, scheduler, logger: Logger, tmetrics, return_data: bool=False):
     model = model.eval()
+    teacher_model = teacher_model.eval()
+
     _loss = 0
     _loss_metrics = 0.
 
@@ -269,6 +275,8 @@ def train(model: nn.Module,
 
     device = torch.cuda.current_device()
     model.to(device=device)
+    teacher_model.to(device=device)
+
     local_rank = get_local_rank()
     world_size = dist.get_world_size() if dist.is_initialized() else 1
     tmetrics = torchmetrics.MeanAbsoluteError()
@@ -277,8 +285,12 @@ def train(model: nn.Module,
     if dist.is_initialized() and not args.shard:
         model = DistributedDataParallel(model, device_ids=[local_rank], output_device=local_rank)
         model._set_static_graph()
-        print(f"DDP is enabled {dist.is_initialized()} and this is local rank {local_rank} and sharding is {args.shard}!!")    
         model.train()
+        teacher_model = DistributedDataParallel(teacher_model, device_ids=[local_rank], output_device=local_rank)
+        teacher_model._set_static_graph()
+        teacher_model.train()
+        print(f"DDP is enabled {dist.is_initialized()} and this is local rank {local_rank} and sharding is {args.shard}!!")    
+
         if args.log: logger.start_watching(model) #watch a model!
     elif dist.is_initialized() and args.shard:
         my_auto_wrap_policy = functools.partial(
@@ -286,6 +298,7 @@ def train(model: nn.Module,
         )
         torch.cuda.set_device(local_rank)
         model = FSDP(model, fsdp_auto_wrap_policy=my_auto_wrap_policy)
+        teacher_model = FSDP(teacher_model, fsdp_auto_wrap_policy=my_auto_wrap_policy)
 
     init_start_event = torch.cuda.Event(enable_timing=True)
     init_end_event = torch.cuda.Event(enable_timing=True)
