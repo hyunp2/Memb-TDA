@@ -68,21 +68,6 @@ def merge(images, size):
 
     return img
 
-def plot_analysis(filename: str, training: bool=False):
-    assert os.path.splitext(filename)[1] == ".pickle", "File name extension is wrong..."
-    data = pickle.load(open(filename, "rb"))
-    keys = data.keys()
-    BINS = 100
-    if training:
-        fig, ax = plt.subplots(2,1) 
-        ax[0].hist(data["predictions"], bins=BINS)
-        bins, edges, patches = ax[1].hist(data["pred"], alpha=0.5, bins=BINS)
-        fig.savefig("gt_pred.png")
-    idx = torch.topk(torch.from_numpy(bins).view(1,-1), dim=-1, k=2).indices #bimodal (1, 2)
-    print(idx)
-#     idx = torch.topk(torch.from_numpy(bins[idx[0]:idx[1]]).view(1,-1), dim=-1, k=2, largest=False).indices #minimum
-#     print(idx)
-
 def get_statistics(filename: str, ):
     pass
 
