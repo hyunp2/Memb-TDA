@@ -288,7 +288,7 @@ def train(model: nn.Module,
         model.train()
         teacher_model = DistributedDataParallel(teacher_model, device_ids=[local_rank], output_device=local_rank)
         teacher_model._set_static_graph()
-        teacher_model.train()
+        teacher_model.eval()
         print(f"DDP is enabled {dist.is_initialized()} and this is local rank {local_rank} and sharding is {args.shard}!!")    
 
         if args.log: logger.start_watching(model) #watch a model!
