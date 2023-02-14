@@ -60,8 +60,8 @@ def plot_one_temp(filename: str):
     BINS = 100
     
     fig, ax = plt.subplots() 
-    ax.hist(data["predictions"], bins=BINS, density=True, alpha=0.2) #npz has pred; pickle has predictions
-    sns.kdeplot(data=data["predictions"].reshape(-1, ), ax=ax, color='k')
+    ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2) #npz has pred; pickle has predictions
+    sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k')
     ax.set_xlim(280, 330)
     ax.set_ylim(0, 0.08)
     ax.set_xlabel("Temperatures")
