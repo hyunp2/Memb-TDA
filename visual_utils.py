@@ -99,7 +99,7 @@ def plot_one_temp_parallel(args: argparse.ArgumentParser):
     print(f"Dask took {t_stop - t_start} seconds...")
     
     t_start = perf_counter()
-    import ray.multiprocessing as mp
+    import ray.util.multiprocessing as mp
     with mp.Pool(processes=psutil.cpu_count()) as pool:
         results = pool.map_async(plot_one_temp, filenames)
     t_stop = perf_counter()
