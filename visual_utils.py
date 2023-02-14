@@ -36,7 +36,7 @@ def plot_total_temps(filename: str):
     
     fig, ax = plt.subplots() 
     ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2) #npz has pred; pickle has predictions
-    sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k')
+    sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', mp)
     ax.set_xlim(280, 330)
     ax.set_ylim(0, 0.08)
     ax.set_xlabel("Temperatures")
@@ -72,11 +72,13 @@ def plot_one_temp(filename: str):
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
-def plot_one_temp_parallel():
-    ROOT_DIR = "inference_save"
+def plot_one_temp_parallel(args: argparse.ArgumentParser):
+    ROOT_DIR = args.save_dir
     filenames = os.listdir(ROOT_DIR)
     filenames = list(filter(lambda inp: (os.path.basename(inp).startswith("Predicted") and os.path.splitext(inp)[1] == ".pickle"), filenames ))
+    filenames_bools = list(map(lambda inp: os.path.splitext(inp)[1] == ".png"), filenames )) #List[bool]
     filenames = list(map(lambda inp: os.path.join(ROOT_DIR, inp), filenames ))
+    filenames = np.array(filenames)[~np.array(filenames_bools)].tolist() #only without pngs
     print(filenames)
     
     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
