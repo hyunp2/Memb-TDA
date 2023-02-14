@@ -72,6 +72,15 @@ def plot_one_temp(filename: str):
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
+def plot_one_temp_parallel():
+    ROOT_DIR = "inference_save"
+    filenames = os.path.listdir(ROOT_DIR)
+    filenames = list(filter(lambda inp: (os.path.basename(inp).startswith("Predicted") and os.path.splitext(inp)[1] == ".pickle"), filenames ))
+    filenames = map(lambda inp: os.path.join(ROOT_DIR, inp), filenames )
+    
+    with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
+        results = parallel(delayed(plot_one_temp)(filename) for filename in enumerate(filenames)) #List[None]
+    
 def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D for now
     ac = gudhi.AlphaComplex(dat)
     st = ac.create_simplex_tree()
