@@ -38,7 +38,7 @@ def plot_total_temps(filename: str):
     ax.hist(data["pred"], bins=BINS, density=True, alpha=0.3) #npz has pred; pickle has predictions
     sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax)
     ax.set_xlim(280, 330)
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0, 0.1)
 
     ax.set_title("Sth")
 #     ax.set_ylim(280, 330)
