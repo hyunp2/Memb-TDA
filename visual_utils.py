@@ -53,7 +53,7 @@ def plot_total_temps(filename: str):
 
 def plot_one_temp(filename: str):
     assert os.path.splitext(filename)[1] == ".pickle", "File name extension is wrong..."
-    assert os.path.basename(filename).startswith("Predicted"), "File name prefix is wrong..."
+    assert "Predicted" in os.path.basename(filename), "File name prefix is wrong..."
 
     f = open(filename, "rb")
     data = pickle.load(f)
