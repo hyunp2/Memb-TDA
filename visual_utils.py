@@ -50,6 +50,27 @@ def plot_total_temps(filename: str):
 #     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
 #         results = parallel(delayed(calc_2d_filters)(toks, pains_smarts) for count, toks in enumerate(data)) #List[List]
 
+def plot_one_temp(filename: str):
+    assert os.path.splitext(filename)[1] == ".pickle", "File name extension is wrong..."
+    assert os.path.basename(filename).startswith("Predicted"), "File name prefix is wrong..."
+
+    f = open(filename, "rb")
+    data = pickle.load(f)
+    keys = data.keys()
+    BINS = 100
+    
+    fig, ax = plt.subplots() 
+    ax.hist(data["predictions"], bins=BINS, density=True, alpha=0.2) #npz has pred; pickle has predictions
+    sns.kdeplot(data=data["predictions"].reshape(-1, ), ax=ax, color='k')
+    ax.set_xlim(280, 330)
+    ax.set_ylim(0, 0.08)
+    ax.set_xlabel("Temperatures")
+    ax.set_ylabel("PDF")
+    ax.set_xticks([280, 290, 300, 310, 320, 330])
+    
+    ax.set_title("One Temperatures")
+#     ax.set_ylim(280, 330)
+    fig.savefig(os.path.splitext(filename)[0] + ".png")
 
 def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D for now
     ac = gudhi.AlphaComplex(dat)
