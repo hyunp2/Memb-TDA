@@ -55,7 +55,7 @@ output = model(data) #Vit
 teacher_output = teacher_model(data) #Convnext
 teacher_output = teacher_output.detach()
 # teacher_output = Variable(teacher_output.data, requires_grad=False) #alternative approach to load teacher_output
-loss = distillation(output, target, teacher_output, T=20.0, alpha=0.7)
+loss = distillation_loss(output, target, teacher_output, T=20.0, alpha=0.7)
 
 def single_train(args, model, teacher_model, loader, loss_func, epoch_idx, optimizer, scheduler, grad_scaler, local_rank, logger: Logger, tmetrics):
     #add grad_scaler, local_rank,
@@ -345,7 +345,10 @@ def train(model: nn.Module,
     scheduler_re = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, threshold=0.0001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08, verbose=False)
     #Load state (across multi GPUs)
 
+    assert args.teacher_name is not None, "teacher_name must exist!"
     path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.teacher_name)) #Set argment!
+    print(cf.on_green("Saving a pretrained TEACHER model..."))
+
     scheduler_groups = [scheduler, scheduler_re] #step and epoch schedulers
     #BELOW model ONLY!
     epoch_start, best_loss = load_state(teacher_model, optimizer, scheduler_groups, path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name) if args.resume else (0, 1e5)
@@ -419,6 +422,7 @@ def train(model: nn.Module,
         scheduler_groups = [scheduler, scheduler_re] #step and epoch schedulers
         if val_loss < best_loss:
             path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
+            print(cf.on_yellow("Saving a current best STUDENT model..."))
             save_state(model, optimizer, scheduler_groups, epoch_idx, val_loss, path_and_name)
 #             if args.log: logger.log_artifacts(name=f"{args.name}_model_objects", dtype="pytorch_models", path_and_name=path_and_name) #version will be appended to name; path_and_name is model(.pt)
             best_loss = val_loss
@@ -446,6 +450,9 @@ def train(model: nn.Module,
         print(f"CUDA event elapsed time: {init_start_event.elapsed_time(init_end_event) / 1000}sec")
 	
     print(cf.on_yellow("Training is OVER..."))
+    print(cf.on_yellow("Calling and saving STUDENT model..."))
+    path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
+
     epoch_start, best_loss = load_state(model, optimizer, scheduler_groups, path_and_name, use_artifacts=False, logger=logger, name=args.name) 
     save_state(model, optimizer, scheduler_groups, epoch_idx, val_loss, path_and_name)
     if args.log: logger.log_artifacts(name=f"{args.name}_model_objects", dtype="pytorch_models", path_and_name=path_and_name) #version will be appended to name; path_and_name is model(.pt)
