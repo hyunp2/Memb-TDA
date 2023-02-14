@@ -109,7 +109,8 @@ def get_args():
     parser.add_argument('--log', action="store_true", help="to log for W&B")  
     parser.add_argument('--silent', action='store_true')
     parser.add_argument('--name', type=str, default="mpnn", help="saved torch model name...")
-    
+    parser.add_argument('--teacher_name', type=str, default="mpnn", help="saved torch model name...")
+
     #Mode utils
     parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer", "infer_custom"], default="preprocessing")  
 
@@ -175,6 +176,61 @@ def job_submit(args):
     train_function(net, loss_func, train_loader, val_loader, test_loader, logger, args)
     #python -m main --which_mode train --ignore_topologicallayer
 
+def job_submit_distill(args):
+    #Initalize DDP
+    is_distributed = init_distributed() #normal python vs torchrun!
+    local_rank = get_local_rank()
+
+    #WARNING: Call dataloader & logger after initializing DDP
+    dl = dutils.PH_Featurizer_DataLoader(opt=args)
+    train_loader, val_loader, test_loader = [getattr(dl, key)() for key in ["train_dataloader", "val_dataloader", "test_dataloader"]]
+    print(cf.on_blue("STEP 1 of training: Loading data is done!"))
+    
+    if args.backbone == "mpnn":
+        net = MPNN()
+    elif args.backbone in ["vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
+        student = net = Vision(args)
+        args.backbone = "convnext" #Force it...
+        teacher = Vision(args)
+        
+    if args.gpu:
+        net = net.to(torch.cuda.current_device())
+        teacher = teacher.to(torch.cuda.current_device())
+
+    if args.loss == "mse":
+        loss_func = torch.nn.MSELoss()
+    elif args.loss == "mae":
+        loss_func = torch.nn.L1Loss()
+    elif args.loss == "smooth":
+        loss_func = torch.nn.SmoothL1Loss()
+    elif args.loss == "hybrid":
+#         print(args.ce_re_ratio)
+        ce_re_ratio = torch.tensor(args.ce_re_ratio).to(torch.cuda.current_device()).float()
+        loss_func = lambda pred, targ: ce_re_ratio[0] * ce_loss(args, targ, pred) + ce_re_ratio[1] * reg_loss(args, targ, pred)
+    elif args.loss == "distill":
+#         print(args.ce_re_ratio)
+        ce_re_ratio = torch.tensor(args.ce_re_ratio).to(torch.cuda.current_device()).float()
+        loss_func = lambda pred, targ, teacher_pred, T, alpha: ce_re_ratio[0] * distillation_loss(args, targ, pred, teacher_pred, T, alpha) + ce_re_ratio[1] * reg_loss(args, targ, pred)
+        
+    if args.log:
+#         https://docs.wandb.ai/guides/artifacts/storage
+        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+        os.environ["WANDB_DIR"] = os.path.join(os.getcwd(), "wandb")
+        os.environ["WANDB_CACHE_DIR"] = os.path.join(os.getcwd(), ".cache/wandb")
+        os.environ["WANDB_CONFIG_DIR"] = os.path.join(os.getcwd(), ".config/wandb")
+    else:
+        logger = None
+    
+    #Dist training
+    if is_distributed:         
+        nproc_per_node = torch.cuda.device_count()
+        affinity = set_affinity(local_rank, nproc_per_node)
+    increase_l2_fetch_granularity()
+    
+    print(cf.on_yellow("STEP 2 of training: Initalizing training..."))
+    train_function(net, teacher, loss_func, train_loader, val_loader, test_loader, logger, args)
+    #python -m main --which_mode train --ignore_topologicallayer
+    
 def infer_submit(args):
     #Initalize DDP
     is_distributed = init_distributed() #normal python vs torchrun!
