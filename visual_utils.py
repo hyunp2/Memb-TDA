@@ -68,7 +68,7 @@ def plot_one_temp(filename: str):
     ax.set_ylabel("PDF")
     ax.set_xticks([280, 290, 300, 310, 320, 330])
     
-    ax.set_title(f"Indiv Lipid Temp Predictions at {int(os.path.basename(os.path.splitext(filename)[0]).split("_")[-1])} Kelvin")
+    ax.set_title(f"Indiv Lipid Temp Predictions at { int(os.path.basename(os.path.splitext(filename)[0]).split("_")[-1]) } Kelvin")
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
