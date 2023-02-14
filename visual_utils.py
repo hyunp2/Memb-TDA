@@ -23,6 +23,26 @@ import ipywidgets as widgets
 from plotly.offline import iplot
 import gudhi, gudhi.hera, gudhi.wasserstein, persim
 import mdtraj
+from joblib import Parallel, delayed
+import psutil
+
+def plot_total_temps(filename: str):
+    assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
+    data = np.load(filename)
+    keys = list(data)
+    BINS = 100
+    
+    fig, ax = plt.subplots() 
+    ax.hist(data["pred"], bins=BINS, density=True, alpha=0.3) #npz has pred; pickle has predictions
+    sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax)
+    ax.set_xlim(280, 330)
+    ax.set_title("Sth")
+#     ax.set_ylim(280, 330)
+    fig.savefig(os.path.splitext(filename)[0] + ".png")
+
+#     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
+#         results = parallel(delayed(calc_2d_filters)(toks, pains_smarts) for count, toks in enumerate(data)) #List[List]
+
 
 def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D for now
     ac = gudhi.AlphaComplex(dat)
