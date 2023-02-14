@@ -76,7 +76,7 @@ def plot_one_temp_parallel():
     ROOT_DIR = "inference_save"
     filenames = os.listdir(ROOT_DIR)
     filenames = list(filter(lambda inp: (os.path.basename(inp).startswith("Predicted") and os.path.splitext(inp)[1] == ".pickle"), filenames ))
-    filenames = map(lambda inp: os.path.join(ROOT_DIR, inp), filenames )
+    filenames = list(map(lambda inp: os.path.join(ROOT_DIR, inp), filenames ))
     print(filenames)
     
     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
