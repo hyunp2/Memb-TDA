@@ -99,18 +99,18 @@ def plot_one_temp_parallel(args: argparse.ArgumentParser):
     print(f"Dask took {t_stop - t_start} seconds...")
     
     t_start = perf_counter()
-    import ray.util.multiprocessing as mp
-    with mp.Pool(processes=psutil.cpu_count()) as pool:
-        results = pool.map_async(plot_one_temp, filenames)
-    t_stop = perf_counter()
-    print(f"Ray took {t_stop - t_start} seconds...")
-    
-    t_start = perf_counter()
     from joblib import Parallel, delayed
     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
         results = parallel(delayed(plot_one_temp)(filename) for idx, filename in enumerate(filenames)) #List[None]
     t_stop = perf_counter()
     print(f"Joblib took {t_stop - t_start} seconds...")
+    
+    t_start = perf_counter()
+    import ray.util.multiprocessing as mp
+    with mp.Pool(processes=psutil.cpu_count()) as pool:
+        results = pool.map(plot_one_temp, filenames)
+    t_stop = perf_counter()
+    print(f"Ray took {t_stop - t_start} seconds...")
     
 def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D for now
     ac = gudhi.AlphaComplex(dat)
