@@ -28,6 +28,15 @@ import mdtraj
 import psutil
 import argparse
 from main import get_args
+import matplotlib as mpl
+
+mpl.rcParams['xticks.labelsize'] = 16
+mpl.rcParams['yticks.labelsize'] = 16
+XLIM = [280, 330]
+XLIM = [0, 0.12]
+XTICKS = [280, 290, 300, 310, 320, 330]
+XTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
+
 
 def plot_total_temps(filename: str):
     assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
@@ -39,7 +48,7 @@ def plot_total_temps(filename: str):
     ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
     sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     ax.set_xlim(280, 330)
-    ax.set_ylim(0, 0.08)
+    ax.set_ylim(0, 0.12)
     ax.set_xlabel("Temperatures")
     ax.set_ylabel("PDF")
     ax.set_xticks([280, 290, 300, 310, 320, 330])
@@ -64,53 +73,59 @@ def plot_one_temp(filename: str):
     ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
     sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     ax.set_xlim(280, 330)
-    ax.set_ylim(0, 0.08)
-    ax.set_xlabel("Temperatures")
+    ax.set_ylim(0, 0.12)
+    ax.set_xlabel("Effective Temperatures")
     ax.set_ylabel("PDF")
     ax.set_xticks([280, 290, 300, 310, 320, 330])
     
-    ax.set_title(f"Effective Temperature Distribution - { int(os.path.basename(os.path.splitext(filename)[0]).split('_')[-1]) } K")
+#     ax.set_title(f"Effective Temperature Distribution - { int(os.path.basename(os.path.splitext(filename)[0]).split('_')[-1]) } K")
+    ax.set_title(f"Effective Temperature Distribution")
+
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
 def plot_one_temp_parallel(args: argparse.ArgumentParser):
     ROOT_DIR = args.save_dir
-    filenames = os.listdir(ROOT_DIR)
-    filenames = list(filter(lambda inp: ("Predicted" in os.path.basename(inp) and os.path.splitext(inp)[1] == ".pickle"), filenames ))
-    filenames_bools = list(map(lambda inp: os.path.splitext(inp)[1] == ".png", filenames )) #List[bool]
+    filenames_ = os.listdir(ROOT_DIR)
+    filenames = list(filter(lambda inp: ("Predicted" in os.path.basename(inp) and os.path.splitext(inp)[1] == ".pickle"), filenames_ ))
+    filenames_bools = list(map(lambda inp: ("Predicted" in os.path.basename(inp) and os.path.splitext(inp)[1] == ".png"), filenames_ )) #List[bool]
     filenames = list(map(lambda inp: os.path.join(ROOT_DIR, inp), filenames ))
     filenames = np.array(filenames)[~np.array(filenames_bools)].tolist() #only without pngs
     print(filenames)
     
     from time import perf_counter
     
-    t_start = perf_counter()
-    from multiprocessing import Pool
-    with Pool(processes=psutil.cpu_count()) as pool:
-        results = pool.map(plot_one_temp, filenames)
-    t_stop = perf_counter()
-    print(f"Multiprocessing took {t_stop - t_start} seconds...")
-
-    t_start = perf_counter()
-    import dask
-    results = [dask.delayed(plot_one_temp(filename)) for filename in filenames] #analogous to [func.remote(args) for args in args_list]
-    results = dask.compute(results)
-    t_stop = perf_counter()
-    print(f"Dask took {t_stop - t_start} seconds...")
+    if args.multiprocessing_backend == "multiprocessing":
+        t_start = perf_counter()
+        from multiprocessing import Pool
+        with Pool(processes=psutil.cpu_count()) as pool:
+            results = pool.map(plot_one_temp, filenames)
+        t_stop = perf_counter()
+        print(f"Multiprocessing took {t_stop - t_start} seconds...")
+        
+    if args.multiprocessing_backend == "dask":
+        t_start = perf_counter()
+        import dask
+        results = [dask.delayed(plot_one_temp(filename)) for filename in filenames] #analogous to [func.remote(args) for args in args_list]
+        results = dask.compute(results)
+        t_stop = perf_counter()
+        print(f"Dask took {t_stop - t_start} seconds...")
     
-    t_start = perf_counter()
-    from joblib import Parallel, delayed
-    with Parallel(n_jobs=psutil.cpu_count(), backend='loky') as parallel:
-        results = parallel(delayed(plot_one_temp)(filename) for idx, filename in enumerate(filenames)) #List[None]
-    t_stop = perf_counter()
-    print(f"Joblib took {t_stop - t_start} seconds...")
+    if args.multiprocessing_backend == "joblib":
+        t_start = perf_counter()
+        from joblib import Parallel, delayed
+        with Parallel(n_jobs=psutil.cpu_count(), backend='loky') as parallel:
+            results = parallel(delayed(plot_one_temp)(filename) for idx, filename in enumerate(filenames)) #List[None]
+        t_stop = perf_counter()
+        print(f"Joblib took {t_stop - t_start} seconds...")
     
-    t_start = perf_counter()
-    import ray.util.multiprocessing as mp
-    pool = mp.Pool(processes=psutil.cpu_count())
-    results = pool.map_async(plot_one_temp, filenames)
-    t_stop = perf_counter()
-    print(f"Ray took {t_stop - t_start} seconds...")
+    if args.multiprocessing_backend == "ray":
+        t_start = perf_counter()
+        import ray.util.multiprocessing as mp
+        pool = mp.Pool(processes=psutil.cpu_count())
+        results = pool.map_async(plot_one_temp, filenames)
+        t_stop = perf_counter()
+        print(f"Ray took {t_stop - t_start} seconds...")
     
 def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D for now
     ac = gudhi.AlphaComplex(dat)
