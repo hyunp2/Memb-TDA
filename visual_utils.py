@@ -107,8 +107,8 @@ def plot_one_temp_parallel(args: argparse.ArgumentParser):
     
     t_start = perf_counter()
     import ray.util.multiprocessing as mp
-    with mp.Pool(processes=psutil.cpu_count()) as pool:
-        results = pool.map(plot_one_temp, filenames)
+    pool = mp.Pool(processes=psutil.cpu_count())
+    results = pool.map_async(plot_one_temp, filenames)
     t_stop = perf_counter()
     print(f"Ray took {t_stop - t_start} seconds...")
     
