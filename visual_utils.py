@@ -100,7 +100,7 @@ def plot_one_temp_parallel(args: argparse.ArgumentParser):
     
     t_start = perf_counter()
     from joblib import Parallel, delayed
-    with Parallel(n_jobs=psutil.cpu_count(), backend='spawn') as parallel:
+    with Parallel(n_jobs=psutil.cpu_count(), backend='loky') as parallel:
         results = parallel(delayed(plot_one_temp)(filename) for idx, filename in enumerate(filenames)) #List[None]
     t_stop = perf_counter()
     print(f"Joblib took {t_stop - t_start} seconds...")
