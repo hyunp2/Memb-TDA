@@ -69,6 +69,7 @@ def get_args():
     #PH utils
     parser.add_argument('--maxdim', type=int, default=1)  
     parser.add_argument('--multiprocessing', action="store_true")  
+    parser.add_argument('--multiprocessing_backend', type=str, default="ray", choices=["multiprocessing", "dask", "joblib", "ray"])  
     parser.add_argument('--tensor', action="store_true", help="DEPRECATED!")  
 
     #Dataloader utils
