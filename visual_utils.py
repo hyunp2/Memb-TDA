@@ -43,9 +43,9 @@ def plot_total_temps(filename: str):
     mpl.rcParams['ytick.labelsize'] = 14
     mpl.rcParams['axes.titlesize'] = 16
     XLIM = [280, 330]
-    YLIM = [0, 0.16]
+    YLIM = [0, 0.08]
     XTICKS = [280, 290, 300, 310, 320, 330]
-    YTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
+    YTICKS = [0, 0.02, 0.04, 0.06, 0.08]
     
     assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
     data = np.load(filename)
@@ -89,8 +89,12 @@ def plot_one_temp(filename: str):
     fig, ax = plt.subplots() 
     if "DPPC" in os.path.basename(filename):
         ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
+        YLIM = [0, 0.08]
+        YTICKS = [0, 0.02, 0.04, 0.06, 0.08]
     else:
         ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+        YLIM = [0, 0.2]
+        YTICKS = np.linspace(0, 0.2, 11).tolist()
     sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
