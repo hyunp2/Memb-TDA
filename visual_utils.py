@@ -30,8 +30,8 @@ import argparse
 from main import get_args
 import matplotlib as mpl
 
-mpl.rcParams['xticks.labelsize'] = 16
-mpl.rcParams['yticks.labelsize'] = 16
+mpl.rcParams['xtick.labelsize'] = 16
+mpl.rcParams['ytick.labelsize'] = 16
 mpl.rcParams['axes.titlesize'] = 24
 XLIM = [280, 330]
 YLIM = [0, 0.12]
@@ -45,7 +45,7 @@ def plot_total_temps(filename: str):
     BINS = 100
     
     fig, ax = plt.subplots() 
-    ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
+    ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2, color='b') #npz has pred; pickle has predictions
     sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
@@ -71,7 +71,10 @@ def plot_one_temp(filename: str):
     BINS = 100
     
     fig, ax = plt.subplots() 
-    ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
+    if "DPPC" in os.path.basename(filename):
+        ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
+    else:
+        ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
     sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
