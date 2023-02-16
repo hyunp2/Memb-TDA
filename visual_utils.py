@@ -39,6 +39,14 @@ XTICKS = [280, 290, 300, 310, 320, 330]
 YTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
 
 def plot_total_temps(filename: str):
+    mpl.rcParams['xtick.labelsize'] = 14
+    mpl.rcParams['ytick.labelsize'] = 14
+    mpl.rcParams['axes.titlesize'] = 16
+    XLIM = [280, 330]
+    YLIM = [0, 0.16]
+    XTICKS = [280, 290, 300, 310, 320, 330]
+    YTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
+    
     assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
     data = np.load(filename)
     keys = list(data)
@@ -62,6 +70,14 @@ def plot_total_temps(filename: str):
 #         results = parallel(delayed(calc_2d_filters)(toks, pains_smarts) for count, toks in enumerate(data)) #List[List]
 
 def plot_one_temp(filename: str):
+    mpl.rcParams['xtick.labelsize'] = 14
+    mpl.rcParams['ytick.labelsize'] = 14
+    mpl.rcParams['axes.titlesize'] = 16
+    XLIM = [280, 330]
+    YLIM = [0, 0.16]
+    XTICKS = [280, 290, 300, 310, 320, 330]
+    YTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
+    
     assert os.path.splitext(filename)[1] == ".pickle", "File name extension is wrong..."
     assert "Predicted" in os.path.basename(filename), "File name prefix is wrong..."
 
