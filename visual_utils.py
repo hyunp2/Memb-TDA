@@ -32,11 +32,11 @@ import matplotlib as mpl
 
 mpl.rcParams['xticks.labelsize'] = 16
 mpl.rcParams['yticks.labelsize'] = 16
+mpl.rcParams['axes.titlesize'] = 24
 XLIM = [280, 330]
-XLIM = [0, 0.12]
+YLIM = [0, 0.12]
 XTICKS = [280, 290, 300, 310, 320, 330]
-XTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
-
+YTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
 
 def plot_total_temps(filename: str):
     assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
@@ -47,12 +47,13 @@ def plot_total_temps(filename: str):
     fig, ax = plt.subplots() 
     ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
     sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
-    ax.set_xlim(280, 330)
-    ax.set_ylim(0, 0.12)
-    ax.set_xlabel("Temperatures")
+    ax.set_xlim(*XLIM)
+    ax.set_ylim(*YLIM)
+    ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
     ax.set_ylabel("PDF")
-    ax.set_xticks([280, 290, 300, 310, 320, 330])
-    
+    ax.set_xticks(XTICKS)
+    ax.set_yticks(YTICKS)
+
     ax.set_title("Effective Temperature Distribution - All")
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
@@ -72,11 +73,12 @@ def plot_one_temp(filename: str):
     fig, ax = plt.subplots() 
     ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
     sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
-    ax.set_xlim(280, 330)
-    ax.set_ylim(0, 0.12)
-    ax.set_xlabel("Effective Temperatures")
+    ax.set_xlim(*XLIM)
+    ax.set_ylim(*YLIM)
+    ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
     ax.set_ylabel("PDF")
-    ax.set_xticks([280, 290, 300, 310, 320, 330])
+    ax.set_xticks(XTICKS)
+    ax.set_yticks(YTICKS)
     
 #     ax.set_title(f"Effective Temperature Distribution - { int(os.path.basename(os.path.splitext(filename)[0]).split('_')[-1]) } K")
     ax.set_title(f"Effective Temperature Distribution")
@@ -288,6 +290,7 @@ def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D f
 if __name__ == "__main__":
     from main import get_args
     args = get_args()
+    plot_total_temps(os.path.join(args.save_dir, "convnext_model_indiv_all_temps.npz"))
     plot_one_temp_parallel(args)
 #     pdb = args.pdb
 #     data = mdtraj.load(pdb, top=pdb)
