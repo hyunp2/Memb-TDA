@@ -62,7 +62,7 @@ def plot_total_temps(filename: str):
     ax.set_xticks(XTICKS)
     ax.set_yticks(YTICKS)
 
-    ax.set_title("Effective Temperature Distribution - All")
+    ax.set_title("Effective Temperature Distribution")
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
