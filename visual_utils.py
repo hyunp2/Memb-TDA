@@ -91,6 +91,10 @@ def plot_one_temp(filename: str):
         ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
         YLIM = [0, 0.08]
         YTICKS = [0, 0.02, 0.04, 0.06, 0.08]
+    elif "B2GP1" == os.path.basename(filename).split("_")[0]:
+        ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+        YLIM = [0, 0.16]
+        YTICKS = np.linspace(0, 0.16, 9).tolist()
     else:
         ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
         YLIM = [0, 0.24]
