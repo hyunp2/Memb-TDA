@@ -93,8 +93,8 @@ def plot_one_temp(filename: str):
         YTICKS = [0, 0.02, 0.04, 0.06, 0.08]
     else:
         ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
-        YLIM = [0, 0.2]
-        YTICKS = np.linspace(0, 0.2, 11).tolist()
+        YLIM = [0, 0.24]
+        YTICKS = np.linspace(0, 0.24, 13).tolist()
     sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
