@@ -1,5 +1,11 @@
 # Memb-TDA
 
+Biological membranes play a key role in cellular compartmentalization, structure, and its signaling pathways. At varying temperatures, individual membrane lipids sample from different configurations, frequently leading to higher order phase phenomena. Order parameters of lipid tails are often used as a metric for quantifying phase behavior, however typically only representing bulk ensembles. Here we present a persistent homology-based method for quantifying the structural features of individual and bulk lipids, providing local and contextual information on lipid tail organization. Our method leverages the mathematical machinery of algebraic topology and machine learning to infer temperature dependent structural information of lipids from static coordinates. 
+To train our model, we generated multiple molecular dynamic trajectories of DPPC membranes at varying temperatures. A fingerprint was then constructed for each set of lipid coordinates by a persistent homology filtration, in which spheres were grown around the lipid atoms while tracking their intersections. 
+The sphere filtration formed a simplicial complex that captures enduring key topological features of the configuration landscape. Following fingerprint extraction for physiologically relevant temperatures, the persistence data were used to train an attention-based neural network for assignment of temperature values to selected membrane regions. Attention is a mathematical algorithm widely used in deep learning, traditionally used for natural language processing (NLP), having shown great promise in biological problems as demonstrated by Alphafold2. The attention mechanism uses global context of the data to predict a desired property; in this case pair-wise interactions between atoms, the global context, and lipid coordinates are used to predict a structural score, indicative of temperature. Our persistence homology-based method captures the local structural effects of lipids adjacent to other membrane constituents, e.g., sterols and proteins, quantifying structural features that facilitate entropically driven membrane organization. 
+This topological learning approach predicts membrane temperature values from static coordinates across multiple spatial resolutions.
+
+
 
 
 [For multiple PDBs] To get Wasserstein distances, enter below code in bash shell... </br>
