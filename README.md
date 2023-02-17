@@ -1,4 +1,6 @@
-# Protein-TDA
+# Memb-TDA
+
+
 
 [For multiple PDBs] To get Wasserstein distances, enter below code in bash shell... </br>
 <code>
