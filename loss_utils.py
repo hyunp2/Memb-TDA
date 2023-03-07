@@ -39,6 +39,7 @@ def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torc
     return loss
 
 def distillation_loss(args: argparse.ArgumentParser, y_true, y_pred, teacher_scores: torch.FloatTensor, T: float, alpha: float):
+    print(y_pred.size(), teacher_scores.size(), y_true.size())
     return nn.KLDivLoss()(F.log_softmax(y_pred/T), F.softmax(teacher_scores/T)) * (T*T * 2.0 * alpha) + torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(y_pred))(y_pred, y_true) * (1. - alpha)
   
 def contrastive_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred_tensor: torch.FloatTensor):
