@@ -38,12 +38,14 @@ from torch.utils.data import DistributedSampler, Subset
 from torch._utils import _accumulate
 from typing import *
 from topologylayer.nn import RipsLayer, AlphaLayer
+import ripserplusplus as rpp_py
 import gc
 from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
 from math_utils import wasserstein
 import mdtraj
+from gudhi_layer import RipsLayerGudhi
 
 #https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb#scrollTo=Y6fj2UqWHPbs
 ##ABOVE: cubicle-Ripser
@@ -120,29 +122,40 @@ def persistent_diagram(graph_input_list: List[np.ndarray], maxdim: int):
     return Rs_total
 
 @ray.remote
-def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=False):
+def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=False, ripserpp: bool=True, gudhi: bool=False):
     assert isinstance(graph_input, (torch.Tensor, np.ndarray)), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
     graph_input = graph_input.detach().cpu().numpy() if isinstance(graph_input, torch.Tensor) else np.array(graph_input)
     if not tensor:
-        R_total = ripser.ripser(graph_input, maxdim=maxdim)["dgms"]
+        if not ripserpp:
+            R_total = ripser.ripser(graph_input, maxdim=maxdim)["dgms"]
+        else:
+            R_total_ = rpp_py.run(f"--format point-cloud --dim {maxdim}", graph_input)
+            R_total = []
+            for i in range(maxdim):
+                R_total.append(np.array([list(_) for _ in R_total_[i]])) #List[np.ndarray]
     else:
 #         graph_input = torch.from_numpy(graph_input).to("cuda").type(torch.float)
 #         layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
-        layer = AlphaLayer(maxdim=maxdim)
-        layer.cuda()
-        R_total = layer(graph_input)
+        if not gudhi:
+            layer = RipsLayer(graph_input.shape[0], maxdim=maxdim)
+            layer.cuda()
+            R_total = layer(graph_input)
+        else:
+            layer = RipsLayerGudhi(maximum_edge_length=2., homology_dimensions=[0])
+            layer.cuda()
+            R_total = layer(graph_input)
     return R_total
 
-# @ray.remote
 def persistent_diagram_tensor(graph_input: torch.Tensor, maxdim: int):
+    """Only for GPU PHD"""
     assert isinstance(graph_input, torch.Tensor), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
 #     layer = RipsLayer(graph_input.size(0), maxdim=maxdim)
-    layer = AlphaLayer(maxdim=maxdim)
-    layer #.to(torch.cuda.current_device())
+    layer = RipsLayer(graph_input.shape[0], maxdim=maxdim)
+    layer.to(graph_input.device)
     R_total = layer(graph_input)
     return R_total
 
@@ -445,7 +458,7 @@ class PH_Featurizer_DataLoader(abc.ABC):
             dist.barrier(device_ids=[get_local_rank()]) #WAITNG for 0-th core is done!
                     
         full_dataset = PH_Featurizer_Dataset(self.opt)
-        if opt.which_mode in ["preprocessing", "train", "distill"]:
+        if opt.which_mode in ["preprocessing", "train"]:
             self.ds_train, self.ds_val, self.ds_test = torch.utils.data.random_split(full_dataset, _get_split_sizes(self.opt.train_frac, full_dataset),
                                                                 generator=torch.Generator().manual_seed(42))
         elif opt.which_mode in ["infer"]:
