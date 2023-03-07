@@ -57,7 +57,7 @@ class RipsLayer(torch.nn.Module):
         assert len(self.min_persistence) == len(self.dimensions)
 
         
-    def call(self, X):
+    def forward(self, X):
         """
         Compute Rips persistence diagram associated to a point cloud
 
