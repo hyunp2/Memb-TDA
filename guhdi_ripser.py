@@ -81,7 +81,7 @@ class RipsLayer(torch.nn.Module):
             
         for idx_dim, dimension in enumerate(self.dimensions):
             cur_idx = indices[idx_dim]
-            cur_idx = list(map(lambda inp: torch.from_numpy(inp, device=X.device), cur_idx ))
+            cur_idx = list(map(lambda inp: torch.from_numpy(inp).to(X.device), cur_idx ))
             
             if dimension > 0:
                 finite_dgm = torch.reshape(gather_nd(DX, torch.reshape(cur_idx[0], [-1,2])), [-1,2])
