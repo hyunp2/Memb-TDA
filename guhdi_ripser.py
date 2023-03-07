@@ -88,8 +88,8 @@ class RipsLayer(torch.nn.Module):
                 essential_dgm = torch.reshape(gather_nd(DX, torch.reshape(cur_idx[1], [-1,2])), [-1,1])
             else:
                 reshaped_cur_idx = torch.reshape(cur_idx[0], [-1,3])
-                finite_dgm = torch.cat([torch.zeros([reshaped_cur_idx.shape[0],1]), torch.reshape(gather_nd(DX, reshaped_cur_idx[:,1:]), [-1,1])], dim=1)
-                essential_dgm = torch.zeros([cur_idx[1].shape[0],1])
+                finite_dgm = torch.cat([X.new_zeros([reshaped_cur_idx.shape[0],1]), torch.reshape(gather_nd(DX, reshaped_cur_idx[:,1:]), [-1,1])], dim=1)
+                essential_dgm = X.new_zeros([cur_idx[1].shape[0],1])
             min_pers = self.min_persistence[idx_dim]
             if min_pers >= 0:
                 persistent_indices = torch.where(torch.abs(finite_dgm[:,1]-finite_dgm[:,0]) > min_pers)
