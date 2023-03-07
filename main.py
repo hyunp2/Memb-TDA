@@ -114,7 +114,7 @@ def get_args():
     parser.add_argument('--teacher_name', type=str, default="mpnn", help="saved torch model name...")
 
     #Mode utils
-    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "infer", "infer_custom"], default="preprocessing")  
+    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "distill", "infer", "infer_custom"], default="preprocessing")  
 
     args = parser.parse_args()
     return args
@@ -338,6 +338,8 @@ if __name__ == "__main__":
         preprocessing(args)
     elif args.which_mode == "train":
         job_submit(args)
+    elif args.which_mode == "distill":
+        job_submit_distill(args)
     elif args.which_mode == "infer":
         infer_submit(args)
     elif args.which_mode == "infer_custom":
