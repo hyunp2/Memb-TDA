@@ -33,7 +33,7 @@ def _Rips(DX, max_edge, dimensions, homology_coeff_field):
         essential_indices = np.array(essential_pairs.flatten(), dtype=np.int32)
 
         L_indices.append((finite_indices, essential_indices))
-        
+    return L_indices     
         
 class RipsLayer(torch.nn.Module):
     """
@@ -76,8 +76,8 @@ class RipsLayer(torch.nn.Module):
         self.dgms = []
         
         def gather_nd(params, indices):
-            params[indices.tolist()]
-        
+            return params[indices.tolist()]
+            
         for idx_dim, dimension in enumerate(self.dimensions):
             cur_idx = indices[idx_dim]
             if dimension > 0:
@@ -95,7 +95,6 @@ class RipsLayer(torch.nn.Module):
                 self.dgms.append((finite_dgm, essential_dgm))
         return self.dgms
 
-    return L_indices
   
 if __name__ == "__main__":
     layer = RipsLayer(maximum_edge_length=2., homology_dimensions=[0]).cuda()
