@@ -43,6 +43,7 @@ import data_utils_mem
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
     using_tensor_cores, increase_l2_fetch_granularity, WandbLogger
 from train_utils import train as train_function
+from kd_train_utils import train as distill_train_function
 from model import MPNN, Vision
 from gpu_utils import *
 from loss_utils import * #TEMP_RANGES
@@ -229,7 +230,7 @@ def job_submit_distill(args):
     increase_l2_fetch_granularity()
     
     print(cf.on_yellow("STEP 2 of training: Initalizing training..."))
-    train_function(net, teacher, loss_func, train_loader, val_loader, test_loader, logger, args)
+    distill_train_function(net, teacher, loss_func, train_loader, val_loader, test_loader, logger, args)
     #python -m main --which_mode train --ignore_topologicallayer
     
 def infer_submit(args):
