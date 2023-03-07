@@ -363,7 +363,7 @@ def train(model: nn.Module,
     print(cf.on_green("Saving a pretrained TEACHER model..."))
     scheduler_groups = [scheduler, scheduler_re] #step and epoch schedulers
     #TEACHER model ONLY!
-    *_ = load_state(teacher_model, optimizer, scheduler_groups, teacher_path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name) 
+    _ = load_state(teacher_model, optimizer, scheduler_groups, teacher_path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name) 
 
     #STUDENT model ONLY!
     path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
