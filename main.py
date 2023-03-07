@@ -55,7 +55,7 @@ def get_args():
     #Directories
     parser.add_argument('--data_dir', type=str, default="/Scr/hyunpark/Monster/vaegan_md_gitlab/data", help="DEPRECATED!") 
     parser.add_argument('--save_dir', type=str, default="/Scr/hyunpark-new/Protein-TDA/pickled_indiv/")  
-    parser.add_argument('--load_ckpt_path', type=str, default="/Scr/hyunpark/Protein-TDA/saved")
+    parser.add_argument('--load_ckpt_path', type=str, default="/Scr/hyunpark-new/Protein-TDA/saved")
     parser.add_argument('--filename', type=str, default="dppc.pickle")  
     parser.add_argument('--pdb_database', type=str, default="/Scr/arango/Sobolev-Hyun/2-MembTempredict/testing/") 
     parser.add_argument('--search_temp', default=123, help="e.g. keyword for T.123 directory") 
@@ -161,7 +161,7 @@ def job_submit(args):
         
     if args.log:
 #         https://docs.wandb.ai/guides/artifacts/storage
-        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+        logger = WandbLogger(name=args.name, project="Memb-TDA", entity="hyunp2")
         os.environ["WANDB_DIR"] = os.path.join(os.getcwd(), "wandb")
         os.environ["WANDB_CACHE_DIR"] = os.path.join(os.getcwd(), ".cache/wandb")
         os.environ["WANDB_CONFIG_DIR"] = os.path.join(os.getcwd(), ".config/wandb")
@@ -213,10 +213,12 @@ def job_submit_distill(args):
 #         print(args.ce_re_ratio)
         ce_re_ratio = torch.tensor(args.ce_re_ratio).to(torch.cuda.current_device()).float()
         loss_func = lambda pred, targ, teacher_pred, T, alpha: ce_re_ratio[0] * distillation_loss(args, targ, pred, teacher_pred, T, alpha) + ce_re_ratio[1] * reg_loss(args, targ, pred)
-        
+    
+    assert args.loss == "distill", "For distillatin, distill loss must be chosen!"
+    
     if args.log:
 #         https://docs.wandb.ai/guides/artifacts/storage
-        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+        logger = WandbLogger(name=args.name, project="Memb-TDA", entity="hyunp2")
         os.environ["WANDB_DIR"] = os.path.join(os.getcwd(), "wandb")
         os.environ["WANDB_CACHE_DIR"] = os.path.join(os.getcwd(), ".cache/wandb")
         os.environ["WANDB_CONFIG_DIR"] = os.path.join(os.getcwd(), ".config/wandb")
@@ -273,7 +275,7 @@ def infer_submit(args):
     
     if args.log:
 #         https://docs.wandb.ai/guides/artifacts/storage
-        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+        logger = WandbLogger(name=args.name, project="Memb-TDA", entity="hyunp2")
         os.environ["WANDB_DIR"] = os.path.join(os.getcwd(), "wandb")
         os.environ["WANDB_CACHE_DIR"] = os.path.join(os.getcwd(), ".cache/wandb")
         os.environ["WANDB_CONFIG_DIR"] = os.path.join(os.getcwd(), ".config/wandb")
@@ -304,7 +306,7 @@ def infer_for_customdata(args):
         
     if args.log:
 #         https://docs.wandb.ai/guides/artifacts/storage
-        logger = WandbLogger(name=args.name, project="Protein-TDA", entity="hyunp2")
+        logger = WandbLogger(name=args.name, project="Memb-TDA", entity="hyunp2")
         os.environ["WANDB_DIR"] = os.path.join(os.getcwd(), "wandb")
         os.environ["WANDB_CACHE_DIR"] = os.path.join(os.getcwd(), ".cache/wandb")
         os.environ["WANDB_CONFIG_DIR"] = os.path.join(os.getcwd(), ".config/wandb")
