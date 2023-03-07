@@ -72,7 +72,7 @@ class RipsLayer(torch.nn.Module):
         # Compute vertices associated to positive and negative simplices 
         # Don't compute gradient for this operation
         indices = _Rips(DX.detach().cpu().numpy(), self.max_edge, self.dimensions, self.hcf)
-        indices = torch.from_numpy(indices).to(DX.device)
+#         indices = torch.from_numpy(indices).to(DX.device)
         # Get persistence diagrams by simply picking the corresponding entries in the distance matrix
         self.dgms = []
         
@@ -81,6 +81,8 @@ class RipsLayer(torch.nn.Module):
             
         for idx_dim, dimension in enumerate(self.dimensions):
             cur_idx = indices[idx_dim]
+            cur_idx = list(map(lambda inp: torch.from_numpy(inp, device=X.device), cur_idx ))
+            
             if dimension > 0:
                 finite_dgm = torch.reshape(gather_nd(DX, torch.reshape(cur_idx[0], [-1,2])), [-1,2])
                 essential_dgm = torch.reshape(gather_nd(DX, torch.reshape(cur_idx[1], [-1,2])), [-1,1])
