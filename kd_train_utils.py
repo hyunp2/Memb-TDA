@@ -359,13 +359,16 @@ def train(model: nn.Module,
     #Load state (across multi GPUs)
 
     assert args.teacher_name is not None, "teacher_name must exist!"
-    path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.teacher_name)) #Set argment!
+    teacher_path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.teacher_name)) #Set argment!
     print(cf.on_green("Saving a pretrained TEACHER model..."))
-
     scheduler_groups = [scheduler, scheduler_re] #step and epoch schedulers
-    #BELOW model ONLY!
-    epoch_start, best_loss = load_state(teacher_model, optimizer, scheduler_groups, path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name) if args.resume else (0, 1e5)
-    
+    #TEACHER model ONLY!
+    *_ = load_state(teacher_model, optimizer, scheduler_groups, teacher_path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name) 
+
+    #STUDENT model ONLY!
+    path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
+    epoch_start, best_loss = load_state(model, optimizer, scheduler_groups, path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name) if args.resume else (0, 1e5)
+
     best_loss = best_loss
     #DDP training: Total stats (But still across multi GPUs)
     init_start_event.record()
