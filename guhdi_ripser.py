@@ -1,6 +1,6 @@
 import numpy               as np
 import torch          
-from guhdi.rips_complex     import RipsComplex
+from gudhi.rips_complex     import RipsComplex
 
 ############################
 # Vietoris-Rips filtration #
