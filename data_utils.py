@@ -458,7 +458,7 @@ class PH_Featurizer_DataLoader(abc.ABC):
             dist.barrier(device_ids=[get_local_rank()]) #WAITNG for 0-th core is done!
                     
         full_dataset = PH_Featurizer_Dataset(self.opt)
-        if opt.which_mode in ["preprocessing", "train"]:
+        if opt.which_mode in ["preprocessing", "train", "distill"]:
             self.ds_train, self.ds_val, self.ds_test = torch.utils.data.random_split(full_dataset, _get_split_sizes(self.opt.train_frac, full_dataset),
                                                                 generator=torch.Generator().manual_seed(42))
         elif opt.which_mode in ["infer"]:
