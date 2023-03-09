@@ -116,9 +116,12 @@ def get_coordinates_mp(filename: str):
     coords = structure(filename)
     return coords
 
-def persistent_diagram(graph_input_list: List[np.ndarray], maxdim: int):
-    assert isinstance(graph_input_list, list), f"graph_input_list must be a type list..."
-    Rs_total = list(map(lambda info: ripser.ripser(info, maxdim=maxdim)["dgms"], graph_input_list ))
+def persistent_diagram(graph_input: np.ndarray, maxdim: int, ripserpp: bool=True):
+    assert isinstance(graph_input, (torch.Tensor, np.ndarray)), f"graph_input must be a type array..."
+    R_total_ = rpp_py.run(f"--format point-cloud --dim {maxdim}", graph_input)
+    R_total = []
+    for i in range(maxdim):
+        R_total.append(np.array([list(_) for _ in R_total_[i]])) #List[np.ndarray]    
     return Rs_total
 
 @ray.remote
@@ -296,8 +299,10 @@ class PH_Featurizer_Dataset(Dataset):
                 
                 maxdims = [self.maxdim] * len(graph_input_list)
                 tensor_flags = [self.tensor] * len(graph_input_list)
-                futures = [persistent_diagram_mp.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(graph_input_list, maxdims, tensor_flags)] 
-                Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
+#                 futures = [persistent_diagram_mp.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(graph_input_list, maxdims, tensor_flags)] 
+#                 Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
+                Rs_total = [persistent_diagram(i, maxdim) for i, maxdim in zip(graph_input_list, maxdims)] 
+
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "wb")
                 pickle.dump(Rs_total, f)   
                 print(cf.on_yellow("STEP 2: Persistent diagram extraction done!"))
