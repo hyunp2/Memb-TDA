@@ -301,9 +301,12 @@ class PH_Featurizer_Dataset(Dataset):
                 
                 maxdims = [self.maxdim] * len(graph_input_list)
                 tensor_flags = [self.tensor] * len(graph_input_list)
-#                 futures = [persistent_diagram_mp.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(graph_input_list, maxdims, tensor_flags)] 
-#                 Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
-                Rs_total = [persistent_diagram(i, maxdim) for i, maxdim in zip(graph_input_list, maxdims)] 
+                
+                if not self.ripspp:
+                    futures = [persistent_diagram_mp.remote(i, maxdim, tensor_flag) for i, maxdim, tensor_flag in zip(graph_input_list, maxdims, tensor_flags)] 
+                    Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
+                else:
+                    Rs_total = [persistent_diagram(i, maxdim) for i, maxdim in zip(graph_input_list, maxdims)] 
 
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "wb")
                 pickle.dump(Rs_total, f)   
