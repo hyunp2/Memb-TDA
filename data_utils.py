@@ -124,6 +124,7 @@ def persistent_diagram(graph_input: np.ndarray, maxdim: int, ripserpp: bool=True
     Rs_total = []
     for i in range(maxdim):
         Rs_total.append(np.array([list(_) for _ in R_total_[i]])) #List[np.ndarray]    
+    Rs_total
     return Rs_total
 
 @ray.remote
