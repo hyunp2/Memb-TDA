@@ -121,9 +121,9 @@ def persistent_diagram(graph_input: np.ndarray, maxdim: int, ripserpp: bool=True
     graph_input = graph_input.detach().cpu().numpy() if isinstance(graph_input, torch.Tensor) else np.array(graph_input)
 
     R_total_ = rpp_py.run(f"--format point-cloud --dim {maxdim}", graph_input)
-    R_total = []
+    Rs_total = []
     for i in range(maxdim):
-        R_total.append(np.array([list(_) for _ in R_total_[i]])) #List[np.ndarray]    
+        Rs_total.append(np.array([list(_) for _ in R_total_[i]])) #List[np.ndarray]    
     return Rs_total
 
 @ray.remote
