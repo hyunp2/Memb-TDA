@@ -308,6 +308,7 @@ class PH_Featurizer_Dataset(Dataset):
                     Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
                 else:
                     Rs_total = [persistent_diagram(i, maxdim) for i, maxdim in tqdm.tqdm(zip(graph_input_list, maxdims))] 
+                print(len(Rs_total), len(Rs_tota[0]))
 
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "wb")
                 pickle.dump(Rs_total, f)   
