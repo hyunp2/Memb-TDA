@@ -72,6 +72,8 @@ def get_args():
     parser.add_argument('--multiprocessing', action="store_true")  
     parser.add_argument('--multiprocessing_backend', type=str, default="ray", choices=["multiprocessing", "dask", "joblib", "ray"])  
     parser.add_argument('--tensor', action="store_true", help="DEPRECATED!")  
+    parser.add_argument('--ripspp', action="store_true", help="Rips++!")  
+    parser.add_argument('--gudhi', action="store_true", help="Gudhi!")  
 
     #Dataloader utils
     parser.add_argument('--train_frac', type=float, default=0.8)  
