@@ -118,6 +118,8 @@ def get_coordinates_mp(filename: str):
 
 def persistent_diagram(graph_input: np.ndarray, maxdim: int, ripserpp: bool=True):
     assert isinstance(graph_input, (torch.Tensor, np.ndarray)), f"graph_input must be a type array..."
+    graph_input = graph_input.detach().cpu().numpy() if isinstance(graph_input, torch.Tensor) else np.array(graph_input)
+
     R_total_ = rpp_py.run(f"--format point-cloud --dim {maxdim}", graph_input)
     R_total = []
     for i in range(maxdim):
