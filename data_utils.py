@@ -127,7 +127,7 @@ def persistent_diagram(graph_input: np.ndarray, maxdim: int, ripserpp: bool=True
     return Rs_total
 
 @ray.remote
-def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=False, ripserpp: bool=True, gudhi: bool=False):
+def persistent_diagram_mp(graph_input: np.ndarray, maxdim: int, tensor: bool=False, ripserpp: bool=False, gudhi: bool=False):
     assert isinstance(graph_input, (torch.Tensor, np.ndarray)), f"graph_input must be a type array..."
     #Definition of information has changed from List[np.ndarray] to np.ndarray
     #Multiprocessing changes return value from "List of R" to "one R"
