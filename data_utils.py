@@ -45,7 +45,7 @@ from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
 from math_utils import wasserstein
 import mdtraj
-from gudhi_ripser import RipsLayer as RipsLayerGudhi
+from gudhi_ripser import RipsLayer as RipsLayerGudhi 
 
 #https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb#scrollTo=Y6fj2UqWHPbs
 ##ABOVE: cubicle-Ripser
