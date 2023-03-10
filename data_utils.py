@@ -120,7 +120,7 @@ def persistent_diagram(graph_input: np.ndarray, maxdim: int, ripserpp: bool=True
     assert isinstance(graph_input, (torch.Tensor, np.ndarray)), f"graph_input must be a type array..."
     graph_input = graph_input.detach().cpu().numpy() if isinstance(graph_input, torch.Tensor) else np.array(graph_input)
 
-    R_total_ = rpp_py.run(f"--format point-cloud --dim {maxdim}", graph_input)
+    R_total_ = rpp_py.run(f"--format point-cloud --dim {maxdim+1}", graph_input)
     Rs_total = []
     for i in range(maxdim):
         Rs_total.append(np.array([list(_) for _ in R_total_[i]])) #List[np.ndarray]    
