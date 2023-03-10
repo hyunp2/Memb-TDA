@@ -308,14 +308,14 @@ class PH_Featurizer_Dataset(Dataset):
                     Rs_total = ray.get(futures) #List of structures: each structure has maxdim PHs
                 else:
                     Rs_total = [persistent_diagram(i, maxdim) for i, maxdim in tqdm.tqdm(zip(graph_input_list, maxdims))] 
-                print(len(Rs_total), len(Rs_total[0]))
+#                 print(len(Rs_total), len(Rs_total[0]))
 
                 f = open(os.path.join(self.save_dir, "PH_" + self.filename), "wb")
                 pickle.dump(Rs_total, f)   
                 print(cf.on_yellow("STEP 2: Persistent diagram extraction done!"))
 
                 images_total = list(zip(*Rs_total))
-                print(len(images_total) , (self.maxdim + 1))
+#                 print(len(images_total) , (self.maxdim + 1))
                 assert len(images_total) == (self.maxdim + 1), "images_total must be the same as maxdim!"
                 pers = persim.PersistenceImager(pixel_size=0.01) #100 by 100 image
                 pers_images_total = collections.defaultdict(list)
