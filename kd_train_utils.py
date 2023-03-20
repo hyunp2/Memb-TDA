@@ -50,6 +50,8 @@ elif torch.__version__.startswith('1.13'):
 from train_utils import load_state, save_state
 from loss_utils import * #TEMP_RANGES, distillation
 
+#scheduler: https://keras.io/examples/keras_recipes/better_knowledge_distillation/#:~:text=class%20WarmUpCosine(keras.optimizers.schedules.LearningRateSchedule)%3A
+
 # optimizer.zero_grad()
 # output = model(data) #Vit
 # teacher_output = teacher_model(data) #Convnext
