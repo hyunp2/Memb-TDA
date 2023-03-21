@@ -85,8 +85,8 @@ def single_train(args, model, teacher_model, loader, loss_func, epoch_idx, optim
             preds = model(img_ph)
             teacher_preds = teacher_model(img_ph) #Convnext
             teacher_preds = teacher_preds.detach()
-            print(preds, targetT, teacher_preds)
-            print("size:", preds.size(), targetT.size(), teacher_preds.size())
+#             print(preds, targetT, teacher_preds)
+#             print("size:", preds.size(), targetT.size(), teacher_preds.size())
 
             loss_kl = loss_func(preds, targetT, teacher_preds, T=20.0, alpha=0.7)
 
