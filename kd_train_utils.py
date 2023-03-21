@@ -85,6 +85,7 @@ def single_train(args, model, teacher_model, loader, loss_func, epoch_idx, optim
             preds = model(img_ph)
             teacher_preds = teacher_model(img_ph) #Convnext
             teacher_preds = teacher_preds.detach()
+            print(preds, targetT, teacher_preds)
             loss_kl = loss_func(preds, targetT, teacher_preds, T=20.0, alpha=0.7)
 
             loss_ce_tmp = torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(preds), label_smoothing=args.label_smoothing)(preds, targetT.long().view(-1, ) - TEMP_RANGES[0]) #To DEBUG
