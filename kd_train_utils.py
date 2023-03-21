@@ -103,14 +103,14 @@ def single_train(args, model, teacher_model, loader, loss_func, epoch_idx, optim
             y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
 		
             mse_indiv_loss_tmp = torch.nn.SmoothL1Loss()(targetT.view(-1,).to(y_pred_expected_T), y_pred_expected_T.view(-1,)) #To DEBUG
-	
             loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
 #             loss_metrics = 0
             loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ).detach().cpu().mean() #
             loss_metrics = torch.tensor([loss_metrics_mean, loss_metrics_std]) #(2, );; std is not an error but uncertainty!!
 #             loss_metrics = loss_metrics_mean
         if args.log:
-            logger.log_metrics({'rank0_specific_train_loss_mse': loss_mse.item()})
+            logger.log_metrics({'rank0_specific_train_loss_total': loss_kl.item()})
+            logger.log_metrics({'rank0_specific_train_loss_mse': mse_indiv_loss_tmp.item()})
             logger.log_metrics({'rank0_specific_train_loss_mae': loss_metrics})
 
         loss = loss_kl
@@ -178,6 +178,8 @@ def single_val(args, model, teacher_model, loader, loss_func, optimizer, schedul
                 assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
                 y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
                 y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
+		
+                mse_indiv_loss_tmp = torch.nn.SmoothL1Loss()(targetT.view(-1,).to(y_pred_expected_T), y_pred_expected_T.view(-1,)) #To DEBUG
                 loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
                 loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
                 loss_metrics = torch.tensor([loss_metrics_mean, loss_metrics_std.detach().cpu().mean()]) #(2, );; std is not an error but uncertainty!!
@@ -185,7 +187,8 @@ def single_val(args, model, teacher_model, loader, loss_func, optimizer, schedul
 		#             loss_metrics = 0
 
             if args.log:
-                logger.log_metrics({'rank0_specific_val_loss_mse': loss_mse.item()})
+                logger.log_metrics({'rank0_specific_val_loss_total': loss_kl.item()})
+                logger.log_metrics({'rank0_specific_val_loss_mse': mse_indiv_loss_tmp.item()})
                 logger.log_metrics({'rank0_specific_val_loss_mae': loss_metrics})
 
             loss = loss_kl
@@ -238,6 +241,8 @@ def single_test(args, model, teacher_model, loader, loss_func, optimizer, schedu
                 assert preds_prob.size(-1) == ranges.size(0), "Num class must match!"
                 y_pred_expected_T = preds_prob * ranges[None, :]  #-->(Batch, numclass)
                 y_pred_expected_T = y_pred_expected_T.sum(dim=-1) #-->(Batch,)
+		
+                mse_indiv_loss_tmp = torch.nn.SmoothL1Loss()(targetT.view(-1,).to(y_pred_expected_T), y_pred_expected_T.view(-1,)) #To DEBUG
                 loss_metrics_mean = tmetrics(y_pred_expected_T.view(-1,).detach().cpu(), targetT.view(-1,).detach().cpu()) #LOG energy only!
 #                 loss_metrics = loss_metrics_mean
                 loss_metrics_std = ((ranges[None, :] - y_pred_expected_T.view(-1,)[:, None]).pow(2) * preds_prob).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
@@ -245,7 +250,8 @@ def single_test(args, model, teacher_model, loader, loss_func, optimizer, schedu
 #             loss_metrics = 0
 
             if args.log:
-                logger.log_metrics({'rank0_specific_test_loss_mse': loss_mse.item()})
+                logger.log_metrics({'rank0_specific_test_loss_total': loss_kl.item()})
+                logger.log_metrics({'rank0_specific_test_loss_mse': mse_indiv_loss_tmp.item()})
                 logger.log_metrics({'rank0_specific_test_loss_mae': loss_metrics})
 
             loss = loss_kl
