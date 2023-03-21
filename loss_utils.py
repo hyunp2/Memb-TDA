@@ -25,7 +25,7 @@ def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch
 def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
     """Get expected temperature and regress on True Temp"""
     assert y_true.size(0) == y_pred.size(0), "Batch size must match!"
-    print(TEMP_RANGES, y_pred)
+    print(TEMP_RANGES, y_true, y_pred)
     ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(y_pred).float() #temperatures
     y_pred_probs = F.softmax(y_pred, dim=-1) #-->(Batch, numclass)
     assert y_pred_probs.size(-1) == ranges.size(0), "Num class must match!"
