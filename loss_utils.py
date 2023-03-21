@@ -25,7 +25,7 @@ def ce_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch
 def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred: torch.FloatTensor):
     """Get expected temperature and regress on True Temp"""
     assert y_true.size(0) == y_pred.size(0), "Batch size must match!"
-    print(TEMP_RANGES)
+#     print(TEMP_RANGES)
 #     print("TWO stuff", y_true, y_pred)
     ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(y_pred).float() #temperatures
     y_pred_probs = F.softmax(y_pred, dim=-1) #-->(Batch, numclass)
@@ -41,8 +41,8 @@ def reg_loss(args: argparse.ArgumentParser, y_true: Union[torch.LongTensor, torc
     return loss
 
 def distillation_loss(args: argparse.ArgumentParser, y_true, y_pred, teacher_scores: torch.FloatTensor, T: float, alpha: float):
-    print(y_pred.size(), teacher_scores.size(), y_true.size())
-    return nn.KLDivLoss()(F.log_softmax(y_pred/T), F.softmax(teacher_scores/T)) * (T*T * 2.0 * alpha) + torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(y_pred))(y_pred, y_true.view(-1,).long()) * (1. - alpha)
+#     print(y_pred.size(), teacher_scores.size(), y_true.size())
+    return nn.KLDivLoss()(F.log_softmax(y_pred/T), F.softmax(teacher_scores/T)) * (T*T * 2.0 * alpha) + torch.nn.CrossEntropyLoss(weight=torch.tensor(args.ce_weights).to(y_pred))(y_pred, y_true.view(-1,).long() - TEMP_RANGES[0]) * (1. - alpha)
   
 def contrastive_loss(y_true: Union[torch.LongTensor, torch.FloatTensor], y_pred_tensor: torch.FloatTensor):
     """WIP: Extract tensor from forward hook and do contrastive learning
