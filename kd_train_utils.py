@@ -73,7 +73,7 @@ def single_train(args, model, teacher_model, loader, loss_func, epoch_idx, optim
 		     leave=False, disable=(args.silent or get_local_rank() != 0))
     for step, packs in pbar:
         pbar.set_description(f"Epoch {epoch_idx}")
-        if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
+        if args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
             img_ph, targetT = packs["PH"], packs["temp"]
             pack =  img_ph, targetT
             img_ph, targetT = to_cuda(pack)
@@ -149,7 +149,7 @@ def single_val(args, model, teacher_model, loader, loss_func, optimizer, schedul
 #         data_to_return = []
 		
         for i, packs in pbar:
-            if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
+            if args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
 #                 coords, phs = packs["Coords"], packs["PH"]
 #                 atom_coords, targetT, cbatch = coords.x, coords.y, coords.batch
 #                 pack =  atom_coords, targetT, cbatch
@@ -216,7 +216,7 @@ def single_test(args, model, teacher_model, loader, loss_func, optimizer, schedu
 #         data_to_return = []
 
         for i, packs in pbar:
-            if args.gpu and args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
+            if args.backbone in ["mpnn", "vit", "swin", "swinv2", "convnext", "restv2", "clip_resnet"]:
                 img_ph, targetT = packs["PH"], packs["temp"]
                 pack =  img_ph, targetT
                 img_ph, targetT = to_cuda(pack)
