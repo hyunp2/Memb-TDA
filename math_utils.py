@@ -5,6 +5,10 @@ import warnings
 import math
 import torch
 from scipy.linalg import sqrtm
+import persim
+from gudhi.wasserstein import wasserstein_distance
+from gudhi.wasserstein.barycenter import lagrangian_barycenter
+from typing import *
 
 class linear_sum_assignment(torch.autograd.Function):
     @staticmethod
@@ -131,6 +135,9 @@ def calculate_fid(act1, act2):
         covmean = covmean.real
     fid = ssdiff + np.trace(sigma1 + sigma2 - 2.0 * covmean)
     return fid
+
+def wasserstein_difference(args: argparse.ArgumentParser, temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
+    ...
 
 if __name__ == "__main__":
     x = torch.randn(100,2).double().data
