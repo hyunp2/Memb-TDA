@@ -195,18 +195,29 @@ def wasserstein_matching(dgm1, dgm2, matching, labels=["dgm1", "dgm2"], ax=None)
 
     plot_diagrams([dgm1, dgm2], labels=labels, ax=ax)
 
-def wasserstein_difference(args: argparse.ArgumentParser, temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
+def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
+    if isinstance(temp0_dgms, np.ndarray): temp0_dgms = [temp0_dgms]
+    if isinstance(temp1_dgms, np.ndarray): temp1_dgms = [temp0_dgms]
+    assert isinstance(temp0_dgms, list) and isinstance(temp1_dgms, list), "Both instances should be a list!"
+    barycenter0, barylog0 = lagrangian_barycenter(temp0_dgms, verbose=True)
+    barycenter1, barylog1 = lagrangian_barycenter(temp1_dgms, verbose=True)
+    
+    wdist, windex = wasserstein_distance(barycenter0, barycenter1, matching=True)
+    wasserstein_matching(barycenter0, barycenter1, windex) #plot
     
 
+
 if __name__ == "__main__":
-    x = torch.randn(100,2).double().data
-    x.requires_grad = True
-    y = torch.randn(30, 2).double().data
-    z = wasserstein(x, y)
-    print(z)
-    z.register_hook(lambda grad: grad)
-    z.retain_grad()
-    z.backward()
-    print(x.grad)
-    print(z.grad)
-    print(torch.autograd.gradcheck(wasserstein, (x, y)))
+#     x = torch.randn(100,2).double().data
+#     x.requires_grad = True
+#     y = torch.randn(30, 2).double().data
+#     z = wasserstein(x, y)
+#     print(z)
+#     z.register_hook(lambda grad: grad)
+#     z.retain_grad()
+#     z.backward()
+#     print(x.grad)
+#     print(z.grad)
+#     print(torch.autograd.gradcheck(wasserstein, (x, y)))
+
+    wasserstein_difference(np.random.randn(100,3), np.random.randn(60,3))
