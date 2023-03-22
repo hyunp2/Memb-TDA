@@ -9,6 +9,7 @@ import persim
 from gudhi.wasserstein import wasserstein_distance
 from gudhi.wasserstein.barycenter import lagrangian_barycenter
 from typing import *
+from persim.visual import plot_diagrams
 
 class linear_sum_assignment(torch.autograd.Function):
     @staticmethod
@@ -136,8 +137,66 @@ def calculate_fid(act1, act2):
     fid = ssdiff + np.trace(sigma1 + sigma2 - 2.0 * covmean)
     return fid
 
+def wasserstein_matching(dgm1, dgm2, matching, labels=["dgm1", "dgm2"], ax=None):
+    """ 
+    https://persim.scikit-tda.org/en/latest/_modules/persim/visuals.html#wasserstein_matching
+    
+    Visualize bottleneck matching between two diagrams
+
+    Parameters
+    ===========
+
+    dgm1: array
+        A diagram
+    dgm2: array
+        A diagram
+    matching: ndarray(Mx+Nx, 3)
+        A list of correspondences in an optimal matching, as well as their distance, where:
+        * First column is index of point in first persistence diagram, or -1 if diagonal
+        * Second column is index of point in second persistence diagram, or -1 if diagonal
+        * Third column is the distance of each matching
+    labels: list of strings
+        names of diagrams for legend. Default = ["dgm1", "dgm2"], 
+    ax: matplotlib Axis object
+        For plotting on a particular axis.
+
+    Examples
+    ==========
+
+    bn_matching, (matchidx, D) = persim.wasserstien(A_h1, B_h1, matching=True)
+    persim.wasserstein_matching(A_h1, B_h1, matchidx, D)
+
+    """
+    ax = ax or plt.gca()
+
+    cp = np.cos(np.pi / 4)
+    sp = np.sin(np.pi / 4)
+    R = np.array([[cp, -sp], [sp, cp]])
+    if dgm1.size == 0:
+        dgm1 = np.array([[0, 0]])
+    if dgm2.size == 0:
+        dgm2 = np.array([[0, 0]])
+    dgm1Rot = dgm1.dot(R)
+    dgm2Rot = dgm2.dot(R)
+    for [i, j, d] in matching:
+        i = int(i)
+        j = int(j)
+        if i != -1 or j != -1: # At least one point is a non-diagonal point
+            if i == -1:
+                diagElem = np.array([dgm2Rot[j, 0], 0])
+                diagElem = diagElem.dot(R.T)
+                plt.plot([dgm2[j, 0], diagElem[0]], [dgm2[j, 1], diagElem[1]], "g")
+            elif j == -1:
+                diagElem = np.array([dgm1Rot[i, 0], 0])
+                diagElem = diagElem.dot(R.T)
+                ax.plot([dgm1[i, 0], diagElem[0]], [dgm1[i, 1], diagElem[1]], "g")
+            else:
+                ax.plot([dgm1[i, 0], dgm2[j, 0]], [dgm1[i, 1], dgm2[j, 1]], "g")
+
+    plot_diagrams([dgm1, dgm2], labels=labels, ax=ax)
+
 def wasserstein_difference(args: argparse.ArgumentParser, temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
-    ...
+    
 
 if __name__ == "__main__":
     x = torch.randn(100,2).double().data
