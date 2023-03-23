@@ -52,7 +52,7 @@ def plot_diagrams(
     size=20,
     alpha=1.,
     marker='o',
-    c=None,
+    c=["tab:blue", "tab:orange"],
     ax_color=np.array([0.0, 0.0, 0.0]),
     diagonal=True,
     lifetime=False,
