@@ -239,5 +239,5 @@ if __name__ == "__main__":
     d = np.random.randn(100,2)
     d = d[d[:,1] > d[:,0]]
 
-    wass = wasserstein_difference([np.random.randn(100,2), np.random.randn(100,2)], [np.random.randn(60,2), np.random.randn(100,2)])
+    wass = wasserstein_difference([a,b], [c,d])
     print(wass.wdist)
