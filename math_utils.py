@@ -199,8 +199,8 @@ def wasserstein_matching(dgm1, dgm2, matching, original_dgms1, original_dgms2, l
                 ax.plot([dgm1[i, 0], dgm2[j, 0]], [dgm1[i, 1], dgm2[j, 1]], 'tab:red', alpha=1.)
 
 #     fig, ax = plt.subplots(1,1)
-    plot_diagrams([dgm1, dgm2], labels=labels[:2], ax=ax, c=["tab:blue", "tab:orange"], marker="X", show=False, save=None)
-    plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0)], labels=labels[2:], alpha=0.5, c=["tab:blue", "tab:orange"], marker="o", ax=ax, show=False, save="wass.png")
+    plot_diagrams([dgm1, dgm2], labels=labels[:2], ax=ax, c=["tab:blue", "tab:orange"], marker="X", size=30, show=False, save=None)
+    plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0)], size=13, labels=labels[2:], alpha=0.4, c=["tab:blue", "tab:orange"], marker="o", ax=ax, show=False, save="wass.png")
 
 def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
     wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'])
