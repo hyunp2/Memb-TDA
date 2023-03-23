@@ -206,7 +206,7 @@ def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array
     barycenter1, barylog1 = lagrangian_barycenter(temp1_dgms, verbose=True)
     
     wdist, windex = wasserstein_distance(barycenter0, barycenter1, matching=True)
-    print(barycenter1.shape, barycenter0.shape, windex.shape)
+    print(barycenter1.shape, barycenter0.shape, windex)
     wasserstein_matching(barycenter0, barycenter1, windex, labels=['lower temp', 'higher temp']) #plot
     [setattr(wass, key, val) for key, val in zip(['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'], [barycenter0, barylog0, barycenter1, barylog1, wdist, windex])]
     return 
