@@ -11,6 +11,7 @@ from gudhi.wasserstein.barycenter import lagrangian_barycenter
 from typing import *
 from persim import plot_diagrams
 import collections
+import matplotlib.pyplot as plt
 
 class linear_sum_assignment(torch.autograd.Function):
     @staticmethod
