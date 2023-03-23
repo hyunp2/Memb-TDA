@@ -200,7 +200,7 @@ def wasserstein_matching(dgm1, dgm2, matching, original_dgms1, original_dgms2, l
 
 #     fig, ax = plt.subplots(1,1)
     plot_diagrams([dgm1, dgm2], labels=labels[:2], ax=ax, show=False, save=None)
-    plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0)], labels=labels[2:], ax=ax, show=False, save="wass.png")
+    plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0)], labels=labels[2:], alpha=0.5, ax=ax, show=False, save="wass.png")
 
 def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
     wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'])
