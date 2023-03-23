@@ -6,7 +6,8 @@ import math
 import torch
 from scipy.linalg import sqrtm
 import persim
-from gudhi.wasserstein import wasserstein_distance
+# from gudhi.wasserstein import wasserstein_distance
+from persim import wasserstein as wasserstein_distance
 from gudhi.wasserstein.barycenter import lagrangian_barycenter
 from typing import *
 from persim import plot_diagrams
@@ -139,6 +140,7 @@ def calculate_fid(act1, act2):
     fid = ssdiff + np.trace(sigma1 + sigma2 - 2.0 * covmean)
     return fid
 
+
 def wasserstein_matching(dgm1, dgm2, matching, labels=["dgm1", "dgm2"], ax=None):
     """ 
     https://persim.scikit-tda.org/en/latest/_modules/persim/visuals.html#wasserstein_matching
@@ -206,7 +208,7 @@ def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array
     barycenter1, barylog1 = lagrangian_barycenter(temp1_dgms, verbose=True)
     
     wdist, windex = wasserstein_distance(barycenter0, barycenter1, matching=True)
-    print(barycenter1.shape, barycenter0.shape, windex)
+#     print(barycenter1.shape, barycenter0.shape, windex)
     wasserstein_matching(barycenter0, barycenter1, windex, labels=['lower temp', 'higher temp']) #plot
     [setattr(wass, key, val) for key, val in zip(['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'], [barycenter0, barylog0, barycenter1, barylog1, wdist, windex])]
     return 
