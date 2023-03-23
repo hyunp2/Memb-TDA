@@ -10,6 +10,7 @@ from gudhi.wasserstein import wasserstein_distance
 from gudhi.wasserstein.barycenter import lagrangian_barycenter
 from typing import *
 from persim import plot_diagrams
+import collections
 
 class linear_sum_assignment(torch.autograd.Function):
     @staticmethod
@@ -196,7 +197,7 @@ def wasserstein_matching(dgm1, dgm2, matching, labels=["dgm1", "dgm2"], ax=None)
     plot_diagrams([dgm1, dgm2], labels=labels, ax=ax)
 
 def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
-    collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 'barylog1', wdist, ])
+    wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'])
     if isinstance(temp0_dgms, np.ndarray): temp0_dgms = [temp0_dgms]
     if isinstance(temp1_dgms, np.ndarray): temp1_dgms = [temp0_dgms]
     assert isinstance(temp0_dgms, list) and isinstance(temp1_dgms, list), "Both instances should be a list!"
@@ -205,7 +206,8 @@ def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array
     
     wdist, windex = wasserstein_distance(barycenter0, barycenter1, matching=True, labels=['lower temp', 'higher temp'])
     wasserstein_matching(barycenter0, barycenter1, windex) #plot
-
+    [setattr(wass, key, val) for key, val in zip(['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'], [barycenter0, barylog0, barycenter1, barylog1, wdist, windex])]
+    return 
 
 if __name__ == "__main__":
 #     x = torch.randn(100,2).double().data
