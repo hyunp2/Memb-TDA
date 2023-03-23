@@ -199,7 +199,8 @@ def plot_diagrams(
         ax.set_title(title)
 
     if legend is True:
-        ax.legend(loc="lower right")
+#         ax.legend(loc="lower right")
+        ax.legend(loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5))
 
     if show is True:
         plt.show()
