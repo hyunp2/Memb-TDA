@@ -230,6 +230,14 @@ if __name__ == "__main__":
 #     print(x.grad)
 #     print(z.grad)
 #     print(torch.autograd.gradcheck(wasserstein, (x, y)))
-    
+    a = np.random.randn(100,2)
+    a = a[a[:,1] > a[:,0]]
+    b = np.random.randn(100,2)
+    b = b[b[:,1] > b[:,0]]
+    c = np.random.randn(100,2)
+    c = c[c[:,1] > c[:,0]]
+    d = np.random.randn(100,2)
+    d = d[d[:,1] > d[:,0]]
+
     wass = wasserstein_difference([np.random.randn(100,2), np.random.randn(100,2)], [np.random.randn(60,2), np.random.randn(100,2)])
     print(wass.wdist)
