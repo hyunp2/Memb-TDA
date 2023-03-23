@@ -142,7 +142,7 @@ def calculate_fid(act1, act2):
     return fid
 
 
-def wasserstein_matching(dgm1, dgm2, matching, labels=["dgm1", "dgm2"], ax=None):
+def wasserstein_matching(dgm1, dgm2, matching, original_dgms1, original_dgms2, labels=["dgm1", "dgm2", "original_dgms1", "original_dgms2"], ax=None):
     """ 
     https://persim.scikit-tda.org/en/latest/_modules/persim/visuals.html#wasserstein_matching
     
@@ -190,15 +190,17 @@ def wasserstein_matching(dgm1, dgm2, matching, labels=["dgm1", "dgm2"], ax=None)
             if i == -1:
                 diagElem = np.array([dgm2Rot[j, 0], 0])
                 diagElem = diagElem.dot(R.T)
-                plt.plot([dgm2[j, 0], diagElem[0]], [dgm2[j, 1], diagElem[1]], "g")
+                plt.plot([dgm2[j, 0], diagElem[0]], [dgm2[j, 1], diagElem[1]], 'tab:green', alpha=0.5)
             elif j == -1:
                 diagElem = np.array([dgm1Rot[i, 0], 0])
                 diagElem = diagElem.dot(R.T)
-                ax.plot([dgm1[i, 0], diagElem[0]], [dgm1[i, 1], diagElem[1]], "g")
+                ax.plot([dgm1[i, 0], diagElem[0]], [dgm1[i, 1], diagElem[1]], 'tab:green', alpha=0.5)
             else:
-                ax.plot([dgm1[i, 0], dgm2[j, 0]], [dgm1[i, 1], dgm2[j, 1]], "g")
+                ax.plot([dgm1[i, 0], dgm2[j, 0]], [dgm1[i, 1], dgm2[j, 1]], 'tab:red', alpha=1.)
 
-    plot_diagrams([dgm1, dgm2], labels=labels, ax=ax, show=False)
+#     fig, ax = plt.subplots(1,1)
+    plot_diagrams([dgm1, dgm2], labels=labels[:2], ax=ax, show=False, save=None)
+    plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0)], labels=labels[2:], ax=ax, show=False, save="wass.png")
 
 def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
     wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'])
@@ -210,7 +212,7 @@ def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array
     
     wdist, windex = wasserstein_distance(barycenter0, barycenter1, matching=True)
 #     print(barycenter1.shape, barycenter0.shape, windex)
-    wasserstein_matching(barycenter0, barycenter1, windex, labels=['lower temp', 'higher temp']) #plot
+    wasserstein_matching(barycenter0, barycenter1, windex, temp0_dgms, temp1_dgms, labels=['lower temp', 'higher temp', "all lower temps", "all higher temps"]) #plot
     [setattr(wass, key, val) for key, val in zip(['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'], [barycenter0, barylog0, barycenter1, barylog1, wdist, windex])]
     return wass
 
