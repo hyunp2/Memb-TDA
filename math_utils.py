@@ -10,7 +10,8 @@ import persim
 from persim import wasserstein as wasserstein_distance
 from gudhi.wasserstein.barycenter import lagrangian_barycenter
 from typing import *
-from persim import plot_diagrams
+# from persim import plot_diagrams
+from visual_utils import plot_diagrams
 import collections
 import matplotlib.pyplot as plt
 
@@ -197,7 +198,7 @@ def wasserstein_matching(dgm1, dgm2, matching, labels=["dgm1", "dgm2"], ax=None)
             else:
                 ax.plot([dgm1[i, 0], dgm2[j, 0]], [dgm1[i, 1], dgm2[j, 1]], "g")
 
-    plot_diagrams([dgm1, dgm2], labels=labels, ax=ax)
+    plot_diagrams([dgm1, dgm2], labels=labels, ax=ax, show=False)
 
 def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
     wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'])
