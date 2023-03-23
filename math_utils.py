@@ -172,6 +172,8 @@ def wasserstein_matching(dgm1, dgm2, matching, original_dgms1, original_dgms2, l
     persim.wasserstein_matching(A_h1, B_h1, matchidx, D)
 
     """
+    plt.rcParams["figure.figsize"] = (10,10)
+    
     ax = ax or plt.gca()
 
     cp = np.cos(np.pi / 4)
