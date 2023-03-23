@@ -50,6 +50,7 @@ def plot_diagrams(
     labels=None,
     colormap="default",
     size=20,
+    alpha=1.,
     ax_color=np.array([0.0, 0.0, 0.0]),
     diagonal=True,
     lifetime=False,
@@ -186,7 +187,7 @@ def plot_diagrams(
     for dgm, label in zip(diagrams, labels):
 
         # plot persistence pairs
-        ax.scatter(dgm[:, 0], dgm[:, 1], size, label=label, edgecolor="none")
+        ax.scatter(dgm[:, 0], dgm[:, 1], size, alpha, label=label, edgecolor="none")
 
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
