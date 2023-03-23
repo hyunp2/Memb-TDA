@@ -187,7 +187,7 @@ def plot_diagrams(
     for dgm, label in zip(diagrams, labels):
 
         # plot persistence pairs
-        ax.scatter(dgm[:, 0], dgm[:, 1], size, alpha, label=label, edgecolor="none")
+        ax.scatter(dgm[:, 0], dgm[:, 1], size, alpha=alpha, label=label, edgecolor="none")
 
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
