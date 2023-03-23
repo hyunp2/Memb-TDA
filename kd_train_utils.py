@@ -371,7 +371,7 @@ def train(model: nn.Module,
 
     assert args.teacher_name is not None, "teacher_name must exist!"
     teacher_path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.teacher_name)) #Set argment!
-    print(cf.on_green("Saving a pretrained TEACHER model..."))
+    print(cf.on_green("Loading a pretrained TEACHER model..."))
     scheduler_groups = [scheduler, scheduler_re] #step and epoch schedulers
     #TEACHER model ONLY!
     _ = load_state(teacher_model, None, None, teacher_path_and_name, use_artifacts=args.use_artifacts, logger=logger, name=args.name, model_only=True) 
