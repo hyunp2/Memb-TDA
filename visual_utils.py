@@ -186,10 +186,10 @@ def plot_diagrams(
             dgm[np.isinf(dgm)] = b_inf
 
     # Plot each diagram
-    for dgm, label in zip(diagrams, labels):
+    for dgm, label, color in zip(diagrams, labels, c):
 
         # plot persistence pairs
-        ax.scatter(dgm[:, 0], dgm[:, 1], size, alpha=alpha, label=label, marker=marker, c=c, edgecolor="none")
+        ax.scatter(dgm[:, 0], dgm[:, 1], size, alpha=alpha, label=label, marker=marker, c=color, edgecolor="none")
 
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
