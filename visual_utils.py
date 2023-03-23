@@ -55,7 +55,8 @@ def plot_diagrams(
     lifetime=False,
     legend=True,
     show=False,
-    ax=None
+    ax=None,
+    save="wass.png"
 ):
     """A helper function to plot persistence diagrams. 
 
@@ -202,8 +203,9 @@ def plot_diagrams(
 
     if show is True:
         plt.show()
-    else:
+    if save is not None:
         plt.savefig("wass.png")
+    
     
 mpl.rcParams['xtick.labelsize'] = 16
 mpl.rcParams['ytick.labelsize'] = 16
