@@ -222,5 +222,5 @@ if __name__ == "__main__":
 #     print(z.grad)
 #     print(torch.autograd.gradcheck(wasserstein, (x, y)))
 
-    wass = wasserstein_difference(np.random.randn(100,2), np.random.randn(60,2))
+    wass = wasserstein_difference([np.random.randn(100,2), np.random.randn(100,2)], [np.random.randn(60,2), np.random.randn(100,2)])
     print(wass.wdist)
