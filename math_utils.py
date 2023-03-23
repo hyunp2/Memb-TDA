@@ -9,7 +9,7 @@ import persim
 from gudhi.wasserstein import wasserstein_distance
 from gudhi.wasserstein.barycenter import lagrangian_barycenter
 from typing import *
-from persim.visual import plot_diagrams
+from persim import plot_diagrams
 
 class linear_sum_assignment(torch.autograd.Function):
     @staticmethod
