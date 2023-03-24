@@ -163,7 +163,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
 	
         orders = np.lexsort((pdbs_[:,1].astype(int), pdbs_[:,0].astype(int))) #keyword-wise order --> lexsort((a,b)) is to sort by b and then a
         pdbs = pdbs_[orders] #e.g. ([0,1,"pdb"], [0,2,"pdb"] ... [199, 24,"pdb"], [199, 25,"pdb"])
-	print(how_many_patches, pdbs.shape)
+        print(how_many_patches, pdbs.shape)
         assert how_many_patches == pdbs.shape[0] and pdbs.ndim == 2, "something is wrong! such as dimension or number of temperature patches! this maybe due to previous files were not deleted... start from scratch!"
 	
         print(cf.on_red(f"Truncating data for specific temperature!"))
