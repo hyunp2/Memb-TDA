@@ -291,6 +291,7 @@ class PH_Featurizer_Dataset(Dataset):
                     and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) 
                     and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename)) 
                     and os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)) ):
+                print("I am here!")
                 s=time.time()
 #                 futures = [get_coordinates_mp.remote(i) for i in self.files_to_pg] 
 #                 graph_input_list = ray.get(futures) #List of structures: each structure has maxdim PHs
