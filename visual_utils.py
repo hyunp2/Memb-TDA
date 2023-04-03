@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import os
 import seaborn as sns
+import torch
 
 from skimage.filters import threshold_otsu
 from scipy.ndimage.morphology import distance_transform_edt
@@ -29,18 +30,54 @@ import psutil
 import argparse
 # from main import get_args
 import matplotlib as mpl
-from captum.attr import Saliency
+from captum.attr import Saliency, Lime, LayerGradCam, LayerAttribution
+from captum.attr._core.lime import get_exp_kernel_similarity_function
+from model import Vision
 
-def saliency(coords):
-    def forward_fn(coords):
-        if self.args.which_model == 'fc_ae':
-            z, x = self.model_block(coords)
-            mu = z
-        else:
-            z, mu, logstd, x = self.model_block(coords)
-        logprob = torch.distributions.Normal(0, 1).log_prob(mu).sum(dim=-1) #->(batch, )
-        return logprob
-    attrs = Saliency(forward_fn)
+def xai(images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency"):
+    assert method in ["saliency", "gradcam", "lime"]
+    
+    class Layer4Gradcam(torch.nn.Module):
+        def __init__(self, model: torch.nn.Module):
+            super().__init__()
+#             self.layer = layer
+#             def hook(m, i, o):
+#                 print(f"{m.__class__.__name__} is registered...")
+#             self.layer.register_forward_hook(hook)
+            self.model
+    
+        def forward(self, inputs: torch.Tensor):
+            outs = self.model.pretrained(inputs)
+            hiddens = outs.last_hidden_state #->(BCLL)
+            return hiddens 
+        
+    layer = Layer4Gradcam(model)
+    
+    def forward_func(images):
+        preds: torch.Tensor = model(images) #-> (B,C)
+        return preds
+    
+    def perturb_func(original_input: torch.Tensor,
+                     **kwargs)->torch.Tensor:
+        return original_input + original_input.new_tensor(torch.randn_like(original_input))
+
+    similarity_func = get_exp_kernel_similarity_function(distance_mode="euclidean")
+    
+    if method == "saliency":
+        attribute_method = Saliency
+        attrs = attribute_method(forward_func=forward_func)
+        attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
+    elif method == "gradcam":
+        attribute_method = LayerGradCam
+        attrs = attribute_method(forward_func=forward_func, layer=layer)
+        attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
+        attr_output = LayerAttribution.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE))
+    elif method == "lime":
+        attribute_method = Lime
+        attrs = attribute_method(forward_func=forward_func, similarity_func=similarity_func, perturb_func=perturb_func)
+        attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
+
+    return attr_output
 
 def plot_diagrams(
     diagrams,
