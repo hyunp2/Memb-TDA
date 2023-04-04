@@ -32,13 +32,13 @@ from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel
 
 
 def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency"):
-     feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if args.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
+    feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if args.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
 
-     img : torch.FloatTensor = images.detach().cpu().unbind(dim=0)
-     img : List[np.ndarray] = list(map(lambda inp: inp.numpy(),  img))
-     img: Dict[str, torch.FloatTensor] = feature_extractor(img, return_tensors="pt") #range [-1, 1]
-     img = img["pixel_values"] #BCHW tensor! range: [-1,1]
-     images = img
+    img : torch.FloatTensor = images.detach().cpu().unbind(dim=0)
+    img : List[np.ndarray] = list(map(lambda inp: inp.numpy(),  img))
+    img: Dict[str, torch.FloatTensor] = feature_extractor(img, return_tensors="pt") #range [-1, 1]
+    img = img["pixel_values"] #BCHW tensor! range: [-1,1]
+    images = img
       
     assert method in ["saliency", "gradcam", "lime"]
    
