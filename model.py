@@ -21,7 +21,7 @@ from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel
 from resTv2 import ResTV2 as ResTV2Model
 from clip_resnet import ResNetForCLIP as ResNetForCLIPModel
 from loss_utils import * #TEMP_RANGES
- 
+from typing import *
 
 __all__ = ["MPNN", "Vit", "feature_extractor"]
 
@@ -350,11 +350,9 @@ class Vision(torch.nn.Module):
         # Applies fn recursively to every submodule see: https://pytorch.org/docs/stable/generated/torch.nn.Module.html
         self.apply(fn=weight_reset)
 
-    def forward(self, img_ph: torch.FloatTensor):
+    def forward(self, img_ph: Dict[torch.FloatTensor]):
         device = img_ph.device
-        img_ph : List[torch.FloatTensor] = img_ph.detach().cpu().unbind(dim=0)
-        img_ph : List[np.ndarray] = list(map(lambda inp: inp.numpy(), img_ph ))
-        img_inputs: Dict[str, torch.FloatTensor] = self.feature_extractor(img_ph, return_tensors="pt") #range [-1, 1]
+
         img_inputs = dict(pixel_values=img_inputs["pixel_values"].to(device))
         out_ph = self.pretrained(**img_inputs).pooler_output #batch, dim
         out = self.last_layer_together(out_ph)
