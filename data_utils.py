@@ -427,7 +427,7 @@ class PH_Featurizer_Dataset(Dataset):
 #         return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict["ph1"], **Rs_dict)}
 
         img : torch.FloatTensor = img.detach().cpu() #.unbind(dim=0)
-        img : List[np.ndarray] = list(map(lambda inp: inp.numpy(), img ))
+        img : List[np.ndarray] = list(map(lambda inp: inp.numpy(), [img] ))
         img: Dict[str, torch.FloatTensor] = self.feature_extractor(img, return_tensors="pt") #range [-1, 1]
         img = img["pixel_values"].squeeze() #CHW tensor! range: [-1,1]
         
