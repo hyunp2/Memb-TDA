@@ -376,7 +376,7 @@ def analyze_XAI(args):
 
     results = pick_random(temperature, Rs_total, imgs)     
          
-    xai(results.imgs_lows)
+#     xai(args, results.imgs_lows, gts, model, method="saliency")
     wasserstein_difference(results.Rs_total_lows, results.Rs_total_mids, results.Rs_total_highs)
     
     
