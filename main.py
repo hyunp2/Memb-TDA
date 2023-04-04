@@ -393,9 +393,9 @@ def analyze_XAI(args):
     epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
     model.eval()
     
-    xai(args, results.imgs_lows, results.temp_lows, model, method="saliency", title="lows")
-    xai(args, results.imgs_mids, results.temp_mids, model, method="saliency", title="mids")
-    xai(args, results.imgs_highs, results.temp_highs, model, method="saliency", title="highs")
+    xai(args, results.imgs_lows[:16], results.temp_lows[:16], model, method="saliency", title="lows")
+    xai(args, results.imgs_mids[:16], results.temp_mids[:16], model, method="saliency", title="mids")
+    xai(args, results.imgs_highs[:16], results.temp_highs[:16], model, method="saliency", title="highs")
     wasserstein_difference(args, results.Rs_total_lows, results.Rs_total_mids, results.Rs_total_highs)
     
     
