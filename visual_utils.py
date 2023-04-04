@@ -92,7 +92,9 @@ def plot_diagrams(
         Call plt.show() after plotting. If you are using self.plot() as part 
         of a subplot, set show=False and call plt.show() only once at the end.
     """
-
+    mpl.rcParams['axes.labelsize'] = 16
+    mpl.rcParams['axes.titlesize'] = 24
+    
     ax = ax or plt.gca()
     plt.style.use(colormap)
 
@@ -183,10 +185,10 @@ def plot_diagrams(
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
 
-#     ax.set_xlim([x_down, x_up])
-#     ax.set_ylim([y_down, y_up])
-    ax.set_xlim([0.2, 0.4])
-    ax.set_ylim([0.2, 0.4])
+    ax.set_xlim([x_down, x_up])
+    ax.set_ylim([y_down, y_up])
+#     ax.set_xlim([0.2, 0.4])
+#     ax.set_ylim([0.2, 0.4])
     ax.set_aspect('equal', 'box')
 
     if title is not None:
@@ -195,7 +197,7 @@ def plot_diagrams(
     if legend is True:
 #         ax.legend(loc="lower right")
         ax.legend(loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5))
-
+    ax.set_title("Wasserstein Matching of Barycenters")
     if show is True:
         plt.show()
     if save is not None:
