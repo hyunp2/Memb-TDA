@@ -33,7 +33,7 @@ from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel
 from loss_utils import TEMP_RANGES
 from train_utils import load_state, single_val, single_test
 
-def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency"):
+def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency", title="lows"):
     feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if args.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
 
     img : torch.FloatTensor = images.detach().cpu().unbind(dim=0)
@@ -89,7 +89,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
     attr_output.data = (attr_output.data - mins) / (maxs - mins)
     for idx in range(images.size(0)):
         ax.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy())
-    plt.show()
+    fig.savefig(title)
     return attr_output
 
 # rule 5 from paper
