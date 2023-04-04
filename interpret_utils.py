@@ -22,6 +22,7 @@ import cv2
 import numpy as np
 import torch
 from torch import nn
+import matplotlib.pyplot as plt
 
 # from .misc import patchify, unpatchify
 import os
@@ -82,7 +83,8 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attribute_method = Lime
         attrs = attribute_method(forward_func=forward_func, similarity_func=similarity_func, perturb_func=perturb_func)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
-
+    plt.imshow(attr_output[0].detach().cpu().numpy())
+    plt.show()
     return attr_output
 
 # rule 5 from paper
