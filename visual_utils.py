@@ -183,8 +183,10 @@ def plot_diagrams(
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
 
-    ax.set_xlim([x_down, x_up])
-    ax.set_ylim([y_down, y_up])
+#     ax.set_xlim([x_down, x_up])
+#     ax.set_ylim([y_down, y_up])
+    ax.set_xlim([x_down, 0.4])
+    ax.set_ylim([y_down, 0.4])
     ax.set_aspect('equal', 'box')
 
     if title is not None:
