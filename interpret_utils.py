@@ -30,6 +30,7 @@ from captum.attr._core.lime import get_exp_kernel_similarity_function
 from model import Vision
 from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
 from loss_utils import TEMP_RANGES
+from train_utils import load_state, single_val, single_test
 
 def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency"):
     feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if args.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
