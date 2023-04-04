@@ -83,7 +83,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attribute_method = Lime
         attrs = attribute_method(forward_func=forward_func, similarity_func=similarity_func, perturb_func=perturb_func)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
-    plt.imshow(attr_output[0].detach().cpu().numpy())
+    plt.imshow(attr_output[0].permute(1,2,0).detach().cpu().numpy())
     plt.show()
     return attr_output
 
