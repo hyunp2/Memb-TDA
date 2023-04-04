@@ -170,6 +170,7 @@ if __name__ == "__main__":
    
     path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
     assert args.resume, "Validation and test must be under resumed keyword..."
+    model = Vision(args)
     epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
     model.eval()
    
