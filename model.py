@@ -350,7 +350,7 @@ class Vision(torch.nn.Module):
         # Applies fn recursively to every submodule see: https://pytorch.org/docs/stable/generated/torch.nn.Module.html
         self.apply(fn=weight_reset)
 
-    def forward(self, img_ph: Dict[torch.FloatTensor]):
+    def forward(self, img_inputs: Dict[str, torch.FloatTensor]):
         device = img_ph.device
 
         img_inputs = dict(pixel_values=img_inputs["pixel_values"].to(device))
