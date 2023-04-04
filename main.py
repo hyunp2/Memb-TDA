@@ -48,7 +48,7 @@ from model import MPNN, Vision
 from gpu_utils import *
 from loss_utils import * #TEMP_RANGES
 from test_utils import validate_and_test, InferenceDataset
-from visual_utils import xai
+from interpret_utils import xai
 from math_utils import wasserstein_difference
 
 def get_args():
