@@ -14,6 +14,7 @@ from typing import *
 from visual_utils import plot_diagrams
 import collections
 import matplotlib.pyplot as plt
+import os
 
 class linear_sum_assignment(torch.autograd.Function):
     @staticmethod
