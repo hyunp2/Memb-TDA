@@ -355,9 +355,9 @@ def analyze_XAI(args):
         Rs_total_mids = [Rs_total[idx][1] for idx in mids]
         Rs_total_highs = [Rs_total[idx][1] for idx in highs]
         
-        imgs_lows = [imgs[idx] for idx in lows]
-        imgs_mids = [imgs[idx] for idx in mids]
-        imgs_highs = [imgs[idx] for idx in highs]
+        imgs_lows = torch.stack([imgs[idx] for idx in lows], dim=0)
+        imgs_mids = torch.stack([imgs[idx] for idx in mids], dim=0)
+        imgs_highs = torch.stack([imgs[idx] for idx in highs], dim=0)
         
         [setattr(results, key, val) for key, val in zip(['Rs_total_lows', 'Rs_total_mids', 'Rs_total_highs','imgs_lows', 'imgs_mids', 'imgs_highs'],
                                           [Rs_total_lows, Rs_total_mids, Rs_total_highs, imgs_lows, imgs_mids, imgs_highs])]
@@ -374,10 +374,10 @@ def analyze_XAI(args):
     imgs = pickle.load(f) #-> torch.Tensor   
     print(cf.yellow("Loaded PH images..."))
 
-    result = pick_random(temperature, Rs_total, imgs)     
+    results = pick_random(temperature, Rs_total, imgs)     
          
-#     xai(test_data)
-    wasserstein_difference(result.Rs_total_lows, result.Rs_total_mids, result.Rs_total_highs)
+    xai(results.imgs_lows)
+    wasserstein_difference(results.Rs_total_lows, results.Rs_total_mids, results.Rs_total_highs)
     
     
 if __name__ == "__main__":
