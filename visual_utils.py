@@ -97,7 +97,7 @@ def plot_diagrams(
     ax = ax or plt.gca()
     plt.style.use(colormap)
     
-    mpl.rcParams['axes.labelsize'] = "large"
+#     mpl.rcParams['axes.labelsize'] = "large"
     mpl.rcParams['axes.titlesize'] = 24
     
     xlabel, ylabel = "Birth", "Death"
@@ -184,8 +184,8 @@ def plot_diagrams(
         # plot persistence pairs
         ax.scatter(dgm[:, 0], dgm[:, 1], size, alpha=alpha, label=label, marker=marker, c=color, edgecolor="none")
 
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
+        ax.set_xlabel(xlabel, fontsize=18)
+        ax.set_ylabel(ylabel, fontsize=18)
 
     ax.set_xlim([x_down, x_up])
     ax.set_ylim([y_down, y_up])
