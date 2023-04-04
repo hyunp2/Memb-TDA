@@ -46,6 +46,8 @@ from MDAnalysis import transformations
 from math_utils import wasserstein
 import mdtraj
 from gudhi_ripser import RipsLayer as RipsLayerGudhi 
+from model import Vision
+from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
 
 #https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb#scrollTo=Y6fj2UqWHPbs
 ##ABOVE: cubicle-Ripser
@@ -257,6 +259,8 @@ class PH_Featurizer_Dataset(Dataset):
                 print(cf.on_blue("STEP0: Loaded temperature!"))
                 
 #         self.graph_input_list, self.Rs_total, self.Rs_list_tensor = self.get_values()
+        
+        self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if self.which_model in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
         self.graph_input_list, self.Rs_total, self.Images_total = self.get_values()
         print("IMAGES STATS", self.image_stats)
         
@@ -369,7 +373,6 @@ class PH_Featurizer_Dataset(Dataset):
   
 #                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
             else:
-                
 #                 f = open(os.path.join(self.save_dir, "coords_" + self.filename), "rb")
 #                 graph_input_list = pickle.load(f) #List of structures: each structure has maxdim PHs
 #                 graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
@@ -422,6 +425,12 @@ class PH_Featurizer_Dataset(Dataset):
         img = torch.from_numpy(img).type(torch.float) if isinstance(img, np.ndarray) else img.type(torch.float) #pin_memory for CPU tensors!
         temps = torch.tensor(self.temperatures).view(-1,1).to(img)[idx]
 #         return {"Coords": Data(x=graph_input, y=torch.tensor([0.])), "PH": Data(x=Rs_dict["ph1"], **Rs_dict)}
+
+        img : torch.FloatTensor = img.detach().cpu() #.unbind(dim=0)
+        img : List[np.ndarray] = list(map(lambda inp: inp.numpy(), img ))
+        img: Dict[str, torch.FloatTensor] = self.feature_extractor(img, return_tensors="pt") #range [-1, 1]
+        img = img["pixel_values"].squeeze() #CHW tensor! range: [-1,1]
+        
         return {"PH": img, "temp": temps}
 
     def load_traj(self, data_dir: str, pdb: str, psf: str, trajs: List[str], selection: str):
