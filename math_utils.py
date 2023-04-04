@@ -142,7 +142,7 @@ def calculate_fid(act1, act2):
     return fid
 
 
-def wasserstein_matching(dgm1, dgm2, matching, original_dgms1, original_dgms2, labels=["dgm1", "dgm2", "original_dgms1", "original_dgms2"], ax=None):
+def wasserstein_matching(dgm1, dgm2, dgm3, matching12, matching23, original_dgms1, original_dgms2, original_dgms3, labels=["dgm1", "dgm2", "dgm3", "original_dgms1", "original_dgms2", "original_dgms3"], ax=None):
     """ 
     https://persim.scikit-tda.org/en/latest/_modules/persim/visuals.html#wasserstein_matching
     
@@ -201,21 +201,29 @@ def wasserstein_matching(dgm1, dgm2, matching, original_dgms1, original_dgms2, l
                 ax.plot([dgm1[i, 0], dgm2[j, 0]], [dgm1[i, 1], dgm2[j, 1]], 'tab:red', alpha=1.)
 
 #     fig, ax = plt.subplots(1,1)
-    plot_diagrams([dgm1, dgm2], labels=labels[:2], ax=ax, c=["tab:blue", "tab:orange"], marker="X", size=40, show=False, save=None)
-    plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0)], size=10, labels=labels[2:], alpha=0.4, c=["tab:blue", "tab:orange"], marker="o", ax=ax, show=False, save="wass.png")
+    plot_diagrams([dgm1, dgm2, dgm3], labels=labels[:3], ax=ax, c=["tab:blue", "tab:orange",  "tab:red"], marker="X", size=40, show=False, save=None)
+    plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0), np.concatenate(original_dgms3, axis=0)], size=10, labels=labels[3:], alpha=0.4, c=["tab:blue", "tab:orange", "tab:red"], marker="o", ax=ax, show=False, save="wass.png")
 
-def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array]):
-    wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'])
+def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array], temp2_dgms: List[np.array]):
+    wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 
+                                           'barylog1', 'barycenter2', 'barylog2', 
+                                           'wdist01', 'windex01', 'wdist12', 'windex12])
     if isinstance(temp0_dgms, np.ndarray): temp0_dgms = [temp0_dgms]
     if isinstance(temp1_dgms, np.ndarray): temp1_dgms = [temp0_dgms]
-    assert isinstance(temp0_dgms, list) and isinstance(temp1_dgms, list), "Both instances should be a list!"
+    if isinstance(temp2_dgms, np.ndarray): temp2_dgms = [temp2_dgms]
+
+    assert isinstance(temp0_dgms, list) and isinstance(temp1_dgms, list) and isinstance(temp2_dgms, list), "Both instances should be a list!"
     barycenter0, barylog0 = lagrangian_barycenter(temp0_dgms, verbose=True)
     barycenter1, barylog1 = lagrangian_barycenter(temp1_dgms, verbose=True)
-    
-    wdist, windex = wasserstein_distance(barycenter0, barycenter1, matching=True)
+    barycenter2, barylog2 = lagrangian_barycenter(temp2_dgms, verbose=True)
+
+    wdist01, windex01 = wasserstein_distance(barycenter0, barycenter1, matching=True)
+    wdist12, windex12 = wasserstein_distance(barycenter1, barycenter2, matching=True)
+
 #     print(barycenter1.shape, barycenter0.shape, windex)
-    wasserstein_matching(barycenter0, barycenter1, windex, temp0_dgms, temp1_dgms, labels=['lower temp', 'higher temp', "all lower temps", "all higher temps"]) #plot
-    [setattr(wass, key, val) for key, val in zip(['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'wdist', 'windex'], [barycenter0, barylog0, barycenter1, barylog1, wdist, windex])]
+    wasserstein_matching(barycenter0, barycenter1, barycenter2, windex01, windex12, temp0_dgms, temp1_dgms, temp1_dgms, labels=['lower temp', 'melting temp', 'higher temp', "all lower temps", "all melting temp", "all higher temps"]) #plot
+    [setattr(wass, key, val) for key, val in zip(['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'barycenter2', 'barylog2', 'wdist01', 'windex01', 'wdist12', 'windex12'], 
+                                                 [barycenter0, barylog0, barycenter1, barylog1, barycenter2, barylog2, wdist01, windex01,  wdist12, windex12])]
     return wass
 
 if __name__ == "__main__":
