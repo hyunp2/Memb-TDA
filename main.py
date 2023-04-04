@@ -366,13 +366,13 @@ def analyze_XAI(args):
 
     f = open(os.path.join(args.save_dir, "temperature_" + args.filename), "rb")
     temperature = pickle.load(f) #-> np.ndarray
-    print(cf.yellow("Loaded temperatures...")
+    print(cf.yellow("Loaded temperatures..."))
     f = open(os.path.join(args.save_dir, "PH_" + args.filename), "rb")
     Rs_total = pickle.load(f) #-> List[List[np.ndarray]]   
-    print(cf.yellow("Loaded PH diagrams...")
+    print(cf.yellow("Loaded PH diagrams..."))
     f = open(os.path.join(args.save_dir, "ProcessedIm_" + args.filename), "rb")
     imgs = pickle.load(f) #-> torch.Tensor   
-    print(cf.yellow("Loaded PH images...")
+    print(cf.yellow("Loaded PH images..."))
 
     result = pick_random(temperature, Rs_total, imgs)     
          
