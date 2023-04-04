@@ -86,7 +86,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
          
     fig, ax = plt.subplots(4,4,figsize=(8,8))
     for idx in range(images.size(0)):
-        axx.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy())
+        ax.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy())
     plt.show()
     return attr_output
 
