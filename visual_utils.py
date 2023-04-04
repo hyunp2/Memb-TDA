@@ -93,12 +93,14 @@ def plot_diagrams(
         Call plt.show() after plotting. If you are using self.plot() as part 
         of a subplot, set show=False and call plt.show() only once at the end.
     """
-    mpl.rcParams['axes.labelsize'] = 24
-    mpl.rcParams['axes.titlesize'] = 36
+
     
     ax = ax or plt.gca()
     plt.style.use(colormap)
-
+    
+    mpl.rcParams['axes.labelsize'] = 24
+    mpl.rcParams['axes.titlesize'] = 36
+    
     xlabel, ylabel = "Birth", "Death"
 
     if not isinstance(diagrams, list):
