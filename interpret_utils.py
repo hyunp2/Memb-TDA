@@ -29,7 +29,7 @@ from captum.attr import Saliency, Lime, LayerGradCam, LayerAttribution
 from captum.attr._core.lime import get_exp_kernel_similarity_function
 from model import Vision
 from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
-
+from loss_utils import TEMP_RANGES
 
 def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency"):
     feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if args.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
@@ -162,3 +162,19 @@ def generate_visualization(
     vis = np.uint8(255 * vis)
     vis = cv2.cvtColor(np.array(vis), cv2.COLOR_RGB2BGR)
     return vis
+
+if __name__ == "__main__":
+    from main import get_args
+    args = get_args()
+   
+    path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
+    assert args.resume, "Validation and test must be under resumed keyword..."
+    epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
+    model.eval()
+   
+    images = torch.rand(16, 3, 128, 128)
+    y_true = torch.LongTensor(16).random_(TEMP_RANGES[0], TEMP_RANGES[1])
+    ranges = torch.arange(0, TEMP_RANGES[2]).to(images).long() #48 temp bins
+    gts = ranges.index_select(dim=0, index = y_true.to(images).view(-1,).long() - TEMP_RANGES[0]) 
+   
+    xai(args, images, gts, model, method="saliency")   
