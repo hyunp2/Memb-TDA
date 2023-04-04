@@ -50,7 +50,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
 #             def hook(m, i, o):
 #                 print(f"{m.__class__.__name__} is registered...")
 #             self.layer.register_forward_hook(hook)
-            self.model
+            self.model = model
     
         def forward(self, inputs: torch.Tensor):
             outs = self.model.pretrained(inputs)
