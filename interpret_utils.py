@@ -84,7 +84,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attrs = attribute_method(forward_func=forward_func, similarity_func=similarity_func, perturb_func=perturb_func)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
          
-    fig, ax = plt.subplots(4,4,figsize=(8,8))
+    fig, ax = plt.subplots(10,10,figsize=(8,8))
     mins, maxs = attr_output.min().data, attr_output.max().data
     attr_output.data = (attr_output.data - mins) / (maxs - mins)
     for idx in range(images.size(0)):
