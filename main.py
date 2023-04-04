@@ -360,7 +360,7 @@ def analyze_XAI(args):
         imgs_highs = [imgs[idx] for idx in highs]
         
         [setattr(result, key, val) for zip(['Rs_total_lows', 'Rs_total_mids', 'Rs_total_highs','imgs_lows', 'imgs_mids', 'imgs_highs'],
-                                          [Rs_total_lows, Rs_total_mids, Rs_total_highs, imgs_lows, imgs_mids, imgs_highs])
+                                          [Rs_total_lows, Rs_total_mids, Rs_total_highs, imgs_lows, imgs_mids, imgs_highs])]
         
         return result
 
