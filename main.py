@@ -50,6 +50,7 @@ from loss_utils import * #TEMP_RANGES
 from test_utils import validate_and_test, InferenceDataset
 from interpret_utils import xai
 from math_utils import wasserstein_difference
+from train_utils import load_state, single_val, single_test
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -346,11 +347,16 @@ def analyze_XAI(args):
         mids = indices[np.array(temperature) == 306] #subset index
         highs = indices[np.array(temperature) > 310] #subset index
         
+        NUM_SAMPLES = 100
         np.random.seed(42)
-        lows = np.random.choice(lows, 20)
-        mids = np.random.choice(mids, 20)
-        highs = np.random.choice(highs, 20)
-        
+        lows = np.random.choice(lows, NUM_SAMPLES)
+        mids = np.random.choice(mids, NUM_SAMPLES)
+        highs = np.random.choice(highs, NUM_SAMPLES)
+   
+        temp_lows = torch.tensor([temperature[idx] for idx in lows]).long()
+        temp_mids = torch.tensor([temperature[idx] for idx in mids]).long()
+        temp_highs = torch.tensor([temperature[idx] for idx in highs]).long()
+
         Rs_total_lows = [Rs_total[idx][1] for idx in lows]
         Rs_total_mids = [Rs_total[idx][1] for idx in mids]
         Rs_total_highs = [Rs_total[idx][1] for idx in highs]
@@ -359,8 +365,12 @@ def analyze_XAI(args):
         imgs_mids = torch.stack([imgs[idx] for idx in mids], dim=0)
         imgs_highs = torch.stack([imgs[idx] for idx in highs], dim=0)
         
-        [setattr(results, key, val) for key, val in zip(['Rs_total_lows', 'Rs_total_mids', 'Rs_total_highs','imgs_lows', 'imgs_mids', 'imgs_highs'],
-                                          [Rs_total_lows, Rs_total_mids, Rs_total_highs, imgs_lows, imgs_mids, imgs_highs])]
+        [setattr(results, key, val) for key, val in zip(['temp_lows', 'temp_mids', 'temp_highs', 
+                                                         'Rs_total_lows', 'Rs_total_mids', 'Rs_total_highs',
+                                                         'imgs_lows', 'imgs_mids', 'imgs_highs'],
+                                                          [temp_lows, temp_mids, temp_highs, 
+                                                           Rs_total_lows, Rs_total_mids, Rs_total_highs, 
+                                                           imgs_lows, imgs_mids, imgs_highs])]
         
         return results
 
@@ -375,8 +385,13 @@ def analyze_XAI(args):
     print(cf.yellow("Loaded PH images..."))
 
     results = pick_random(temperature, Rs_total, imgs)     
-         
-#     xai(args, results.imgs_lows, gts, model, method="saliency")
+    
+    path_and_name = os.path.join(args.load_ckpt_path, "{}.pth".format(args.name))
+    assert args.resume, "Validation and test must be under resumed keyword..."
+    epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
+    model.eval()
+    
+#     xai(args, results.imgs_lows, results.temp_lows, model, method="saliency")
     wasserstein_difference(args, results.Rs_total_lows, results.Rs_total_mids, results.Rs_total_highs)
     
     
