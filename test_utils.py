@@ -56,6 +56,9 @@ from data_utils import get_dataloader, PH_Featurizer_Dataset, mdtraj_loading, sa
 from train_utils import load_state, single_val, single_test
 from loss_utils import * #TEMP_RANGES variable
 from log_utils import * #Confusion matrix func
+from model import Vision
+from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
+
 
 #https://github.com/taki0112/denoising-diffusion-gan-Tensorflow/blob/571a99022ccc07a31b6c3672f7b5b30cd46a7eb6/src/utils.py#L156:~:text=def%20merge(,return%20img
 def merge(images, size):
@@ -152,7 +155,8 @@ class InferenceDataset(PH_Featurizer_Dataset):
         print(cf.on_red(f"Argument args.search_temp {self.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
         self.index_for_searchTemp = np.where(np.array(self.temperatures) == int(self.search_temp))[0] #Index to get only the correponding temperature-related data!
 #         self.graph_input_list, self.Rs_total, self.Images_total, self.temperature = self.graph_input_list[self.index_for_searchTemp], self.Rs_total[self.index_for_searchTemp], self.Images_total[self.index_for_searchTemp], self.temperature[self.index_for_searchTemp]
-    
+        self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if self.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
+
     @property
     def infer_all_temperatures(self, ):
         how_many_patches = len(self) #number of temperature patches (i.e. PDBs) inside e.g. T.123 directory 
@@ -171,6 +175,12 @@ class InferenceDataset(PH_Featurizer_Dataset):
         self.pdb2str = list(map(lambda inp: ".".join(inp), pdbs.tolist() )) #e.g. "0.1.pdb,... 199.25.pdb";; ORDERED!
 #         quotient, remainder = divmod(how_many_patches, self.batch_size)
 
+        img : torch.FloatTensor = self.Images_total.detach().cpu().unbind(dim=0)
+        img : List[np.ndarray] = list(map(lambda inp: inp.numpy(),  img))
+        img: Dict[str, torch.FloatTensor] = self.feature_extractor(img, return_tensors="pt") #range [-1, 1]
+        img = img["pixel_values"] #BCHW tensor! range: [-1,1]
+        self.Images_total = img
+	
         dataset = torch.utils.data.TensorDataset(self.Images_total, torch.from_numpy(self.temperature)) #(how_many_patches,3,H,W)
         kwargs = {'pin_memory': True, 'persistent_workers': False}
 #         dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
