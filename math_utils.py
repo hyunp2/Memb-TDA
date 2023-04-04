@@ -271,4 +271,4 @@ if __name__ == "__main__":
     f = f[f[:,1] > f[:,0]]
 
     wass = wasserstein_difference([a,b], [c,d], [e,f])
-    print(wass.wdist)
+    print(wass.wdist01)
