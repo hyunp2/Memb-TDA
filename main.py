@@ -392,7 +392,7 @@ def analyze_XAI(args):
     model = Vision(args)
     epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
     model.eval()
-    
+    print(results.imgs_lows.size())
     xai(args, results.imgs_lows[:16], results.temp_lows[:16], model, method="saliency", title="lows")
     xai(args, results.imgs_mids[:16], results.temp_mids[:16], model, method="saliency", title="mids")
     xai(args, results.imgs_highs[:16], results.temp_highs[:16], model, method="saliency", title="highs")
