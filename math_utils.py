@@ -142,7 +142,7 @@ def calculate_fid(act1, act2):
     return fid
 
 
-def wasserstein_matching(dgm1, dgm2, dgm3, matching12, matching23, original_dgms1, original_dgms2, original_dgms3, labels=["dgm1", "dgm2", "dgm3", "original_dgms1", "original_dgms2", "original_dgms3"], ax=None):
+def wasserstein_matching(args, dgm1, dgm2, dgm3, matching12, matching23, original_dgms1, original_dgms2, original_dgms3, labels=["dgm1", "dgm2", "dgm3", "original_dgms1", "original_dgms2", "original_dgms3"], ax=None):
     """ 
     https://persim.scikit-tda.org/en/latest/_modules/persim/visuals.html#wasserstein_matching
     
@@ -220,10 +220,13 @@ def wasserstein_matching(dgm1, dgm2, dgm3, matching12, matching23, original_dgms
                 ax.plot([dgm2[i, 0], dgm3[j, 0]], [dgm2[i, 1], dgm3[j, 1]], 'k', alpha=1., markersize=12)
                 
 #     fig, ax = plt.subplots(1,1)
-    plot_diagrams([dgm1, dgm2, dgm3], labels=labels[:3], ax=ax, c=["tab:blue", "tab:orange",  "tab:red"], marker="X", size=40, show=False, save=None)
-    plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0), np.concatenate(original_dgms3, axis=0)], size=10, labels=labels[3:], alpha=0.4, c=["tab:blue", "tab:orange", "tab:red"], marker="o", ax=ax, show=False, save="wass.png")
+    plot_diagrams([dgm1, dgm2, dgm3], labels=labels[:3], ax=ax, c=["tab:blue", "tab:orange",  "tab:red"], 
+                  marker="X", size=40, show=False, save=None)
+    plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0), np.concatenate(original_dgms3, axis=0)], 
+                  size=10, labels=labels[3:], alpha=0.4, c=["tab:blue", "tab:orange", "tab:red"], marker="o", ax=ax, show=False, 
+                  save=os.path.join(args.save_dir, "wass.png"))
 
-def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array], temp2_dgms: List[np.array]):
+def wasserstein_difference(args, temp0_dgms: List[np.array], temp1_dgms: List[np.array], temp2_dgms: List[np.array]):
     wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 
                                            'barylog1', 'barycenter2', 'barylog2', 
                                            'wdist01', 'windex01', 'wdist12', 'windex12'])
@@ -240,7 +243,7 @@ def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array
     wdist12, windex12 = wasserstein_distance(barycenter1, barycenter2, matching=True)
 
 #     print(barycenter1.shape, barycenter0.shape, windex)
-    wasserstein_matching(barycenter0, barycenter1, barycenter2, windex01, windex12, temp0_dgms, temp1_dgms, temp1_dgms, labels=['lower temp', 'melting temp', 'higher temp', "all lower temps", "all melting temp", "all higher temps"]) #plot
+    wasserstein_matching(args, barycenter0, barycenter1, barycenter2, windex01, windex12, temp0_dgms, temp1_dgms, temp1_dgms, labels=['lower temp', 'melting temp', 'higher temp', "all lower temps", "all melting temp", "all higher temps"]) #plot
     [setattr(wass, key, val) for key, val in zip(['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'barycenter2', 'barylog2', 'wdist01', 'windex01', 'wdist12', 'windex12'], 
                                                  [barycenter0, barylog0, barycenter1, barylog1, barycenter2, barylog2, wdist01, windex01,  wdist12, windex12])]
     return wass
