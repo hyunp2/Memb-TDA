@@ -202,7 +202,7 @@ def wasserstein_matching(dgm1, dgm2, dgm3, matching12, matching23, original_dgms
                 diagElem = diagElem.dot(R.T)
                 ax.plot([dgm1[i, 0], diagElem[0]], [dgm1[i, 1], diagElem[1]], 'tab:gray', alpha=0.4)
             else:
-                ax.plot([dgm1[i, 0], dgm2[j, 0]], [dgm1[i, 1], dgm2[j, 1]], 'tab:red', alpha=1.)
+                ax.plot([dgm1[i, 0], dgm2[j, 0]], [dgm1[i, 1], dgm2[j, 1]], 'k', alpha=1., markersize=12)
 
     for [i, j, d] in matching23:
         i = int(i)
@@ -217,7 +217,7 @@ def wasserstein_matching(dgm1, dgm2, dgm3, matching12, matching23, original_dgms
                 diagElem = diagElem.dot(R.T)
                 ax.plot([dgm2[i, 0], diagElem[0]], [dgm2[i, 1], diagElem[1]], 'tab:gray', alpha=0.4)
             else:
-                ax.plot([dgm2[i, 0], dgm3[j, 0]], [dgm2[i, 1], dgm3[j, 1]], 'k', alpha=1.)
+                ax.plot([dgm2[i, 0], dgm3[j, 0]], [dgm2[i, 1], dgm3[j, 1]], 'k', alpha=1., markersize=12)
                 
 #     fig, ax = plt.subplots(1,1)
     plot_diagrams([dgm1, dgm2, dgm3], labels=labels[:3], ax=ax, c=["tab:blue", "tab:orange",  "tab:red"], marker="X", size=40, show=False, save=None)
