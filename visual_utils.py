@@ -32,7 +32,6 @@ import argparse
 import matplotlib as mpl
 
 def plot_diagrams(
-    args,
     diagrams,
     plot_only=None,
     title=None,
@@ -204,7 +203,7 @@ def plot_diagrams(
     if show is True:
         plt.show()
     if save is not None:
-        plt.savefig(os.path.join(args.save_dir, "wass.png"))
+        plt.savefig(save)
     
     
 mpl.rcParams['xtick.labelsize'] = 16
