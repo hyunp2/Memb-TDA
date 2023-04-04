@@ -181,4 +181,4 @@ if __name__ == "__main__":
     ranges = torch.arange(0, TEMP_RANGES[2]).to(images).long() #48 temp bins
     gts = ranges.index_select(dim=0, index = y_true.to(images).view(-1,).long() - TEMP_RANGES[0]) 
    
-    xai(args, images, gts, model, method="saliency")   
+    xai(args, images, gts, model, method=args.which_xai)   
