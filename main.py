@@ -342,9 +342,9 @@ def analyze_XAI(args):
         dataset_len = len(Rs_total)
         indices = np.arange(dataset_len)
         
-        lows = indices[temperature < 300] #subset index
-        mids = indices[temperature == 306] #subset index
-        highs = indices[temperature > 310] #subset index
+        lows = indices[np.array(temperature) < 300] #subset index
+        mids = indices[np.array(temperature) == 306] #subset index
+        highs = indices[np.array(temperature) > 310] #subset index
         
         np.random.seed(42)
         lows = np.random.choice(lows, 20)
