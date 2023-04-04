@@ -48,6 +48,8 @@ from model import MPNN, Vision
 from gpu_utils import *
 from loss_utils import * #TEMP_RANGES
 from test_utils import validate_and_test, InferenceDataset
+from visual_utils import xai
+from math_utils import wasserstein_difference
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -116,7 +118,7 @@ def get_args():
     parser.add_argument('--teacher_name', type=str, default="mpnn", help="saved torch model name...")
 
     #Mode utils
-    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "distill", "infer", "infer_custom"], default="preprocessing")  
+    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "distill", "infer", "infer_custom", "xai"], default="preprocessing")  
 
     args = parser.parse_args()
     return args
@@ -328,6 +330,53 @@ def infer_for_customdata(args):
     
     if args.log and (not dist.is_initialized() or dist.get_rank() == 0):
         logger.experiment.finish()
+        
+def analyze_XAI(args):
+    is_distributed = init_distributed() #normal python vs torchrun!
+    local_rank = get_local_rank()
+
+    def pick_random(temperature, Rs_total, imgs):
+        results = collections.namedtuple('result', ['Rs_total_lows', 'Rs_total_mids', 'Rs_total_highs',
+                                         'imgs_lows', 'imgs_mids', 'imgs_highs'])
+        
+        dataset_len = len(RS_total)
+        indices = np.arange(dataset_len)
+        
+        lows = indices[temperature < 300] #subset index
+        mids = indices[temperature == 306] #subset index
+        highs = indices[temperature > 310] #subset index
+        
+        np.random.seed(42)
+        lows = np.random.choice(lows, 20)
+        mids = np.random.choice(mids, 20)
+        highs = np.random.choice(highs, 20)
+        
+        Rs_total_lows = [Rs_total[idx][1] for idx in lows]
+        Rs_total_mids = [Rs_total[idx][1] for idx in mids]
+        Rs_total_highs = [Rs_total[idx][1] for idx in highs]
+        
+        imgs_lows = [imgs[idx] for idx in lows]
+        imgs_mids = [imgs[idx] for idx in mids]
+        imgs_highs = [imgs[idx] for idx in highs]
+        
+        [setattr(result, key, val) for zip(['Rs_total_lows', 'Rs_total_mids', 'Rs_total_highs','imgs_lows', 'imgs_mids', 'imgs_highs'],
+                                          [Rs_total_lows, Rs_total_mids, Rs_total_highs, imgs_lows, imgs_mids, imgs_highs])
+        
+        return result
+
+    f = open(os.path.join(args.save_dir, "temperature_" + args.filename), "rb")
+    temperature = pickle.load(f) #-> np.ndarray
+    
+    f = open(os.path.join(args.save_dir, "PH_" + args.filename), "rb")
+    Rs_total = pickle.load(f) #-> List[List[np.ndarray]]   
+       
+    f = open(os.path.join(args.save_dir, "ProcessedIm_" + args.filename), "rb")
+    imgs = pickle.load(f) #-> torch.Tensor   
+            
+    result = pick_random(temperature, Rs_total, imgs)     
+         
+#     xai(test_data)
+    wasserstein_difference(result.Rs_total_lows, result.Rs_total_mids, result.Rs_total_highs)
     
     
 if __name__ == "__main__":
@@ -346,5 +395,7 @@ if __name__ == "__main__":
         infer_submit(args)
     elif args.which_mode == "infer_custom":
         infer_for_customdata(args)
+    elif args.which_mode == "xai":
+        analyze_XAI(args)
         
     #python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]"
