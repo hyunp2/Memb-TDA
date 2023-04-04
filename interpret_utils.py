@@ -25,6 +25,54 @@ from torch import nn
 
 # from .misc import patchify, unpatchify
 
+from captum.attr import Saliency, Lime, LayerGradCam, LayerAttribution
+from captum.attr._core.lime import get_exp_kernel_similarity_function
+from model import Vision
+
+def xai(images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency"):
+    assert method in ["saliency", "gradcam", "lime"]
+    
+    class Layer4Gradcam(torch.nn.Module):
+        def __init__(self, model: torch.nn.Module):
+            super().__init__()
+#             self.layer = layer
+#             def hook(m, i, o):
+#                 print(f"{m.__class__.__name__} is registered...")
+#             self.layer.register_forward_hook(hook)
+            self.model
+    
+        def forward(self, inputs: torch.Tensor):
+            outs = self.model.pretrained(inputs)
+            hiddens = outs.last_hidden_state #->(BCLL)
+            return hiddens 
+        
+    layer = Layer4Gradcam(model)
+    
+    def forward_func(images):
+        preds: torch.Tensor = model(images) #-> (B,C)
+        return preds
+    
+    def perturb_func(original_input: torch.Tensor,
+                     **kwargs)->torch.Tensor:
+        return original_input + original_input.new_tensor(torch.randn_like(original_input))
+
+    similarity_func = get_exp_kernel_similarity_function(distance_mode="euclidean")
+    
+    if method == "saliency":
+        attribute_method = Saliency
+        attrs = attribute_method(forward_func=forward_func)
+        attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
+    elif method == "gradcam":
+        attribute_method = LayerGradCam
+        attrs = attribute_method(forward_func=forward_func, layer=layer)
+        attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
+        attr_output = LayerAttribution.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE))
+    elif method == "lime":
+        attribute_method = Lime
+        attrs = attribute_method(forward_func=forward_func, similarity_func=similarity_func, perturb_func=perturb_func)
+        attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
+
+    return attr_output
 
 # rule 5 from paper
 def avg_heads(cam: torch.Tensor, grad: torch.Tensor):
