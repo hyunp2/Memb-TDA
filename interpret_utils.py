@@ -28,10 +28,20 @@ from torch import nn
 from captum.attr import Saliency, Lime, LayerGradCam, LayerAttribution
 from captum.attr._core.lime import get_exp_kernel_similarity_function
 from model import Vision
+from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
 
-def xai(images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency"):
+
+def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency"):
+     feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if args.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
+
+     img : torch.FloatTensor = images.detach().cpu().unbind(dim=0)
+     img : List[np.ndarray] = list(map(lambda inp: inp.numpy(),  img))
+     img: Dict[str, torch.FloatTensor] = feature_extractor(img, return_tensors="pt") #range [-1, 1]
+     img = img["pixel_values"] #BCHW tensor! range: [-1,1]
+     images = img
+      
     assert method in ["saliency", "gradcam", "lime"]
-    
+   
     class Layer4Gradcam(torch.nn.Module):
         def __init__(self, model: torch.nn.Module):
             super().__init__()
