@@ -97,8 +97,8 @@ def plot_diagrams(
     ax = ax or plt.gca()
     plt.style.use(colormap)
     
-    mpl.rcParams['axes.labelsize'] = 24
-    mpl.rcParams['axes.titlesize'] = 36
+    mpl.rcParams['axes.labelsize'] = "large"
+    mpl.rcParams['axes.titlesize'] = 24
     
     xlabel, ylabel = "Birth", "Death"
 
