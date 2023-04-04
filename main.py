@@ -339,7 +339,7 @@ def analyze_XAI(args):
         results = collections.namedtuple('result', ['Rs_total_lows', 'Rs_total_mids', 'Rs_total_highs',
                                          'imgs_lows', 'imgs_mids', 'imgs_highs'])
         
-        dataset_len = len(RS_total)
+        dataset_len = len(Rs_total)
         indices = np.arange(dataset_len)
         
         lows = indices[temperature < 300] #subset index
