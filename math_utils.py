@@ -207,7 +207,7 @@ def wasserstein_matching(dgm1, dgm2, dgm3, matching12, matching23, original_dgms
 def wasserstein_difference(temp0_dgms: List[np.array], temp1_dgms: List[np.array], temp2_dgms: List[np.array]):
     wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 
                                            'barylog1', 'barycenter2', 'barylog2', 
-                                           'wdist01', 'windex01', 'wdist12', 'windex12])
+                                           'wdist01', 'windex01', 'wdist12', 'windex12'])
     if isinstance(temp0_dgms, np.ndarray): temp0_dgms = [temp0_dgms]
     if isinstance(temp1_dgms, np.ndarray): temp1_dgms = [temp0_dgms]
     if isinstance(temp2_dgms, np.ndarray): temp2_dgms = [temp2_dgms]
