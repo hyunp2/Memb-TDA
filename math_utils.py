@@ -183,9 +183,13 @@ def wasserstein_matching(dgm1, dgm2, dgm3, matching12, matching23, original_dgms
         dgm1 = np.array([[0, 0]])
     if dgm2.size == 0:
         dgm2 = np.array([[0, 0]])
+    if dgm3.size == 0:
+        dgm3 = np.array([[0, 0]])
     dgm1Rot = dgm1.dot(R)
     dgm2Rot = dgm2.dot(R)
-    for [i, j, d] in matching:
+    dgm3Rot = dgm3.dot(R)
+
+    for [i, j, d] in matching12:
         i = int(i)
         j = int(j)
         if i != -1 or j != -1: # At least one point is a non-diagonal point
@@ -200,6 +204,21 @@ def wasserstein_matching(dgm1, dgm2, dgm3, matching12, matching23, original_dgms
             else:
                 ax.plot([dgm1[i, 0], dgm2[j, 0]], [dgm1[i, 1], dgm2[j, 1]], 'tab:red', alpha=1.)
 
+    for [i, j, d] in matching23:
+        i = int(i)
+        j = int(j)
+        if i != -1 or j != -1: # At least one point is a non-diagonal point
+            if i == -1:
+                diagElem = np.array([dgm3Rot[j, 0], 0])
+                diagElem = diagElem.dot(R.T)
+                plt.plot([dgm3[j, 0], diagElem[0]], [dgm3[j, 1], diagElem[1]], 'tab:gray', alpha=0.4)
+            elif j == -1:
+                diagElem = np.array([dgm2Rot[i, 0], 0])
+                diagElem = diagElem.dot(R.T)
+                ax.plot([dgm2[i, 0], diagElem[0]], [dgm2[i, 1], diagElem[1]], 'tab:gray', alpha=0.4)
+            else:
+                ax.plot([dgm2[i, 0], dgm3[j, 0]], [dgm2[i, 1], dgm3[j, 1]], 'k', alpha=1.)
+                
 #     fig, ax = plt.subplots(1,1)
     plot_diagrams([dgm1, dgm2, dgm3], labels=labels[:3], ax=ax, c=["tab:blue", "tab:orange",  "tab:red"], marker="X", size=40, show=False, save=None)
     plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0), np.concatenate(original_dgms3, axis=0)], size=10, labels=labels[3:], alpha=0.4, c=["tab:blue", "tab:orange", "tab:red"], marker="o", ax=ax, show=False, save="wass.png")
@@ -246,6 +265,10 @@ if __name__ == "__main__":
     c = c[c[:,1] > c[:,0]]
     d = np.random.randn(100,2)
     d = d[d[:,1] > d[:,0]]
+    e = np.random.randn(100,2)
+    e = e[e[:,1] > e[:,0]]
+    f = np.random.randn(100,2)
+    f = f[f[:,1] > f[:,0]]
 
-    wass = wasserstein_difference([a,b], [c,d])
+    wass = wasserstein_difference([a,b], [c,d], [e,f])
     print(wass.wdist)
