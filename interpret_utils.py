@@ -90,6 +90,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
     for idx in range(images.size(0)):
         ax.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy(), cmap=plt.cm.get_cmap("cool"), vmin=0.5, vmax=1)
     fig.savefig(os.path.join(args.save_dir, title))
+    plt.close()
     return attr_output
 
 # rule 5 from paper
