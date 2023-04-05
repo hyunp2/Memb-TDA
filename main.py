@@ -51,6 +51,7 @@ from test_utils import validate_and_test, InferenceDataset
 from interpret_utils import xai
 from math_utils import wasserstein_difference
 from train_utils import load_state, single_val, single_test
+import gc
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -394,10 +395,13 @@ def analyze_XAI(args):
     model.eval()
 
     xai(args, results.imgs_lows[:16], results.temp_lows[:16] - TEMP_RANGES[0], model, method="saliency", title="lows")
+    gc.collect()
     xai(args, results.imgs_mids[:16], results.temp_mids[:16] - TEMP_RANGES[0], model, method="saliency", title="mids")
+    gc.collect()
     xai(args, results.imgs_highs[:16], results.temp_highs[:16] - TEMP_RANGES[0], model, method="saliency", title="highs")
+    gc.collect()
     wasserstein_difference(args, results.Rs_total_lows, results.Rs_total_mids, results.Rs_total_highs)
-    
+    gc.collect()
     
 if __name__ == "__main__":
     args = get_args()
