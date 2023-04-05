@@ -204,6 +204,7 @@ def plot_diagrams(
         plt.show()
     if save is not None:
         plt.savefig(save)
+    plt.close()
     
     
 mpl.rcParams['xtick.labelsize'] = 16
