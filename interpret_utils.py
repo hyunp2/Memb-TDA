@@ -77,13 +77,13 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
          
             grads_power_2 = module_upstream_gradient**2 #Bcddd
             grads_power_3 = grads_power_2 * module_upstream_gradient
-            sum_activations = module_output.sum(dim=(2,3,4), keepdim=True) #Bc11
+            sum_activations = module_output.sum(dim=(2,3), keepdim=True) #Bc11
             eps = 0.000001
             aij = grads_power_2 / (2 * grads_power_2 +
                                  sum_activations * grads_power_3 + eps) #Bcdd
             aij = torch.where(module_upstream_gradient != module_upstream_gradient.new_tensor(0.), aij, module_upstream_gradient.new_tensor(0.)) #Non-zeros #Bcddd
             weights = torch.maximum(module_upstream_gradient, module_upstream_gradient.new_tensor(0.)) * aij #Only positive #Bcddd
-            weights = weights.sum(dim=(2,3,4), keepdim=True) #Bc11
+            weights = weights.sum(dim=(2,3), keepdim=True) #Bc11
             gradcampp = (module_output * weights).sum(dim=1, keepdim=True) #Bcdd --> Bcdd
             gradcampp = torch.maximum(gradcampp, torch.tensor(0.)) #Only positives
 
