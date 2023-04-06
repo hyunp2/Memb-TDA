@@ -395,11 +395,11 @@ def analyze_XAI(args):
     model.eval()
 
     xai(args, results.imgs_lows[:16], results.temp_lows[:16] - TEMP_RANGES[0], model, method="saliency", title="lows")
-    gc.collect()
+#     gc.collect()
     xai(args, results.imgs_mids[:16], results.temp_mids[:16] - TEMP_RANGES[0], model, method="saliency", title="mids")
-    gc.collect()
+#     gc.collect()
     xai(args, results.imgs_highs[:16], results.temp_highs[:16] - TEMP_RANGES[0], model, method="saliency", title="highs")
-    gc.collect()
+#     gc.collect()
     wasserstein_difference(args, results.Rs_total_lows, results.Rs_total_mids, results.Rs_total_highs)
     gc.collect()
     
