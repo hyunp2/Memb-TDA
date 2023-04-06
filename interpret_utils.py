@@ -47,19 +47,23 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
     class Layer4Gradcam(torch.nn.Module):
         def __init__(self, model: torch.nn.Module):
             super().__init__()
-#             self.layer = layer
-#             def hook(m, i, o):
-#                 print(f"{m.__class__.__name__} is registered...")
-#             self.layer.register_forward_hook(hook)
-            self.model = model
+            assert args.backbone == "convnext"
+            backbone = model.pretrained            
     
         def forward(self, inputs: torch.Tensor):
             outs = self.model.pretrained(inputs)
             hiddens = outs.last_hidden_state #->(BCLL)
             return hiddens 
         
-    layer = Layer4Gradcam(model)
+#     layer = Layer4Gradcam(model)
     
+   self.layer = model.pretrained.encoder
+   
+   def hook(m, i, o):
+       print(f"{m.__class__.__name__} is registered...")
+       return o[0] #BCHW
+   self.layer.register_forward_hook(hook)
+   
     def forward_func(images):
         preds: torch.Tensor = model(images) #-> (B,C)
         return preds
