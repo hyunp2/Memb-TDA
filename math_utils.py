@@ -175,7 +175,8 @@ def wasserstein_matching(args, dgm1, dgm2, dgm3, matching12, matching23, origina
     """
     plt.rcParams["figure.figsize"] = (10,10)
     
-    ax = ax or plt.gca()
+#     ax = ax or plt.gca()
+    fig, ax = plt.subplots()
 
     cp = np.cos(np.pi / 4)
     sp = np.sin(np.pi / 4)
