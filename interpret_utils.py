@@ -57,12 +57,12 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         
 #     layer = Layer4Gradcam(model)
     
-   self.layer = model.pretrained.encoder
+    self.layer = model.pretrained.encoder
    
-   def hook(m, i, o):
-       print(f"{m.__class__.__name__} is registered...")
-       return o[0] #BCHW
-   self.layer.register_forward_hook(hook)
+    def hook(m, i, o):
+        print(f"{m.__class__.__name__} is registered...")
+        return o[0] #BCHW
+    self.layer.register_forward_hook(hook)
    
     def forward_func(images):
         preds: torch.Tensor = model(images) #-> (B,C)
