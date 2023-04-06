@@ -59,7 +59,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
                 print(f"Backward {m.__class__.__name__} is registered...")
                
             self.model.pretrained.encoder.register_forward_hook(fhook)    
-            self.model.pretrained.encoder.register_full_backward_hook(bhook)   
+#             self.model.pretrained.encoder.register_full_backward_hook(bhook)   
             
         def attribute(self, inputs: torch.Tensor, target: torch.LongTensor):
             inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
