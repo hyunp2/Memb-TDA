@@ -55,7 +55,8 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
                 print(f"Forward {m.__class__.__name__} is registered...")
                
             def bhook(m, i, o):
-                self.layer_backward_output = o[0] #BCHW
+                print(o)
+                self.layer_backward_output = o #BCHW
                 print(f"Backward {m.__class__.__name__} is registered...")
                
             self.model.pretrained.encoder.register_forward_hook(fhook)    
