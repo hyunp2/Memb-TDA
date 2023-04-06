@@ -67,9 +67,10 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
             
             preds = self.model(inputs)
-#             preds = torch.gather(input=preds, dim=1, index=target.view(-1, 1)) # -> (B,1)
+            preds = torch.gather(input=preds, dim=1, index=(target.view(-1, 1).long() - TEMP_RANGES[0])) # -> (B,1)
 #             torch.autograd.grad(preds, inputs, grad_outputs=torch.ones_like(preds))[0]
-            preds = preds.amax(dim=-1)
+#             preds = preds.amax(dim=-1)
+#             preds = torch.cat([ pred[tgt.item()] for pred, tgt in zip(preds, target.view(-1)) ], dim=0)
 #             print(preds.size())
             preds.backward(gradient=torch.ones_like(preds))
    
@@ -82,10 +83,10 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             eps = 0.000001
             aij = grads_power_2 / (2 * grads_power_2 +
                                  sum_activations * grads_power_3 + eps) #Bcdd
-            aij = torch.where(module_upstream_gradient != module_upstream_gradient.new_tensor(0.), aij, module_upstream_gradient.new_tensor(0.)) #Non-zeros #Bcddd
+            aij = torch.where(module_upstream_gradient != module_upstream_gradient.new_tensor(0.), aij, module_upstream_gradient.new_tensor(0.)) #Non-zeros #Bcdd
             weights = torch.maximum(module_upstream_gradient, module_upstream_gradient.new_tensor(0.)) * aij #Only positive #Bcddd
             weights = weights.sum(dim=(2,3), keepdim=True) #Bc11
-            gradcampp = (module_output * weights).sum(dim=1, keepdim=True) #Bcdd --> Bcdd
+            gradcampp = (module_output * weights).sum(dim=1, keepdim=True) #Bcdd --> B1dd
             gradcampp = torch.maximum(gradcampp, torch.tensor(0.)) #Only positives
 
             return gradcampp #B1HW
@@ -114,7 +115,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attrs = attribute_method(model)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,1,N,N)
         sizes = images.size()
-        print(sizes, attr_output.size())
+#         print(sizes, attr_output.size())
         attr_output = torch.nn.functional.interpolate(attr_output, (sizes[2], sizes[3]) )
     elif method == "lime":
         attribute_method = Lime
@@ -125,7 +126,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
     mins, maxs = attr_output.min().data, attr_output.max().data
     attr_output.data = (attr_output.data - mins) / (maxs - mins)
     for idx in range(images.size(0)):
-        ax.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy(), cmap=plt.cm.get_cmap("cool"), vmin=0.5, vmax=1)
+        ax.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy(), cmap=plt.cm.get_cmap("jet"), vmin=0., vmax=1)
     fig.savefig(os.path.join(args.save_dir, title))
     plt.close()
     return attr_output
