@@ -68,7 +68,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             
             preds = self.model(inputs)
             print(target)
-            preds = torch.gather(input=preds, dim=1, index=(target.view(-1, 1).long() - TEMP_RANGES[0])) # -> (B,1)
+            preds = torch.gather(input=preds, dim=1, index=target.view(-1, 1).long())  # -> (B,1)
 #             torch.autograd.grad(preds, inputs, grad_outputs=torch.ones_like(preds))[0]
 #             preds = preds.amax(dim=-1)
 #             preds = torch.cat([ pred[tgt.item()] for pred, tgt in zip(preds, target.view(-1)) ], dim=0)
