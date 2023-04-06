@@ -116,7 +116,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,1,N,N)
         sizes = images.size()
         print(sizes, attr_output.size())
-        attr_output = torch.nn.functional.interpolate(attr_output, (sizes[0], 1, *sizes[2:]))
+        attr_output = torch.nn.functional.interpolate(attr_output, (*sizes[2:]))
     elif method == "lime":
         attribute_method = Lime
         attrs = attribute_method(forward_func=forward_func, similarity_func=similarity_func, perturb_func=perturb_func)
