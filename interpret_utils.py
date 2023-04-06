@@ -51,12 +51,12 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             self.model = model
             
             def fhook(m, i, o):
-                print(o.size())
+#                 print(o.size())
                 self.layer_forward_output = o #BCHW, only the last needs [0]!
                 print(f"Forward {m.__class__.__name__} is registered...")
                
             def bhook(m, i, o):
-                print(o[0].size())
+#                 print(o[0].size())
                 self.layer_backward_output = o[0] #BCHW
                 print(f"Backward {m.__class__.__name__} is registered...")
             print(len(self.model.pretrained.encoder.stages))
@@ -67,11 +67,9 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
             
             preds = self.model(inputs)
-            print(target)
             preds = torch.gather(input=preds, dim=1, index=target.view(-1, 1).long())  # -> (B,1)
 #             torch.autograd.grad(preds, inputs, grad_outputs=torch.ones_like(preds))[0]
 #             preds = preds.amax(dim=-1)
-#             preds = torch.cat([ pred[tgt.item()] for pred, tgt in zip(preds, target.view(-1)) ], dim=0)
 #             print(preds.size())
             preds.backward(gradient=torch.ones_like(preds))
    
