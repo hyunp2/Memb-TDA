@@ -51,9 +51,8 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             self.model = model
             
             def fhook(m, i, o):
-                print(o[0].size())
-                  
-                self.layer_forward_output = o[0] #BCHW
+                print(o.size())
+                self.layer_forward_output = o #BCHW, only the last needs [0]!
                 print(f"Forward {m.__class__.__name__} is registered...")
                
             def bhook(m, i, o):
@@ -61,8 +60,8 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
                 self.layer_backward_output = o[0] #BCHW
                 print(f"Backward {m.__class__.__name__} is registered...")
                
-            self.model.pretrained.encoder.stages[-2].register_forward_hook(fhook)    
-            self.model.pretrained.encoder.stages[-2].register_backward_hook(bhook)   
+            self.model.pretrained.encoder.stages[-4].register_forward_hook(fhook)    
+            self.model.pretrained.encoder.stages[-4].register_backward_hook(bhook)   
             
         def attribute(self, inputs: torch.Tensor, target: torch.LongTensor):
             inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
