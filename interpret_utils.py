@@ -106,7 +106,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
         attr_output = LayerAttribution.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE))
     elif method == "gradcam":
-        attribute_method = LayerGradCam
+        attribute_method = Layer4Gradcam
         attrs = attribute_method(model)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,1,N,N)
         attr_output = torch.nn.functional.interpolate(attr_output, images)
