@@ -187,10 +187,10 @@ def plot_diagrams(
         ax.set_xlabel(xlabel, fontsize=18)
         ax.set_ylabel(ylabel, fontsize=18)
 
-    ax.set_xlim([x_down, x_up])
-    ax.set_ylim([y_down, y_up])
-#     ax.set_xlim([0.2, 0.4])
-#     ax.set_ylim([0.2, 0.4])
+#     ax.set_xlim([x_down, x_up])
+#     ax.set_ylim([y_down, y_up])
+    ax.set_xlim([0.2, 0.4])
+    ax.set_ylim([0.2, 0.4])
     ax.set_aspect('equal', 'box')
 
     if title is not None:
