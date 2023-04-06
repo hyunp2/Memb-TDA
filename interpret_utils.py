@@ -59,7 +59,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
                 print(o[0].size())
                 self.layer_backward_output = o[0] #BCHW
                 print(f"Backward {m.__class__.__name__} is registered...")
-               
+            print(len(self.model.pretrained.encoder.stages))
             self.model.pretrained.encoder.stages[-4].register_forward_hook(fhook)    
             self.model.pretrained.encoder.stages[-4].register_backward_hook(bhook)   
             
