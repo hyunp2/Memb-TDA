@@ -51,11 +51,13 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             self.model = model
             
             def fhook(m, i, o):
+                print(o)
+                  
                 self.layer_forward_output = o[0] #BCHW
                 print(f"Forward {m.__class__.__name__} is registered...")
                
             def bhook(m, i, o):
-#                 print(o)
+                print(o)
                 self.layer_backward_output = o[0] #BCHW
                 print(f"Backward {m.__class__.__name__} is registered...")
                
