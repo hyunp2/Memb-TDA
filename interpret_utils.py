@@ -48,22 +48,44 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         def __init__(self, model: torch.nn.Module):
             super().__init__()
             assert args.backbone == "convnext"
-            backbone = model.pretrained            
-    
-        def forward(self, inputs: torch.Tensor):
-            outs = self.model.pretrained(inputs)
-            hiddens = outs.last_hidden_state #->(BCLL)
-            return hiddens 
+            self.model = model
+            
+            def fhook(m, i, o):
+                self.layer_forward_output = o[0] #BCHW
+                print(f"Forward {m.__class__.__name__} is registered...")
+               
+            def bhook(m, i, o):
+                self.layer_backward_output = o[0] #BCHW
+                print(f"Backward {m.__class__.__name__} is registered...")
+               
+            self.model.pretrained.encoder.register_forward_hook(fhook)    
+            self.model.pretrained.encoder.register_full_backward_hook(bhook)   
+            
+        def attribute(self, inputs: torch.Tensor, target: torch.LongTensor):
+            inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
+            
+            preds = self.model(inputs)
+            preds = torch.gather(input=preds, dim=1, index=targets.view(-1, 1)) # -> (B,1)
+#             torch.autograd.grad(preds, inputs, grad_outputs=torch.ones_like(preds))[0]
+            preds.backward(grad_tensors=torch.ones_like(preds))
+   
+            module_output = self.layer_forward_output
+            module_upstream_gradient = self.layer_backward_output
+         
+            grads_power_2 = module_upstream_gradient**2 #Bcddd
+            grads_power_3 = grads_power_2 * module_upstream_gradient
+            sum_activations = module_output.sum(dim=(2,3,4), keepdim=True) #Bc11
+            eps = 0.000001
+            aij = grads_power_2 / (2 * grads_power_2 +
+                                 sum_activations * grads_power_3 + eps) #Bcdd
+            aij = torch.where(module_upstream_gradient != module_upstream_gradient.new_tensor(0.), aij, module_upstream_gradient.new_tensor(0.)) #Non-zeros #Bcddd
+            weights = torch.maximum(module_upstream_gradient, module_upstream_gradient.new_tensor(0.)) * aij #Only positive #Bcddd
+            weights = weights.sum(dim=(2,3,4), keepdim=True) #Bc11
+            gradcampp = (module_output * weights).sum(dim=1, keepdim=True) #Bcdd --> Bcdd
+            gradcampp = torch.maximum(gradcampp, torch.tensor(0.)) #Only positives
+
+            return gradcampp #B1HW
         
-#     layer = Layer4Gradcam(model)
-    
-    layer = model.pretrained.encoder
-   
-    def hook(m, i, o):
-        print(f"{m.__class__.__name__} is registered...")
-        return o[0] #BCHW
-    layer.register_forward_hook(hook)
-   
     def forward_func(images):
         preds: torch.Tensor = model(images) #-> (B,C)
         return preds
@@ -78,11 +100,16 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attribute_method = Saliency
         attrs = attribute_method(forward_func=forward_func)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
-    elif method == "gradcam":
+    elif method == "gradcam_defunct":
         attribute_method = LayerGradCam
         attrs = attribute_method(forward_func=forward_func, layer=layer)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
         attr_output = LayerAttribution.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE))
+    elif method == "gradcam":
+        attribute_method = LayerGradCam
+        attrs = attribute_method(model)
+        attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,1,N,N)
+        attr_output = torch.nn.functional.interpolate(attr_output, images)
     elif method == "lime":
         attribute_method = Lime
         attrs = attribute_method(forward_func=forward_func, similarity_func=similarity_func, perturb_func=perturb_func)
