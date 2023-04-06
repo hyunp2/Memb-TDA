@@ -65,7 +65,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
             
             preds = self.model(inputs)
-            preds = torch.gather(input=preds, dim=1, index=targets.view(-1, 1)) # -> (B,1)
+            preds = torch.gather(input=preds, dim=1, index=target.view(-1, 1)) # -> (B,1)
 #             torch.autograd.grad(preds, inputs, grad_outputs=torch.ones_like(preds))[0]
             preds.backward(grad_tensors=torch.ones_like(preds))
    
