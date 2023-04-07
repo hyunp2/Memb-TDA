@@ -394,7 +394,7 @@ def analyze_XAI(args):
     epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
     model.eval()
 
-    SQUARED = 25
+    SQUARED = 16
     xai(args, results.imgs_lows[:SQUARED], results.temp_lows[:16] - TEMP_RANGES[0], model, method=args.which_xai, title="lows")
     gc.collect()
     xai(args, results.imgs_mids[:SQUARED], results.temp_mids[:16] - TEMP_RANGES[0], model, method=args.which_xai, title="mids")
