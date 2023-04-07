@@ -48,6 +48,7 @@ def plot_diagrams(
     legend=True,
     show=False,
     ax=None,
+    xy_lim="all",
     save="wass.png"
 ):
     """A helper function to plot persistence diagrams. 
@@ -187,10 +188,13 @@ def plot_diagrams(
         ax.set_xlabel(xlabel, fontsize=18)
         ax.set_ylabel(ylabel, fontsize=18)
 
-#     ax.set_xlim([x_down, x_up])
-#     ax.set_ylim([y_down, y_up])
-    ax.set_xlim([0.2, 0.4])
-    ax.set_ylim([0.2, 0.4])
+    if xy_lim == "all":
+        ax.set_xlim([x_down, x_up])
+        ax.set_ylim([y_down, y_up])
+    else:
+        ax.set_xlim([0.2, 0.4])
+        ax.set_ylim([0.2, 0.4])
+        
     ax.set_aspect('equal', 'box')
 
     if title is not None:
