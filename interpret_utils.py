@@ -60,7 +60,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
 #                 print(o.size())
                 if args.backbone == "convnext":
                     self.layer_forward_output = o #BCHW, only the last needs [0]!
-                elif args.backbone == "swinvw":
+                elif args.backbone == "swinv2":
 #                     print(o[-1][-1].size())
                     self.layer_forward_output = o #BCHW, only the last needs [0]!
                 print(f"Forward {m.__class__.__name__} is registered...")
