@@ -50,23 +50,36 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
     assert method in ["saliency", "gradcam", "lime"]
    
     class Layer4Gradcam(torch.nn.Module):
-        def __init__(self, model: torch.nn.Module):
+        def __init__(self, args, model: torch.nn.Module):
             super().__init__()
-            assert args.backbone == "convnext"
+
             self.model = model
+            self.args = args
             
             def fhook(m, i, o):
 #                 print(o.size())
-                self.layer_forward_output = o #BCHW, only the last needs [0]!
+                if args.backbone == "convnext":
+                    self.layer_forward_output = o #BCHW, only the last needs [0]!
+                elif args.backbone = "swinvw":
+#                     print(o[-1][-1].size())
+                    self.layer_forward_output = o #BCHW, only the last needs [0]!
                 print(f"Forward {m.__class__.__name__} is registered...")
                
             def bhook(m, i, o):
 #                 print(o[0].size())
-                self.layer_backward_output = o[0] #BCHW
+                if args.backbone == "convnext":
+                    self.layer_backward_output = o[0] #BCHW
+#                 elif args.backbone = "swinvw":
+#                     print(o[-1][-1][-1].size())
+#                     self.layer_forward_output = o[-1][-1] #BCHW, only the last needs [0]!
                 print(f"Backward {m.__class__.__name__} is registered...")
-            print(len(self.model.pretrained.encoder.stages))
-            self.model.pretrained.encoder.stages[-4].register_forward_hook(fhook)    
-            self.model.pretrained.encoder.stages[-4].register_backward_hook(bhook)   
+#             print(len(self.model.pretrained.encoder.stages))
+
+            if args.backbone == "convnext":
+                self.model.pretrained.encoder.stages[-4].register_forward_hook(fhook)    
+                self.model.pretrained.encoder.stages[-4].register_backward_hook(bhook)   
+            elif args.backbone == "swinv2":
+                self.model.pretrained.encoder.register_forward_hook(fhook)    
             
         def attribute(self, inputs: torch.Tensor, target: torch.LongTensor):
             inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
@@ -77,23 +90,27 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
 #             preds = preds.amax(dim=-1)
 #             print(preds.size())
             preds.backward(gradient=torch.ones_like(preds))
-   
-            module_output = self.layer_forward_output
-            module_upstream_gradient = self.layer_backward_output
-         
-            grads_power_2 = module_upstream_gradient**2 #Bcddd
-            grads_power_3 = grads_power_2 * module_upstream_gradient
-            sum_activations = module_output.sum(dim=(2,3), keepdim=True) #Bc11
-            eps = 0.000001
-            aij = grads_power_2 / (2 * grads_power_2 +
-                                 sum_activations * grads_power_3 + eps) #Bcdd
-            aij = torch.where(module_upstream_gradient != module_upstream_gradient.new_tensor(0.), aij, module_upstream_gradient.new_tensor(0.)) #Non-zeros #Bcdd
-            weights = torch.maximum(module_upstream_gradient, module_upstream_gradient.new_tensor(0.)) * aij #Only positive #Bcddd
-            weights = weights.sum(dim=(2,3), keepdim=True) #Bc11
-            gradcampp = (module_output * weights).sum(dim=1, keepdim=True) #Bcdd --> B1dd
-            gradcampp = torch.maximum(gradcampp, torch.tensor(0.)) #Only positives
+            
+            if self.args.backbone == "convnext":
+                module_output = self.layer_forward_output
+                module_upstream_gradient = self.layer_backward_output
 
-            return gradcampp #B1HW
+                grads_power_2 = module_upstream_gradient**2 #Bcddd
+                grads_power_3 = grads_power_2 * module_upstream_gradient
+                sum_activations = module_output.sum(dim=(2,3), keepdim=True) #Bc11
+                eps = 0.000001
+                aij = grads_power_2 / (2 * grads_power_2 +
+                                     sum_activations * grads_power_3 + eps) #Bcdd
+                aij = torch.where(module_upstream_gradient != module_upstream_gradient.new_tensor(0.), aij, module_upstream_gradient.new_tensor(0.)) #Non-zeros #Bcdd
+                weights = torch.maximum(module_upstream_gradient, module_upstream_gradient.new_tensor(0.)) * aij #Only positive #Bcddd
+                weights = weights.sum(dim=(2,3), keepdim=True) #Bc11
+                gradcampp = (module_output * weights).sum(dim=1, keepdim=True) #Bcdd --> B1dd
+                gradcampp = torch.maximum(gradcampp, torch.tensor(0.)) #Only positives
+
+                return gradcampp #B1HW
+            elif self.args.backbone == "swinv2":
+                module_output = self.layer_forward_output
+                print(module_output)
         
     def forward_func(images):
         preds: torch.Tensor = model(images) #-> (B,C)
@@ -116,7 +133,13 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attr_output = LayerAttribution.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE))
     elif method == "gradcam":
         attribute_method = Layer4Gradcam
-        attrs = attribute_method(model)
+        attrs = attribute_method(args, model)
+        attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,1,N,N)
+#         print(sizes, attr_output.size())
+        attr_output = torch.nn.functional.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE) )
+    elif method == "attention":
+        attribute_method = Layer4Gradcam
+        attrs = attribute_method(args, model)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,1,N,N)
 #         print(sizes, attr_output.size())
         attr_output = torch.nn.functional.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE) )
