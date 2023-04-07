@@ -125,13 +125,14 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attribute_method = Lime
         attrs = attribute_method(forward_func=forward_func, similarity_func=similarity_func, perturb_func=perturb_func)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,C,N,N)
-         
-    fig, ax = plt.subplots(4,4,figsize=(8,8))
+    
+    ROWS, COLS = int(np.sqrt(images.size(0))), int(np.sqrt(images.size(0)))
+    fig, ax = plt.subplots(ROWS, COLS, figsize=(8,8))
     mins, maxs = attr_output.min().data, attr_output.max().data
     attr_output.data = (attr_output.data - mins) / (maxs - mins)
     for idx in range(images.size(0)):
         im = ax.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy(), cmap=plt.cm.get_cmap("jet"), vmin=0., vmax=1)
-    fig.suptitle(f"GradCAM: {title.upper()}")
+    fig.suptitle(f"GradCAM: {title.strip('s').upper()} Temperature Lipids")
     fig.tight_layout()
     fig.colorbar(im, ax=ax.ravel().tolist()) #https://stackoverflow.com/questions/13784201/how-to-have-one-colorbar-for-all-subplots
     fig.savefig(os.path.join(args.save_dir, title))
