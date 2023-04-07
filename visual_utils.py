@@ -241,10 +241,10 @@ def plot_total_temps(filename: str):
     min_indices = signal.argrelextrema(y, np.less)[0]
     ax.axvline(x[min_indices[0]], linewidth=3, c='r', linestyle="dashed")
     ax.annotate(f'{np.round(x[min_indices[0]], 2)}', xy=(x[min_indices[0]], y[min_indices[0]]), xytext=(x[min_indices[0]]+5, y[min_indices[0]]-0.02),
-            arrowprops=dict(facecolor='black', shrink=0.05))
+            arrowprops=dict(facecolor='black', shrink=0.05), fontsize=12)
     ax.axvline(x[min_indices[1]], linewidth=3, c='r', linestyle="dashed")
     ax.annotate(f'{np.round(x[min_indices[1]], 2)}', xy=(x[min_indices[1]], y[min_indices[1]]), xytext=(x[min_indices[1]]+5, y[min_indices[1]]-0.015),
-            arrowprops=dict(facecolor='black', shrink=0.05))
+            arrowprops=dict(facecolor='black', shrink=0.05), fontsize=12)
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
     ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
