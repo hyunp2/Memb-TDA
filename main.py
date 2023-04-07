@@ -121,7 +121,7 @@ def get_args():
 
     #Mode utils
     parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "distill", "infer", "infer_custom", "xai"], default="preprocessing")  
-    parser.add_argument('--which_xai', type=str, choices=["saliency", "gradcam", "lime"], default="saliency")  
+    parser.add_argument('--which_xai', type=str, choices=["saliency", "gradcam", "lime", "attention"], default="saliency")  
 
     args = parser.parse_args()
     return args
