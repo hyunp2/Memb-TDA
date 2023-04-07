@@ -238,7 +238,6 @@ def plot_total_temps(filename: str):
     ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2, color='b') #npz has pred; pickle has predictions
     x, y = sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     min_indices = signal.argrelextrema(y, np.less)[0]
-    print(min_indices)
     
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
@@ -251,6 +250,10 @@ def plot_total_temps(filename: str):
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
+    plt.plot(x, y)
+    plt.show()
+    print(min_indices)
+    
 #     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
 #         results = parallel(delayed(calc_2d_filters)(toks, pains_smarts) for count, toks in enumerate(data)) #List[List]
 
