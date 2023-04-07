@@ -22,6 +22,7 @@ import cv2
 import numpy as np
 import torch
 from torch import nn
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 # from .misc import patchify, unpatchify
@@ -34,6 +35,10 @@ from loss_utils import TEMP_RANGES
 from train_utils import load_state, single_val, single_test
 
 def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Module, method="saliency", title="lows"):
+    mpl.rcParams['xtick.labelsize'] = 14
+    mpl.rcParams['ytick.labelsize'] = 14
+    mpl.rcParams['axes.titlesize'] = 16
+   
     feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if args.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
 
     img : torch.FloatTensor = images.detach().cpu().unbind(dim=0)
@@ -126,6 +131,8 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
     attr_output.data = (attr_output.data - mins) / (maxs - mins)
     for idx in range(images.size(0)):
         ax.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy(), cmap=plt.cm.get_cmap("jet"), vmin=0., vmax=1)
+    fig.suptitle(f"GradCAM: {title.upper()}")
+    fig.tight_layout()
     fig.savefig(os.path.join(args.save_dir, title))
     plt.close()
     return attr_output
