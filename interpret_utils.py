@@ -84,14 +84,14 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         def attribute(self, inputs: torch.Tensor, target: torch.LongTensor):
             inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
             
-            preds = self.model(inputs)
-            preds = torch.gather(input=preds, dim=1, index=target.view(-1, 1).long())  # -> (B,1)
-#             torch.autograd.grad(preds, inputs, grad_outputs=torch.ones_like(preds))[0]
-#             preds = preds.amax(dim=-1)
-#             print(preds.size())
-            preds.backward(gradient=torch.ones_like(preds))
-            
             if self.args.backbone == "convnext":
+                preds = self.model(inputs)
+                preds = torch.gather(input=preds, dim=1, index=target.view(-1, 1).long())  # -> (B,1)
+    #             torch.autograd.grad(preds, inputs, grad_outputs=torch.ones_like(preds))[0]
+    #             preds = preds.amax(dim=-1)
+    #             print(preds.size())
+                preds.backward(gradient=torch.ones_like(preds))
+            
                 module_output = self.layer_forward_output
                 module_upstream_gradient = self.layer_backward_output
 
@@ -109,6 +109,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
 
                 return gradcampp #B1HW
             elif self.args.backbone == "swinv2":
+                self.model.pretrained(inputs, output_attentions=True)
                 module_output = self.layer_forward_output
                 print(module_output)
         
