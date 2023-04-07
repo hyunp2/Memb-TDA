@@ -192,8 +192,8 @@ def plot_diagrams(
         ax.set_xlim([x_down, x_up])
         ax.set_ylim([y_down, y_up])
     else:
-        ax.set_xlim([0.2, 0.4])
-        ax.set_ylim([0.2, 0.4])
+        ax.set_xlim(xy_lim)
+        ax.set_ylim(xy_lim)
         
     ax.set_aspect('equal', 'box')
 
