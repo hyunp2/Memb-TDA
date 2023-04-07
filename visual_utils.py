@@ -236,7 +236,8 @@ def plot_total_temps(filename: str):
     
     fig, ax = plt.subplots() 
     ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2, color='b') #npz has pred; pickle has predictions
-    x, y = sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
+    kde = sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
+    x, y = kde.lines[0].get_data()
     min_indices = signal.argrelextrema(y, np.less)[0]
     
     ax.set_xlim(*XLIM)
