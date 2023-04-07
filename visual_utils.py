@@ -6,6 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import os
 import seaborn as sns
 import torch
+from scipy import signal
 
 from skimage.filters import threshold_otsu
 from scipy.ndimage.morphology import distance_transform_edt
@@ -235,7 +236,10 @@ def plot_total_temps(filename: str):
     
     fig, ax = plt.subplots() 
     ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2, color='b') #npz has pred; pickle has predictions
-    sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
+    x, y = sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
+    min_indices = signal.argrelextrema(y, np.less)[0]
+    print(min_indices)
+    
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
     ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
@@ -498,8 +502,9 @@ def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D f
 if __name__ == "__main__":
     from main import get_args
     args = get_args()
-    plot_total_temps(os.path.join(args.save_dir, "convnext_model_indiv_all_temps.npz"))
+#     plot_total_temps(os.path.join(args.save_dir, "convnext_model_indiv_all_temps.npz"))
     plot_one_temp_parallel(args)
+
 #     pdb = args.pdb
 #     data = mdtraj.load(pdb, top=pdb)
 #     genAlphaSlider(data.xyz[0], initial=1, step=1, maximum=10, titlePrefix="")
