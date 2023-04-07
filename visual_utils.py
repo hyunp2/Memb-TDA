@@ -239,7 +239,9 @@ def plot_total_temps(filename: str):
     kde = sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
     x, y = kde.lines[0].get_data()
     min_indices = signal.argrelextrema(y, np.less)[0]
-    
+    ax.axvline(x[min_indices[0])
+    ax.axvline(x[min_indices[1])
+
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
     ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
