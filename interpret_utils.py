@@ -47,7 +47,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
     img = img["pixel_values"] #BCHW tensor! range: [-1,1]
     images = img
       
-    assert method in ["saliency", "gradcam", "lime"]
+    assert method in ["saliency", "gradcam", "lime", "attention"]
    
     class Layer4Gradcam(torch.nn.Module):
         def __init__(self, args, model: torch.nn.Module):
