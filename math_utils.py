@@ -225,7 +225,7 @@ def wasserstein_matching(args, dgm1, dgm2, dgm3, matching12, matching23, origina
     plot_diagrams([dgm1, dgm2, dgm3], labels=labels[:3], ax=ax, c=["tab:blue", "tab:orange",  "tab:red"], 
                   marker="X", size=40, show=False, save=None)
     plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0), np.concatenate(original_dgms3, axis=0)], 
-                  size=10, labels=labels[3:], alpha=0.4, c=["tab:blue", "tab:orange", "tab:red"], marker="o", ax=ax, show=False, 
+                  size=10, labels=labels[3:], alpha=0.2, c=["tab:blue", "tab:orange", "tab:red"], marker="o", ax=ax, show=False, 
                   save=os.path.join(args.save_dir, "wass.png"))
 
 def wasserstein_difference(args, temp0_dgms: List[np.array], temp1_dgms: List[np.array], temp2_dgms: List[np.array]):
