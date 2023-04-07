@@ -111,7 +111,8 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             elif self.args.backbone == "swinv2":
                 self.model.pretrained(inputs, output_attentions=True)
                 module_output = self.layer_forward_output
-                print(module_output)
+                print(module_output.attentions.size())
+                return module_output.attentions
         
     def forward_func(images):
         preds: torch.Tensor = model(images) #-> (B,C)
