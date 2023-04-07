@@ -240,10 +240,10 @@ def plot_total_temps(filename: str):
     x, y = kde.lines[0].get_data()
     min_indices = signal.argrelextrema(y, np.less)[0]
     ax.axvline(x[min_indices[0]], linewidth=3, c='r', linestyle="dashed")
-    ax.annotate(f'{x[min_indices[0]]}', xy=(x[min_indices[0]], y[min_indices[0]]), xytext=(x[min_indices[0]]+5, y[min_indices[0]]-0.02),
+    ax.annotate(f'{np.round(x[min_indices[0]], 2)}', xy=(x[min_indices[0]], y[min_indices[0]]), xytext=(x[min_indices[0]]+5, y[min_indices[0]]-0.02),
             arrowprops=dict(facecolor='black', shrink=0.05))
     ax.axvline(x[min_indices[1]], linewidth=3, c='r', linestyle="dashed")
-    ax.annotate(f'{x[min_indices[1]]}', xy=(x[min_indices[1]], y[min_indices[1]]), xytext=(x[min_indices[1]]+5, y[min_indices[1]]-0.04),
+    ax.annotate(f'{np.round(x[min_indices[1]], 2)}', xy=(x[min_indices[1]], y[min_indices[1]]), xytext=(x[min_indices[1]]+5, y[min_indices[1]]-0.04),
             arrowprops=dict(facecolor='black', shrink=0.05))
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
