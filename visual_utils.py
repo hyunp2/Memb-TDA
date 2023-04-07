@@ -250,8 +250,8 @@ def plot_total_temps(filename: str):
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
-    plt.plot(x, y)
-    plt.show()
+#     plt.plot(x, y)
+#     plt.show()
     print(min_indices)
     
 #     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
@@ -505,8 +505,8 @@ def genAlphaSlider(dat,initial=1,step=1,maximum=10,titlePrefix=""): #assume 3D f
 if __name__ == "__main__":
     from main import get_args
     args = get_args()
-#     plot_total_temps(os.path.join(args.save_dir, "convnext_model_indiv_all_temps.npz"))
-    plot_one_temp_parallel(args)
+    plot_total_temps(os.path.join(args.save_dir, "convnext_model_indiv_all_temps.npz"))
+#     plot_one_temp_parallel(args)
 
 #     pdb = args.pdb
 #     data = mdtraj.load(pdb, top=pdb)
