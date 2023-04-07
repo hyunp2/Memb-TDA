@@ -252,8 +252,8 @@ if __name__ == "__main__":
     epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
     model.eval()
    
-    images = torch.rand(16, 3, 128, 128)
-    y_true = torch.LongTensor(16).random_(TEMP_RANGES[0], TEMP_RANGES[1])
+    images = torch.rand(32, 3, 128, 128)
+    y_true = torch.LongTensor(32).random_(TEMP_RANGES[0], TEMP_RANGES[1])
     ranges = torch.arange(0, TEMP_RANGES[2]).to(images).long() #48 temp bins
     gts = ranges.index_select(dim=0, index = y_true.to(images).view(-1,).long() - TEMP_RANGES[0]) 
    
