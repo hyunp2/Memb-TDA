@@ -394,11 +394,12 @@ def analyze_XAI(args):
     epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
     model.eval()
 
-    xai(args, results.imgs_lows[:16], results.temp_lows[:16] - TEMP_RANGES[0], model, method=args.which_xai, title="lows")
+    SQUARED = 25
+    xai(args, results.imgs_lows[:SQUARED], results.temp_lows[:16] - TEMP_RANGES[0], model, method=args.which_xai, title="lows")
     gc.collect()
-    xai(args, results.imgs_mids[:16], results.temp_mids[:16] - TEMP_RANGES[0], model, method=args.which_xai, title="mids")
+    xai(args, results.imgs_mids[:SQUARED], results.temp_mids[:16] - TEMP_RANGES[0], model, method=args.which_xai, title="mids")
     gc.collect()
-    xai(args, results.imgs_highs[:16], results.temp_highs[:16] - TEMP_RANGES[0], model, method=args.which_xai, title="highs")
+    xai(args, results.imgs_highs[:SQUARED], results.temp_highs[:16] - TEMP_RANGES[0], model, method=args.which_xai, title="highs")
     gc.collect()
 #     print(results.Rs_total_lows)
     wasserstein_difference(args, results.Rs_total_lows, results.Rs_total_mids, results.Rs_total_highs)
