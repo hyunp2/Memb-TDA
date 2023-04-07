@@ -130,9 +130,10 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
     mins, maxs = attr_output.min().data, attr_output.max().data
     attr_output.data = (attr_output.data - mins) / (maxs - mins)
     for idx in range(images.size(0)):
-        ax.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy(), cmap=plt.cm.get_cmap("jet"), vmin=0., vmax=1)
+        im = ax.flatten()[idx].imshow(attr_output[idx].permute(1,2,0).detach().cpu().numpy(), cmap=plt.cm.get_cmap("jet"), vmin=0., vmax=1)
     fig.suptitle(f"GradCAM: {title.upper()}")
     fig.tight_layout()
+    fig.colorbar(im, ax=ax.ravel().tolist()) #https://stackoverflow.com/questions/13784201/how-to-have-one-colorbar-for-all-subplots
     fig.savefig(os.path.join(args.save_dir, title))
     plt.close()
     return attr_output
