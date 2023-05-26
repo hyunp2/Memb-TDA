@@ -18,7 +18,7 @@ import numpy as np
 import copy
 import argparse
 import sys
-
+import curtsies.fmtfuncs as cf
 
 class PathHomology(object):
     def __init__(self, initial_axes=None):
@@ -758,7 +758,7 @@ def parse_args():
 def cli_main():
 #     args = parse_args(sys.argv[1:])
     args = parse_args()
-    print(args)
+    print(cf.on_yellow(args.__dict__))
 #     main(args)
 
 
