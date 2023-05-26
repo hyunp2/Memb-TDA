@@ -670,7 +670,7 @@ def input_cloudpoints(data_file, save_path, args):
     cloudpoints = data[:, 0:-1]
     points_weight = data[:, -1]
     max_path = args.max_path
-    pathlib.Path(save_path).mkdir(exists_ok=True)
+    pathlib.Path(save_path).mkdir(exist_ok=True)
     
     if args.filtration_type == 'distance':
         PH = PathHomology()
@@ -707,7 +707,7 @@ def input_digraph(data_file, save_path, args):
     end_n = data[col_name[-1]].dropna(axis=0).values
     all_edges = np.vstack([start_n, end_n]).T
     max_path = args.max_path
-    pathlib.Path(save_path).mkdir(exists_ok=True)
+    pathlib.Path(save_path).mkdir(exist_ok=True)
 
     if args.filtration_type == 'distance':
         PH = PathHomology()
