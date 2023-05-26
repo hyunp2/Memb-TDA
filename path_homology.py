@@ -13,12 +13,14 @@
     https://github.com/WeilabMSU/PathHom
 """
 
-
+import jax
+import jax.numpy as jnp
 import numpy as np
 import copy
 import argparse
 import sys
 import curtsies.fmtfuncs as cf
+import time
 
 class PathHomology(object):
     def __init__(self, initial_axes=None):
@@ -763,5 +765,8 @@ def cli_main():
 
 
 if __name__ == "__main__":
+    start = time.perf_counter()
     cli_main()
+    end = time.perf_counter()
+    print(end-start, " seconds taken...")
     print('End!')
