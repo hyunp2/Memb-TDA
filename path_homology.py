@@ -761,7 +761,7 @@ def cli_main():
 #     args = parse_args(sys.argv[1:])
     args = parse_args()
     print(cf.on_yellow(f"""{args.__dict__}"""))
-#     main(args)
+    main(args)
 
 
 if __name__ == "__main__":
