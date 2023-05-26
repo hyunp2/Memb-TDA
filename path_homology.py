@@ -21,6 +21,7 @@ import argparse
 import sys
 import curtsies.fmtfuncs as cf
 import time
+import pathlib
 
 class PathHomology(object):
     def __init__(self, initial_axes=None):
@@ -669,6 +670,8 @@ def input_cloudpoints(data_file, save_path, args):
     cloudpoints = data[:, 0:-1]
     points_weight = data[:, -1]
     max_path = args.max_path
+    pathlib.Path(save_path).mkdir(exists_ok=True)
+    
     if args.filtration_type == 'distance':
         PH = PathHomology()
         define_filtration = np.arange(0, args.max_distance, 0.1)
@@ -704,6 +707,8 @@ def input_digraph(data_file, save_path, args):
     end_n = data[col_name[-1]].dropna(axis=0).values
     all_edges = np.vstack([start_n, end_n]).T
     max_path = args.max_path
+    pathlib.Path(save_path).mkdir(exists_ok=True)
+
     if args.filtration_type == 'distance':
         PH = PathHomology()
         betti_num_all = PH.persistent_path_homology_from_digraph(
@@ -751,7 +756,7 @@ def parse_args():
                         'The last two columns are start point idx and end point idx of the edges. All indices are start from 0')
     parser.add_argument('--filtration_type', default='angle', type=str, choices=['angle', 'distance'])
     parser.add_argument('--max_distance', default=5, type=float, help='if filtration_type is angle, it will be ignored')
-    parser.add_argument('--save_name', default='./', type=str)
+    parser.add_argument('--save_name', default='./save_pathhom', type=str)
     parser.add_argument('--max_path', default=2, type=int)
     args = parser.parse_args()
     return args
