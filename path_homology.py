@@ -737,7 +737,7 @@ def main(args):
     return None
 
 
-def parse_args(args):
+def parse_args():
     parser = argparse.ArgumentParser(description='Angle, distance, -based persistent path homology')
 
     parser.add_argument('--input_type', default='No', type=str, choices=['cloudpoints', 'digraph', 'No'])
@@ -756,7 +756,8 @@ def parse_args(args):
 
 
 def cli_main():
-    args = parse_args(sys.argv[1:])
+#     args = parse_args(sys.argv[1:])
+    args = parse_args()
     print(args)
 #     main(args)
 
