@@ -664,7 +664,7 @@ if __name__ == "__main__":
     # print(g)
     
     plot_one_temp_parallel(args)
-    plot_B2GP1(args)
+    # plot_B2GP1(args)
 
 #     pdb = args.pdb
 #     data = mdtraj.load(pdb, top=pdb)
