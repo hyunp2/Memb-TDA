@@ -290,66 +290,10 @@ def plot_one_temp(filename: str):
             ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
             YLIM = [0, 0.16]
             YTICKS = np.linspace(0, 0.16, 9).tolist()
-        else: #B2GP1
+        else: #B2GP1 (total)
             # ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
             counts, bins = np.histogram(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True)
 
-            if os.path.basename(filename).split("_")[1] == "PS":
-                ax.stairs(counts, bins, alpha=0.2, color='b') #PS_color
-            else:
-                ax.stairs(counts, bins, alpha=0.2, color='r') #PC_color
-
-            YLIM = [0, 0.16]
-            YTICKS = np.linspace(0, 0.16, 9).tolist()
-    else:
-        ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
-        YLIM = [0, 0.24]
-        YTICKS = np.linspace(0, 0.24, 13).tolist()
-    sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
-    ax.set_xlim(*XLIM)
-    ax.set_ylim(*YLIM)
-    ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
-    ax.set_ylabel("PDF")
-    ax.set_xticks(XTICKS)
-    ax.set_yticks(YTICKS)
-    
-#     ax.set_title(f"Effective Temperature Distribution - { int(os.path.basename(os.path.splitext(filename)[0]).split('_')[-1]) } K")
-    ax.set_title(f"Effective Temperature Distribution")
-
-#     ax.set_ylim(280, 330)
-    fig.savefig(os.path.splitext(filename)[0] + ".png")
-
-def plot_B2GP1(args: argoarse.ArgumentParser):
-    mpl.rcParams['xtick.labelsize'] = 14
-    mpl.rcParams['ytick.labelsize'] = 14
-    mpl.rcParams['axes.titlesize'] = 16
-    XLIM = [280, 330]
-    YLIM = [0, 0.16]
-    XTICKS = [280, 290, 300, 310, 320, 330]
-    YTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
-    
-    assert os.path.splitext(filename)[1] == ".pickle", "File name extension is wrong..."
-    assert "Predicted" in os.path.basename(filename), "File name prefix is wrong..."
-
-    f = open(filename, "rb")
-    data = pickle.load(f)
-    keys = data.keys()
-    BINS = 100
-    
-    fig, ax = plt.subplots() 
-    if "DPPC" in os.path.basename(filename):
-        ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
-        YLIM = [0, 0.08]
-        YTICKS = [0, 0.02, 0.04, 0.06, 0.08]
-    elif os.path.basename(filename).split("_")[0] in ["B2GP1", "ABETA"]:
-        if os.path.basename(filename).split("_")[0] == "ABETA":
-            ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
-            YLIM = [0, 0.16]
-            YTICKS = np.linspace(0, 0.16, 9).tolist()
-        else: #B2GP1
-            # ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
-            counts, bins = np.histogram(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True)
-            
             PS_TEMP = 320
             PC_TEMP = 310
             ps_bin = np.searchsorted(bins, PS_TEMP) #-> int
@@ -361,7 +305,14 @@ def plot_B2GP1(args: argoarse.ArgumentParser):
             YLIM = [0, 0.16]
             YTICKS = np.linspace(0, 0.16, 9).tolist()
     else:
-        ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+        
+        if "PS" in os.path.basename(filename).split("_")[0]:
+            ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='b') #PS_color
+        elif "PS" in os.path.basename(filename).split("_")[0]:
+            ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #PC_color
+        else:
+            ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+
         YLIM = [0, 0.24]
         YTICKS = np.linspace(0, 0.24, 13).tolist()
     sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
@@ -377,6 +328,65 @@ def plot_B2GP1(args: argoarse.ArgumentParser):
 
 #     ax.set_ylim(280, 330)
     fig.savefig(os.path.splitext(filename)[0] + ".png")
+
+# def plot_B2GP1(args: argoarse.ArgumentParser):
+#     mpl.rcParams['xtick.labelsize'] = 14
+#     mpl.rcParams['ytick.labelsize'] = 14
+#     mpl.rcParams['axes.titlesize'] = 16
+#     XLIM = [280, 330]
+#     YLIM = [0, 0.16]
+#     XTICKS = [280, 290, 300, 310, 320, 330]
+#     YTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
+    
+#     assert os.path.splitext(filename)[1] == ".pickle", "File name extension is wrong..."
+#     assert "Predicted" in os.path.basename(filename), "File name prefix is wrong..."
+
+#     f = open(filename, "rb")
+#     data = pickle.load(f)
+#     keys = data.keys()
+#     BINS = 100
+    
+#     fig, ax = plt.subplots() 
+#     if "DPPC" in os.path.basename(filename):
+#         ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #npz has pred; pickle has predictions
+#         YLIM = [0, 0.08]
+#         YTICKS = [0, 0.02, 0.04, 0.06, 0.08]
+#     elif os.path.basename(filename).split("_")[0] in ["B2GP1", "ABETA"]:
+#         if os.path.basename(filename).split("_")[0] == "ABETA":
+#             ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+#             YLIM = [0, 0.16]
+#             YTICKS = np.linspace(0, 0.16, 9).tolist()
+#         else: #B2GP1
+#             # ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+#             counts, bins = np.histogram(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True)
+            
+#             PS_TEMP = 320
+#             PC_TEMP = 310
+#             ps_bin = np.searchsorted(bins, PS_TEMP) #-> int
+#             pc_bin = np.searchsorted(bins, PC_TEMP) #-> int
+            
+#             ax.stairs(counts[:ps_bin], bins[:ps_bin+1], alpha=0.2, color='b') #PS_color
+#             ax.stairs(counts[pc_bin:], bins[pc_bin-1], alpha=0.2, color='r') #PC_color
+
+#             YLIM = [0, 0.16]
+#             YTICKS = np.linspace(0, 0.16, 9).tolist()
+#     else:
+#         ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+#         YLIM = [0, 0.24]
+#         YTICKS = np.linspace(0, 0.24, 13).tolist()
+#     sns.kdeplot(data=data["predictions"].detach().cpu().numpy().reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
+#     ax.set_xlim(*XLIM)
+#     ax.set_ylim(*YLIM)
+#     ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
+#     ax.set_ylabel("PDF")
+#     ax.set_xticks(XTICKS)
+#     ax.set_yticks(YTICKS)
+    
+# #     ax.set_title(f"Effective Temperature Distribution - { int(os.path.basename(os.path.splitext(filename)[0]).split('_')[-1]) } K")
+#     ax.set_title(f"Effective Temperature Distribution")
+
+# #     ax.set_ylim(280, 330)
+#     fig.savefig(os.path.splitext(filename)[0] + ".png")
 
 def plot_one_temp_parallel(args: argparse.ArgumentParser):
     ROOT_DIR = args.save_dir
