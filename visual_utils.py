@@ -286,9 +286,24 @@ def plot_one_temp(filename: str):
         YLIM = [0, 0.08]
         YTICKS = [0, 0.02, 0.04, 0.06, 0.08]
     elif os.path.basename(filename).split("_")[0] in ["B2GP1", "ABETA"]:
-        ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
-        YLIM = [0, 0.16]
-        YTICKS = np.linspace(0, 0.16, 9).tolist()
+        if os.path.basename(filename).split("_")[0] == "ABETA":
+            ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+            YLIM = [0, 0.16]
+            YTICKS = np.linspace(0, 0.16, 9).tolist()
+        else: #B2GP1
+            # ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+            counts, bins = np.histogram(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True)
+            
+            PS_TEMP = 320
+            PC_TEMP = 310
+            ps_bin = np.searchsorted(bins, PS_TEMP) #-> int
+            pc_bin = np.searchsorted(bins, PC_TEMP) #-> int
+            
+            ax.stairs(counts[:ps_bin], bins[:ps_bin+1]) #PS_color
+            ax.stairs(counts[pc_bin:], bins[pc_bin-1]) #PS_color
+
+            YLIM = [0, 0.16]
+            YTICKS = np.linspace(0, 0.16, 9).tolist()
     else:
         ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
         YLIM = [0, 0.24]
