@@ -593,9 +593,9 @@ def visualize_jax():
 if __name__ == "__main__":
     from main import get_args
     args = get_args()
-#     plot_total_temps(os.path.join(args.save_dir, "convnext_model_indiv_all_temps.npz"))
-    g = visualize_jax()
-    print(g)
+    plot_total_temps(os.path.join(args.save_dir, "convnext_model_indiv_all_temps.npz"))
+    # g = visualize_jax()
+    # print(g)
     
 #     plot_one_temp_parallel(args)
 
