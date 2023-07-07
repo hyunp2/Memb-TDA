@@ -120,7 +120,7 @@ def get_args():
     parser.add_argument('--teacher_name', type=str, default="mpnn", help="saved torch model name...")
 
     #Mode utils
-    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "distill", "infer", "infer_custom", "xai"], default="preprocessing")  
+    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "distill", "infer", "infer_custom", "xai", "eff_temp"], default="preprocessing")  
     parser.add_argument('--which_xai', type=str, choices=["saliency", "gradcam", "lime", "attention"], default="saliency")  
 
     args = parser.parse_args()
@@ -404,7 +404,10 @@ def analyze_XAI(args):
 #     print(results.Rs_total_lows)
     wasserstein_difference(args, results.Rs_total_lows, results.Rs_total_mids, results.Rs_total_highs)
     gc.collect()
-    
+
+def plot_effective_temperatures(args):
+    ...
+
 if __name__ == "__main__":
     args = get_args()
     print(args.__dict__)
@@ -423,5 +426,6 @@ if __name__ == "__main__":
         infer_for_customdata(args)
     elif args.which_mode == "xai":
         analyze_XAI(args)
-        
+    elif args.which_mode == "eff_temp":
+        plot_effective_temperatures(args)
     #python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]"
