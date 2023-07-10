@@ -665,7 +665,7 @@ if __name__ == "__main__":
     
     plot_one_temp_parallel(args)
     # plot_B2GP1(args)
-    python -m visual_utils --save_dir inference_save --multiprocessing_backend multiprocessing
+    # python -m visual_utils --save_dir inference_save --multiprocessing_backend multiprocessing
 #     pdb = args.pdb
 #     data = mdtraj.load(pdb, top=pdb)
 #     genAlphaSlider(data.xyz[0], initial=1, step=1, maximum=10, titlePrefix="")
