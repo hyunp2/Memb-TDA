@@ -304,9 +304,9 @@ def plot_one_temp(filename: str):
             # ax.stairs(counts[:ps_bin], bins[:ps_bin+1], alpha=0.2, color='b', fill=True) #PS_color
             # ax.stairs(counts[pc_bin:], bins[pc_bin:], alpha=0.2, color='r', fill=True) #PC_color
             ps_range = bins[:ps_bin+1]
-            ax.plot(0.5 * (ps_range[:-1] + ps_range[1:], counts[:ps_bin])
+            ax.plot(0.5 * (ps_range[:-1] + ps_range[1:]), counts[:ps_bin], color='b', linewidth=3)
             pc_range = bins[pc_bin:]
-            ax.plot(0.5 * (pc_range[:-1] + pc_range[1:], counts[pc_bin:])
+            ax.plot(0.5 * (pc_range[:-1] + pc_range[1:]), counts[pc_bin:], color='r', linewidth=3)
                     
             YLIM = [0, 0.16]
             YTICKS = np.linspace(0, 0.16, 9).tolist()
