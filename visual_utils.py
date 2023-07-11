@@ -339,7 +339,7 @@ def plot_one_temp(filename: str):
             # print(get_color_gradient("#0000FF", "#FF0000", len(counts)))
             
             colors = get_color_gradient("#0000FF", "#FF0000", len(counts))
-            colors = np.array([hex_to_RGB(c) for c in colors])
+            colors = np.array([hex_to_RGB(c) for c in colors]) / 255
             print(colors)
             
             # ax.stairs(counts, bins, color=get_color_gradient("#0000FF", "#FF0000", len(counts)), fill=True, alpha=0.2) #PC_color
