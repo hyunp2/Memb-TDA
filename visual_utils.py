@@ -328,7 +328,7 @@ def plot_one_temp(filename: str):
                 mix_pcts = [x/(n-1) for x in range(n)]
                 rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
                 return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colors]
-
+            print(get_color_gradient("#0000FF", "#FF0000", len(counts)))
             ax.stairs(counts, bins, color=get_color_gradient("#0000FF", "#FF0000", len(counts)), fill=True, alpha=0.2) #PC_color
                     
             YLIM = [0, 0.16]
