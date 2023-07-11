@@ -301,9 +301,13 @@ def plot_one_temp(filename: str):
             ps_bin = np.searchsorted(bins, PS_TEMP) #-> int
             pc_bin = np.searchsorted(bins, PC_TEMP) #-> int
             
-            ax.stairs(counts[:ps_bin], bins[:ps_bin+1], alpha=0.2, color='b', fill=True) #PS_color
-            ax.stairs(counts[pc_bin:], bins[pc_bin:], alpha=0.2, color='r', fill=True) #PC_color
-
+            # ax.stairs(counts[:ps_bin], bins[:ps_bin+1], alpha=0.2, color='b', fill=True) #PS_color
+            # ax.stairs(counts[pc_bin:], bins[pc_bin:], alpha=0.2, color='r', fill=True) #PC_color
+            ps_range = bins[:ps_bin+1]
+            ax.plot(0.5 * (ps_range[:-1] + ps_range[1:], counts[:ps_bin])
+            pc_range = bins[pc_bin:]
+            ax.plot(0.5 * (pc_range[:-1] + pc_range[1:], counts[pc_bin:])
+                    
             YLIM = [0, 0.16]
             YTICKS = np.linspace(0, 0.16, 9).tolist()
     else:
