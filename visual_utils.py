@@ -313,12 +313,15 @@ def plot_one_temp(filename: str):
 
             #Method 3: Gradation
             def hex_to_RGB(value):
+                """https://stackoverflow.com/questions/29643352/converting-hex-to-rgb-value-in-python"""
                 value = value.lstrip('#')
                 lv = len(value)
                 return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
             
             def hex_to_RGB(hex_str):
-                """ #FFFFFF -> [255,255,255]"""
+                """ #FFFFFF -> [255,255,255]
+                https://medium.com/@BrendanArtley/matplotlib-color-gradients-21374910584b
+                """
                 #Pass 16 to the integer function for change of base
                 return [int(hex_str[i:i+2], 16) for i in range(1,6,2)]
 
@@ -334,6 +337,7 @@ def plot_one_temp(filename: str):
                 rgb_colors = [((1-mix)*c1_rgb + (mix*c2_rgb)) for mix in mix_pcts]
                 return ["#" + "".join([format(int(round(val*255)), "02x") for val in item]) for item in rgb_colors]
             # print(get_color_gradient("#0000FF", "#FF0000", len(counts)))
+            
             colors = get_color_gradient("#0000FF", "#FF0000", len(counts))
             colors = np.array([hex_to_RGB(c) for c in colors])
             ax.stairs(counts, bins, color=get_color_gradient("#0000FF", "#FF0000", len(counts)), fill=True, alpha=0.2) #PC_color
