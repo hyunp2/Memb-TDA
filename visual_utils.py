@@ -310,7 +310,7 @@ def plot_one_temp(filename: str):
         
         if "PS" in os.path.basename(filename).split("_")[0]:
             ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='b') #PS_color
-        elif "PS" in os.path.basename(filename).split("_")[0]:
+        elif "PC" in os.path.basename(filename).split("_")[0]:
             ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='r') #PC_color
         else:
             ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
