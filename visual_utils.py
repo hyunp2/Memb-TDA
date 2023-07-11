@@ -286,13 +286,14 @@ def plot_one_temp(filename: str):
         YLIM = [0, 0.08]
         YTICKS = [0, 0.02, 0.04, 0.06, 0.08]
     elif os.path.basename(filename).split("_")[0] in ["B2GP1", "ABETA"]:
+        print("WE ARE HERE!", filename)
         if os.path.basename(filename).split("_")[0] == "ABETA":
             ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
             YLIM = [0, 0.16]
             YTICKS = np.linspace(0, 0.16, 9).tolist()
         else: #B2GP1 (total)
             # ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
-            print("WE ARE HERE!", filename)
+            
             counts, bins = np.histogram(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True)
 
             PS_TEMP = 320
