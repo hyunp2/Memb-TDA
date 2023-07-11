@@ -302,7 +302,7 @@ def plot_one_temp(filename: str):
             pc_bin = np.searchsorted(bins, PC_TEMP) #-> int
             
             ax.stairs(counts[:ps_bin], bins[:ps_bin+1], alpha=0.2, color='b') #PS_color
-            ax.stairs(counts[pc_bin:], bins[pc_bin-1], alpha=0.2, color='r') #PC_color
+            ax.stairs(counts[pc_bin:], bins[pc_bin-1:], alpha=0.2, color='r') #PC_color
 
             YLIM = [0, 0.16]
             YTICKS = np.linspace(0, 0.16, 9).tolist()
