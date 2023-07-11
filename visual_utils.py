@@ -342,7 +342,7 @@ def plot_one_temp(filename: str):
             colors = np.array([hex_to_RGB(c) for c in colors])
             
             # ax.stairs(counts, bins, color=get_color_gradient("#0000FF", "#FF0000", len(counts)), fill=True, alpha=0.2) #PC_color
-            ax.bar((bins[:-1] + bins[1:]) * 0.5, counts, colors=colors, alpha=0.2)
+            ax.bar((bins[:-1] + bins[1:]) * 0.5, counts, color=colors, alpha=0.2)
             
             YLIM = [0, 0.16]
             YTICKS = np.linspace(0, 0.16, 9).tolist()
