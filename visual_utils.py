@@ -292,6 +292,7 @@ def plot_one_temp(filename: str):
             YTICKS = np.linspace(0, 0.16, 9).tolist()
         else: #B2GP1 (total)
             # ax.hist(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True, alpha=0.2, color='g') #npz has pred; pickle has predictions
+            print("WE ARE HERE!", filename)
             counts, bins = np.histogram(data["predictions"].detach().cpu().numpy(), bins=BINS, density=True)
 
             PS_TEMP = 320
