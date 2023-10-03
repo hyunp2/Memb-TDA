@@ -427,6 +427,7 @@ if __name__ == "__main__":
         infer_for_customdata(args)
     elif args.which_mode == "xai":
         analyze_XAI(args)
+        #[Oct. 3, 2023] python -m main --which_mode xai --name swinv2_model_indiv --backbone swinv2 --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --which_xai gradcam
     elif args.which_mode == "eff_temp":
         plot_effective_temperatures(args)
     #python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]"
