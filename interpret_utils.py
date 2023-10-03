@@ -87,7 +87,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
             
             if self.args.backbone == "convnext":
-                method = "gradcam" if method != "saliency" else method
+                method = "gradcam" if method != "saliency" else "saliency"
                 preds = self.model(inputs)
                 preds = torch.gather(input=preds, dim=1, index=target.view(-1, 1).long())  # -> (B,1)
     #             torch.autograd.grad(preds, inputs, grad_outputs=torch.ones_like(preds))[0]
@@ -112,7 +112,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
 
                 return gradcampp #B1HW
             elif self.args.backbone == "swinv2":
-                method = "attention" if method != "saliency" else method
+                method = "attention" if method != "saliency" else "saliency"
                 self.model.pretrained(inputs, output_attentions=True)
                 module_output = self.layer_forward_output #Hooked at encoder output!
                 print(module_output.attentions[-3].size()) #second layer/stage!
