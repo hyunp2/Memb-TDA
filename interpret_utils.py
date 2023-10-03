@@ -113,8 +113,8 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
                 return gradcampp #B1HW
             elif self.args.backbone == "swinv2":
                 method = "attention" if method != "saliency" else "saliency"
-                self.model.pretrained(inputs, output_attentions=True)
-                module_output = self.layer_forward_output #Hooked at encoder output!
+                module_output = self.model.pretrained(inputs, output_attentions=True)
+                # module_output = self.layer_forward_output #Hooked at encoder output!
                 print(module_output.attentions[-3].size()) #second layer/stage!
                 return module_output.attentions[-3].amax(dim=1, keepdim=True) #-> (B,1,L,L)
         
