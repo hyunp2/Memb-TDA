@@ -83,7 +83,7 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
             elif args.backbone == "swinv2":
                 self.model.pretrained.encoder.register_forward_hook(fhook)    
             
-        def attribute(self, inputs: torch.Tensor, target: torch.LongTensor):
+        def attribute(self, inputs: torch.Tensor, target: torch.LongTensor, method: str):
             inputs = inputs.detach().requires_grad_(True) #make it leaf and differentiable!
             
             if self.args.backbone == "convnext":
@@ -139,13 +139,13 @@ def xai(args, images: torch.Tensor, gts: torch.LongTensor, model: torch.nn.Modul
         attr_output = LayerAttribution.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE))
     elif method == "gradcam":
         attribute_method = Layer4Gradcam
-        attrs = attribute_method(args, model)
+        attrs = attribute_method(args, model, method)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,1,N,N)
 #         print(sizes, attr_output.size())
         attr_output = torch.nn.functional.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE) )
     elif method == "attention":
         attribute_method = Layer4Gradcam
-        attrs = attribute_method(args, model)
+        attrs = attribute_method(args, model, method)
         attr_output = attrs.attribute(images, target=gts.view(-1)) #->(B,1,N,N)
 #         print(sizes, attr_output.size())
         attr_output = torch.nn.functional.interpolate(attr_output, (Vision.IMAGE_SIZE, Vision.IMAGE_SIZE) )
