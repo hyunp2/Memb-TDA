@@ -155,7 +155,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         print(cf.on_red(f"Argument args.search_temp {self.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
         self.index_for_searchTemp = np.where(np.array(self.temperatures) == int(self.search_temp))[0] #Index to get only the correponding temperature-related data!
 #         self.graph_input_list, self.Rs_total, self.Images_total, self.temperature = self.graph_input_list[self.index_for_searchTemp], self.Rs_total[self.index_for_searchTemp], self.Images_total[self.index_for_searchTemp], self.temperature[self.index_for_searchTemp]
-        self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=IVision.MAGE_STD, do_rescale=False) if self.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
+        self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False) if self.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
 
     @property
     def infer_all_temperatures(self, ):
