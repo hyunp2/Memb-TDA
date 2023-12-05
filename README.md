@@ -41,6 +41,7 @@ To infer PDB patches' temperatures inside e.g. **inference_save/T.307** director
 <br>    &ensp;&ensp; /Scr/arango/Sobolev-Hyun/5-Analysis/B2GP1-PS/inference_folder/
 
 ## E. Input/Output format (based on MOST imporant code snippet)
-1. Input: directory argument *pdb_database* takes ***inference_folder***. ***inference_folder*** contains multiple directories and we infer on *search_temp* input 307 (K).
-2. Output: directory argumnet *inference_save* saves 6 output prefixed files: **coords, PH, IM, ProcessedIm, temperature, Predicted**. (e.g. coords_convnext_307.pickle where convnext is argment *backbone* and 307 (K) is *search_temp*).
+1. Input: directory argument *pdb_database* takes ***inference_folder***. ***inference_folder*** contains multiple directories and we infer on argument *search_temp* input 307 (K).
+2. Output: directory argumnet *inference_save* saves 6 output prefixed files: **coords, PH, IM, ProcessedIm, temperature, Predicted**. (e.g. coords_convnext_307.pickle where convnext is argument *backbone* and 307 (K) is *search_temp*).
+3. Model: directory argument *load_ckpt_path* is where model checkpoint argument *name* (e.g., convnext_model_indiv without ".pth") is placed.
 
