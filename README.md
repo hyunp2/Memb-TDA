@@ -1,4 +1,5 @@
 # Memb-TDA
+Welcome to Memb-TDA! This repo contains topological data analysis based machine learning algorithm to predict effective temperature of biological membranes. It predicts configuration based temperature from static coordinates of lipid coordinate.
 
 ## A. Preprocessing
 [Preprocessing] This extracts XYZ coordinates and multiprocesses PH; subscriptable by index for Dataset and loadable for DataLoader </br>
