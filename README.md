@@ -24,9 +24,10 @@ python -m main --which_mode preprocessing --pdb_database /Scr/arango/Sobolev-Hyu
 python -m main --which_mode infer --name vit_model --backbone vit --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
 </code>
 
-<br><br> To infer PDB patches' temperatures inside e.g. **inference_save/T.123** directory, and to save inside **inference_save** directory as pickles<br>
+## **Below is MOST important!**
+<br><br> To infer PDB patches' temperatures inside e.g. **inference_save/T.123** directory, and to save inside **inference_save** directory as pickles<br> 
 <code>
-python -m main --which_mode infer_custom --name convnext_model --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 512 --ce_re_ratio 1 0.1 --backbone convnext --resume --pdb_database inference_folder --save_dir inference_save --search_temp 123
+python -m main --which_mode infer_custom --name convnext_model_indiv --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 512 --ce_re_ratio 1 0.1 --backbone convnext --resume --pdb_database inference_folder --save_dir inference_save --search_temp 307
 </code>
 
 # Train/Inference databases
