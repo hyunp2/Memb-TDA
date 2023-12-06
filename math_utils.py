@@ -146,7 +146,7 @@ def calculate_fid(act1, act2):
 def wasserstein_matching(args, dgm1, dgm2, dgm3, matching12, matching23,
                          original_dgms1, original_dgms2, original_dgms3, 
                          labels=["dgm1", "dgm2", "dgm3", "original_dgms1", "original_dgms2", "original_dgms3"], 
-                         ax=None, xy_lim="all"):
+                         ax=None, xy_lim="all", filename="all"):
     """ 
     https://persim.scikit-tda.org/en/latest/_modules/persim/visuals.html#wasserstein_matching
     
@@ -229,7 +229,7 @@ def wasserstein_matching(args, dgm1, dgm2, dgm3, matching12, matching23,
                   marker="X", size=40, show=False, save=None, xy_lim=xy_lim)
     plot_diagrams([np.concatenate(original_dgms1, axis=0), np.concatenate(original_dgms2, axis=0), np.concatenate(original_dgms3, axis=0)], 
                   size=10, labels=labels[3:], alpha=0.2, c=["tab:blue", "tab:orange", "tab:red"], marker="o", ax=ax, show=False, 
-                  save=os.path.join(args.save_dir, "wass_all.png"), xy_lim=xy_lim)
+                  save=os.path.join(args.save_dir, f"wass_{filename}.png"), xy_lim=xy_lim)
     
 def wasserstein_difference(args, temp0_dgms: List[np.array], temp1_dgms: List[np.array], temp2_dgms: List[np.array]):
     wass = collections.namedtuple('wass', ['barycenter0', 'barylog0', 'barycenter1', 
@@ -251,11 +251,11 @@ def wasserstein_difference(args, temp0_dgms: List[np.array], temp1_dgms: List[np
     wasserstein_matching(args, barycenter0, barycenter1, barycenter2, 
                          windex01, windex12, temp0_dgms, temp1_dgms, temp1_dgms, 
                          labels=['lower temp', 'melting temp', 'higher temp', "all lower temps", "all melting temp", "all higher temps"], 
-                         xy_lim="all") #plot
+                         xy_lim="all", filename="all") #plot
     wasserstein_matching(args, barycenter0, barycenter1, barycenter2, 
                          windex01, windex12, temp0_dgms, temp1_dgms, temp1_dgms, 
                          labels=['lower temp', 'melting temp', 'higher temp', "all lower temps", "all melting temp", "all higher temps"], 
-                         xy_lim=[0.2, 0.4]) #plot
+                         xy_lim=[0.2, 0.4], filename="closeup") #plot
     [setattr(wass, key, val) for key, val in zip(['barycenter0', 'barylog0', 'barycenter1', 'barylog1', 'barycenter2', 'barylog2', 'wdist01', 'windex01', 'wdist12', 'windex12'], 
                                                  [barycenter0, barylog0, barycenter1, barylog1, barycenter2, barylog2, wdist01, windex01,  wdist12, windex12])]
     return wass
