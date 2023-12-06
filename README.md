@@ -51,3 +51,8 @@ PS. Download model checkpoints, input and output from [Zenodo](https://doi.org/1
 * --pdb_database inference_folder where there are folders starting with T. (e.g., T.300) with --search_temp 300 to infer all PDBs inside.
 * --backbone can be "convnext", "clip_resnet" or "swinv2".
 * --ce_re_ratio 1 0.1 to balance loss weight between CE and regression loss.
+
+## G. Explainable AI (XAI)
+To get highlights of important persistence image features...
+<code>python -m main --which_mode xai --name convnext_model_indiv --backbone convnext --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --which_xai gradcam --resume
+</code>
