@@ -22,7 +22,7 @@ Welcome to **Memb-TDA**! This repo contains topological data analysis based mach
 <code>python -m main --which_mode infer --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
 </code>
 
-### **Below is the MOST important code snippet!**
+### **Below is the MOST important code snippet! Inference on OOD data!**
 To infer PDB patches' temperatures inside e.g. **inference_save/T.307** directory, and to save inside **inference_save** directory as pickles<br> 
 <code>python -m main --which_mode infer_custom --name convnext_model_indiv --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 512 --ce_re_ratio 1 0.1 --backbone convnext --resume --pdb_database inference_folder --save_dir inference_save --search_temp 307
 </code>
