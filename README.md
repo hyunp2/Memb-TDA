@@ -1,4 +1,4 @@
-# Memb-TDA
+# Memb-TDA (*abbr* of Membrane Topological Data Analysis)
 Welcome to **Memb-TDA**! This repo contains topological data analysis based machine learning algorithm to predict effective temperature of biological membranes. It predicts configuration based temperature from static coordinates of lipid configuration.
 
 ## A. Preprocessing
