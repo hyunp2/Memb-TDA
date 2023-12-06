@@ -45,7 +45,7 @@ To infer PDB patches' temperatures inside e.g. **inference_save/T.307** director
 2. Output: directory argumnet *inference_save* saves 6 output prefixed files: **coords, PH, IM, ProcessedIm, temperature, Predicted**. (e.g. coords_convnext_307.pickle where convnext is argument *backbone* and 307 (K) is *search_temp*).
 3. Model: directory argument *load_ckpt_path* is where model checkpoint argument *name* (e.g., convnext_model_indiv without ".pth") is placed.
 
-PS. Download model checkpoints, input and output from [Zenodo](https://doi.org/10.5281/zenodo.10258742).
+PS. Download model checkpoints, input and output from [Zenodo](https://doi.org/10.5281/zenodo.10258742). Our paper is in [BioArxiv](https://www.biorxiv.org/content/10.1101/2023.11.28.569053v1.abstract).
 
 ## F. Interesting arguments to try
 * --pdb_database inference_folder where there are folders starting with T. (e.g., T.300) with --search_temp 300 to infer all PDBs inside.
