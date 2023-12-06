@@ -54,7 +54,7 @@ PS. Download model checkpoints, input and output from [Zenodo](https://doi.org/1
 
 ## G. Explainable AI (XAI)
 To get highlights of important persistence image features... Using multiprocessing backend<br>
-Available multiprocessing backends are "ray", "multiprocessing", "dash" or "joblib"<br>
+Available multiprocessing backends are "ray", "multiprocessing", "dask" or "joblib"<br>
 <code>python -m main --which_mode xai --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing -multiprocessing_backend multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --which_xai gradcam --resume
 </code>
 
