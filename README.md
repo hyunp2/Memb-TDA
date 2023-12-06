@@ -59,4 +59,4 @@ To get highlights of important persistence image features...<br>
 
 ## H. Plot distributions
 To get our paper's temperature distirubtion plot<br>
-<code> python -m main --which_mode train --name convenxt_model_indiv --save_dir inference_save --multiprocessing --log --gpu </code>
+<code> python -m main --which_mode eff_temp --save_dir inference_save --multiprocessing --log --gpu </code>
