@@ -56,4 +56,6 @@ PS. Download model checkpoints, input and output from [Zenodo](https://doi.org/1
 To get highlights of important persistence image features...<br>
 <code>python -m main --which_mode xai --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --which_xai gradcam --resume
 </code>
+
+## H. Plot distributions
 <code> python -m main --which_mode train --name vit_model --save_dir inference_save --multiprocessing --log --gpu </code>
