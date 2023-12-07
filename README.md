@@ -4,7 +4,7 @@ Welcome to **Memb-TDA**! This repo contains topological data analysis based mach
 ## **Warning**: 
 * Due to training data being very very large (~500 GB), we do not provide the training data. That means you may not run STEPs A and B.<br>
 * However, you are able to run STEP C's inference on OOD data procedure. To achieve this, please read the STEPs E through H. <br>
-* In STEP E, you can download inference data from [Zenodo](https://doi.org/10.5281/zenodo.10258742). Then clone this Memb-TDA repo, inside which you can copy and paste the *STEP C's inference on OOD data* code.<br>
+* In STEP E, you can download inference data from [Zenodo](https://doi.org/10.5281/zenodo.10258742). Then clone this Memb-TDA repo, inside which you can execute *STEP C's inference on OOD data* code.<br>
 * Make sure to put downloaded *inference_folder* and *inference_save* directories in the Memb-TDA repo; also, make a *saved* directory inside Memb-TDA repo (e.g., *--load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved*) where you will place downloaded pretrained model checkpoints. 
 
 ## STEP A. Preprocessing
