@@ -226,9 +226,11 @@ def plot_total_temps(filename: str):
     mpl.rcParams['axes.titlesize'] = 16
     XLIM = [280, 330]
     YLIM = [0, 0.08]
+    YLIM2 = [2, 16]
     XTICKS = [280, 290, 300, 310, 320, 330]
     YTICKS = [0, 0.02, 0.04, 0.06, 0.08]
-    
+    YTICKS2 = np.linspace(2, 16, 5).tolist()
+
     assert os.path.splitext(filename)[1] == ".npz", "File name extension is wrong..."
     data = np.load(filename)
     keys = list(data)
@@ -268,11 +270,11 @@ def plot_total_temps(filename: str):
             bincolor = bincount[sorted_pred_indices]
             ax.scatter(x[sorted_pred_indices], data["pred_std"].reshape(-1, ), c=bincolor, cmap=plt.get_cmap("hot"))
             ax.set_xlim(*XLIM)
-            # ax.set_ylim(*YLIM)
+            ax.set_ylim(*YLIM)
             ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
             ax.set_ylabel("Stds")
             ax.set_xticks(XTICKS)
-            # ax.set_yticks(YTICKS)
+            ax.set_yticks(YTICKS)
         
             ax.set_title("Stds of Effective Temperature Distribution")
         #     ax.set_ylim(280, 330)
@@ -293,7 +295,7 @@ def plot_one_temp(filename: str):
     YLIM = [0, 0.16]
     XTICKS = [280, 290, 300, 310, 320, 330]
     YTICKS = [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
-    
+
     assert os.path.splitext(filename)[1] == ".pickle", "File name extension is wrong..."
     assert "Predicted" in os.path.basename(filename), "File name prefix is wrong..."
 
