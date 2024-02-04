@@ -233,32 +233,49 @@ def plot_total_temps(filename: str):
     data = np.load(filename)
     keys = list(data)
     BINS = 100
-    
-    fig, ax = plt.subplots() 
-    ax.hist(data["pred"], bins=BINS, density=True, alpha=0.2, color='b') #npz has pred; pickle has predictions
-    kde = sns.kdeplot(data=data["pred"].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
-    x, y = kde.lines[0].get_data()
-    min_indices = signal.argrelextrema(y, np.less)[0]
-    ax.axvline(x[min_indices[0]], linewidth=3, c='r', linestyle="dashed")
-    ax.annotate(f'{np.round(x[min_indices[0]], 2)}', xy=(x[min_indices[0]], y[min_indices[0]]), xytext=(x[min_indices[0]]+2, y[min_indices[0]]-0.02),
-            arrowprops=dict(facecolor='black', shrink=0.05), fontsize=12)
-    ax.axvline(x[min_indices[1]], linewidth=3, c='r', linestyle="dashed")
-    ax.annotate(f'{np.round(x[min_indices[1]], 2)}', xy=(x[min_indices[1]], y[min_indices[1]]), xytext=(x[min_indices[1]]+3, y[min_indices[1]]-0.015),
-            arrowprops=dict(facecolor='black', shrink=0.05), fontsize=12)
-    ax.set_xlim(*XLIM)
-    ax.set_ylim(*YLIM)
-    ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
-    ax.set_ylabel("PDF")
-    ax.set_xticks(XTICKS)
-    ax.set_yticks(YTICKS)
 
-    ax.set_title("Effective Temperature Distribution")
-#     ax.set_ylim(280, 330)
-    fig.savefig(os.path.splitext(filename)[0] + ".png")
-
+    for key in keys:
+        if key == "pred":
+            fig, ax = plt.subplots() 
+            ax.hist(data[key], bins=BINS, density=True, alpha=0.2, color='b') #npz has pred; pickle has predictions
+            kde = sns.kdeplot(data=data[key].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
+            x, y = kde.lines[0].get_data()
+            min_indices = signal.argrelextrema(y, np.less)[0]
+            ax.axvline(x[min_indices[0]], linewidth=3, c='r', linestyle="dashed")
+            ax.annotate(f'{np.round(x[min_indices[0]], 2)}', xy=(x[min_indices[0]], y[min_indices[0]]), xytext=(x[min_indices[0]]+2, y[min_indices[0]]-0.02),
+                    arrowprops=dict(facecolor='black', shrink=0.05), fontsize=12)
+            ax.axvline(x[min_indices[1]], linewidth=3, c='r', linestyle="dashed")
+            ax.annotate(f'{np.round(x[min_indices[1]], 2)}', xy=(x[min_indices[1]], y[min_indices[1]]), xytext=(x[min_indices[1]]+3, y[min_indices[1]]-0.015),
+                    arrowprops=dict(facecolor='black', shrink=0.05), fontsize=12)
+            ax.set_xlim(*XLIM)
+            ax.set_ylim(*YLIM)
+            ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
+            ax.set_ylabel("PDF")
+            ax.set_xticks(XTICKS)
+            ax.set_yticks(YTICKS)
+        
+            ax.set_title("Effective Temperature Distribution")
+        #     ax.set_ylim(280, 330)
+            fig.savefig(os.path.splitext(filename)[0] + "_pred" + ".png")
+            
+        elif key == "pred_std":
+            fig, ax = plt.subplots() 
+            ax.hist(data[key], bins=BINS, density=True, alpha=0.2, color='b') #npz has pred; pickle has predictions
+            kde = sns.kdeplot(data=data[key].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
+            ax.set_xlim(*XLIM)
+            ax.set_ylim(*YLIM)
+            ax.set_xlabel("Stds of Effective Temperatures ($\mathregular{T_E}$)")
+            ax.set_ylabel("PDF")
+            ax.set_xticks(XTICKS)
+            # ax.set_yticks(YTICKS)
+        
+            ax.set_title("Effective Temperature Distribution")
+        #     ax.set_ylim(280, 330)
+            fig.savefig(os.path.splitext(filename)[0] + "_pred_std" + ".png")
+            
 #     plt.plot(x, y)
 #     plt.show()
-    print(min_indices)
+    # print(min_indices)
     
 #     with Parallel(n_jobs=psutil.cpu_count(), backend='multiprocessing') as parallel:
 #         results = parallel(delayed(calc_2d_filters)(toks, pains_smarts) for count, toks in enumerate(data)) #List[List]
