@@ -9,28 +9,28 @@ Welcome to **Memb-TDA**! This repo contains topological data analysis based mach
 
 ## STEP A. Preprocessing
 [Preprocessing] This extracts XYZ coordinates and multiprocesses PH; subscriptable by index for Dataset and loadable for DataLoader </br>
-<code>python -m main --which_mode preprocessing --pdb_database /Scr/arango/Sobolev-Hyun/2-MembTempredict/indiv_lips_H/ --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --log --gpu --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved
+<code>git pull && python -m main --which_mode preprocessing --pdb_database /Scr/arango/Sobolev-Hyun/2-MembTempredict/indiv_lips_H/ --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --log --gpu --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved
 </code>
 
 ## STEP B. Training
 [Training after preprocessing] Assuming that pickle/dat files for coordinates, PH and temperature are saved, we can start training neural network model...
 <br><br> For distributed data parallelization <br>
-<code>python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --which_mode train --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1
+<code>git pull && python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --which_mode train --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1
 </code>
   
 <br>To continue training...<br>
-<code>python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --which_mode train --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
+<code>git pull && python -m torch.distributed.run --nnodes=1 --nproc_per_node=gpu --max_restarts 0 --module main --which_mode train --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
 </code>
 
 ## STEP C. Inference
 [Inference after training] Assuming that we have a pretrained neural network model, we can pretict temperature distributions...
 <br><br>To infer on all data...<br>
-<code>python -m main --which_mode infer --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
+<code>git pull && python -m main --which_mode infer --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio 1 0.1 --resume
 </code>
 
 ### **Below is the MOST important code snippet! Inference on OOD data!**
 To infer PDB patches' temperatures inside e.g. **inference_save/T.307** directory, and to save inside **inference_save** directory as pickles<br> 
-<code>python -m main --which_mode infer_custom --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved --name convnext_model_indiv --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 512 --ce_re_ratio 1 0.1 --backbone convnext --resume --pdb_database /Scr/arango/Sobolev-Hyun/5-Analysis/AQP5-PC/inference_folder --save_dir inference_save --search_temp 307 --search_system AQP5-PC
+<code>git pull && python -m main --which_mode infer_custom --load_ckpt_path /Scr/hyunpark-new/Memb-TDA/saved --name convnext_model_indiv --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 512 --ce_re_ratio 1 0.1 --backbone convnext --resume --pdb_database /Scr/arango/Sobolev-Hyun/5-Analysis/AQP5-PC/inference_folder --save_dir inference_save --search_temp 307 --search_system AQP5-PC
 </code>
 
 ## STEP D. Train/Inference directories
@@ -61,9 +61,9 @@ PS. Download model checkpoints, input and output from [Zenodo](https://doi.org/1
 ## STEP G. Explainable AI (XAI)
 To get highlights of important persistence image features... Using multiprocessing backend<br>
 Available multiprocessing backends are "ray", "multiprocessing", "dask" or "joblib"<br>
-<code>python -m main --which_mode xai --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --multiprocessing_backend multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --which_xai gradcam --resume
+<code>git pull && python -m main --which_mode xai --name convnext_model_indiv --backbone convnext --save_dir /Scr/hyunpark-new/Memb-TDA/pickled_indiv --filename dppc.pickle --multiprocessing --multiprocessing_backend multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --which_xai gradcam --resume
 </code>
 
 ## STEP H. Plot distributions
 To get our paper's temperature distirubtion plot<br>
-<code> python -m main --which_mode eff_temp --save_dir inference_save --multiprocessing --log --gpu </code>
+<code>git pull && python -m main --which_mode eff_temp --save_dir inference_save --multiprocessing --log --gpu </code>
