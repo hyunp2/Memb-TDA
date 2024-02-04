@@ -270,11 +270,11 @@ def plot_total_temps(filename: str):
             bincolor = bincount[sorted_pred_indices]
             ax.scatter(x[sorted_pred_indices], data["pred_std"].reshape(-1, ), c=bincolor, cmap=plt.get_cmap("hot"))
             ax.set_xlim(*XLIM)
-            ax.set_ylim(*YLIM)
+            ax.set_ylim(*YLIM2)
             ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
             ax.set_ylabel("Stds")
             ax.set_xticks(XTICKS)
-            ax.set_yticks(YTICKS)
+            ax.set_yticks(YTICKS2)
         
             ax.set_title("Stds of Effective Temperature Distribution")
         #     ax.set_ylim(280, 330)
