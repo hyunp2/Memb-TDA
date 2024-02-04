@@ -266,7 +266,7 @@ def plot_total_temps(filename: str):
             sorted_pred_indices = np.searchsorted(x, data["pred"])
             bincount = np.bincount(sorted_pred_indices)
             bincolor = bincount[sorted_pred_indices]
-            ax.scatter(x[sorted_pred_indices], data["pred_std"].reshape(-1, ), c=bincolor)
+            ax.scatter(x[sorted_pred_indices], data["pred_std"].reshape(-1, ), c=bincolor, cmap=plt.get_cmap("hot"))
             ax.set_xlim(*XLIM)
             # ax.set_ylim(*YLIM)
             ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
