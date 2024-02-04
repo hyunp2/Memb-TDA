@@ -51,7 +51,7 @@ from test_utils import validate_and_test, InferenceDataset
 from interpret_utils import xai
 from math_utils import wasserstein_difference
 from train_utils import load_state, single_val, single_test
-from visual_utils import plot_one_temp, plot_one_temp_parallel
+from visual_utils import plot_total_temps, plot_one_temp_parallel
 import gc
 
 def get_args():
@@ -407,7 +407,7 @@ def analyze_XAI(args):
     gc.collect()
 
 def plot_effective_temperatures(args):
-    plot_one_temp(os.path.join("pickled_indiv", "convnext_all_temps.npz")) ###As of Feb 3rd 2024
+    plot_total_temps(os.path.join("pickled_indiv", "convnext_all_temps.npz")) ###As of Feb 3rd 2024
     plot_one_temp_parallel(args)
 
 if __name__ == "__main__":
