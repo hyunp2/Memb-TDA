@@ -254,24 +254,24 @@ def plot_total_temps(filename: str):
             ax.set_xticks(XTICKS)
             ax.set_yticks(YTICKS)
         
-            ax.set_title("Effective Temperature Distribution")
+            ax.set_title("Preds of Effective Temperature Distribution")
         #     ax.set_ylim(280, 330)
             fig.savefig(os.path.splitext(filename)[0] + "_pred" + ".png")
             
         elif key == "pred_std":
             fig, ax = plt.subplots() 
             kde = sns.kdeplot(data=data["pred"].reshape(-1, ), color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
-            x, y = kde.lines[0].get_data()
-            print(x)
-            ax.bar(x, data["pred_std"].reshape(-1, ))
+            x, y = kde.lines[0].get_data() #bins, pdf
+            sorted_pred_indices = np.searchsorted(x, data["pred"])
+            ax.scatter(x[sorted_pred_indices], data["pred_std"].reshape(-1, ))
             ax.set_xlim(*XLIM)
-            ax.set_ylim(*YLIM)
-            ax.set_xlabel("Stds of Effective Temperatures ($\mathregular{T_E}$)")
-            ax.set_ylabel("PDF")
+            # ax.set_ylim(*YLIM)
+            ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
+            ax.set_ylabel("Stds")
             ax.set_xticks(XTICKS)
             # ax.set_yticks(YTICKS)
         
-            ax.set_title("Effective Temperature Distribution")
+            ax.set_title("Stds of Effective Temperature Distribution")
         #     ax.set_ylim(280, 330)
             fig.savefig(os.path.splitext(filename)[0] + "_pred_std" + ".png")
             
