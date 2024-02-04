@@ -407,9 +407,7 @@ def analyze_XAI(args):
     gc.collect()
 
 def plot_effective_temperatures(args):
-    orig_dict = args.__dict__ 
-    orig_dict["save_dir"] = "pickled_indiv"
-    plot_one_temp(args)
+    plot_one_temp(os.path.join("pickled_indiv", "convnext_all_temps.npz")) ###As of Feb 3rd 2024
     plot_one_temp_parallel(args)
 
 if __name__ == "__main__":
