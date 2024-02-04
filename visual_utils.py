@@ -272,7 +272,7 @@ def plot_total_temps(filename: str):
             ax.set_xlim(*XLIM)
             ax.set_ylim(*YLIM2)
             ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
-            ax.set_ylabel("Stds")
+            ax.set_ylabel("Stds (K)")
             ax.set_xticks(XTICKS)
             ax.set_yticks(YTICKS2)
         
