@@ -64,6 +64,7 @@ def get_args():
     parser.add_argument('--filename', type=str, default="dppc.pickle")  
     parser.add_argument('--pdb_database', type=str, default="/Scr/arango/Sobolev-Hyun/2-MembTempredict/testing/") 
     parser.add_argument('--search_temp', default=123, help="e.g. keyword for T.123 directory") 
+    parser.add_argument('--search_system', default="ABC", help="e.g. protein/lipid system name") 
 
     #MDAnalysis utils
     parser.add_argument('--psf', type=str, default=None)  
