@@ -260,8 +260,10 @@ def plot_total_temps(filename: str):
             
         elif key == "pred_std":
             fig, ax = plt.subplots() 
-            ax.hist(data[key], bins=BINS, density=True, alpha=0.2, color='b') #npz has pred; pickle has predictions
-            kde = sns.kdeplot(data=data[key].reshape(-1, ), ax=ax, color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
+            kde = sns.kdeplot(data=data["pred"].reshape(-1, ), color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
+            x, y = kde.lines[0].get_data()
+            print(x)
+            ax.bar(x, data["pred_std"].reshape(-1, ))
             ax.set_xlim(*XLIM)
             ax.set_ylim(*YLIM)
             ax.set_xlabel("Stds of Effective Temperatures ($\mathregular{T_E}$)")
