@@ -407,8 +407,8 @@ def analyze_XAI(args):
     gc.collect()
 
 def plot_effective_temperatures(args):
-    plot_total_temps(os.path.join("pickled_indiv", "convnext_all_temps.npz")) ###As of Feb 3rd 2024
-    plot_one_temp_parallel(args)
+    plot_total_temps(os.path.join(args.save_dir, "convnext_all_temps.npz")) ###As of Feb 3rd 2024: needs npz file in "inference_save"
+    plot_one_temp_parallel(args) ###As of Feb 3rd 2024: needs pickle files in "inference_save"
 
 if __name__ == "__main__":
     args = get_args()
