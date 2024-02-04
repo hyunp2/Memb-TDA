@@ -221,7 +221,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         predictions_all_probs_T_std = ((ranges[None, :] - predictions_all_probs_T.view(-1,)[:, None]).pow(2) * predictions_all_probs).sum(dim=-1).sqrt().view(-1, ) #(Batch, )
 	
         if get_local_rank() == 0:
-            f = open(os.path.join(self.save_dir, "Predicted_" + self.filename), "wb")
+            f = open(os.path.join(self.save_dir, f"{self.args.search_system}_" + "Predicted_" + self.filename), "wb")
             save_as = collections.defaultdict(list)
             for key, val in zip(["predictions", "predictions_std", "images", "pdbnames"], [predictions_all_probs_T, predictions_all_probs_T_std, self.Images_total, self.pdb2str]):
                 save_as[key] = val
