@@ -262,8 +262,11 @@ def plot_total_temps(filename: str):
             fig, ax = plt.subplots() 
             kde = sns.kdeplot(data=data["pred"].reshape(-1, ), color='k', fill=False, common_norm=False, alpha=1, linewidth=2)
             x, y = kde.lines[0].get_data() #bins, pdf
+            del kde
             sorted_pred_indices = np.searchsorted(x, data["pred"])
-            ax.scatter(x[sorted_pred_indices], data["pred_std"].reshape(-1, ))
+            bincount = np.bincount(sorted_pred_indices)
+            bincolor = bincount[sorted_pred_indices]
+            ax.scatter(x[sorted_pred_indices], data["pred_std"].reshape(-1, ), color=bincolor)
             ax.set_xlim(*XLIM)
             # ax.set_ylim(*YLIM)
             ax.set_xlabel("Effective Temperatures ($\mathregular{T_E}$)")
