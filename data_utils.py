@@ -230,7 +230,7 @@ class PH_Featurizer_Dataset(Dataset):
             self.reference, self.prot_traj = self.load_traj(data_dir=self.data_dir, pdb=self.pdb, psf=self.psf, trajs=self.trajs, selection=self.atom_selection)
             self.coords_ref, self.coords_traj = self.get_coordinates_for_md(self.reference), self.get_coordinates_for_md(self.prot_traj)
         else:
-            #pdb_database: /Scr/arango/Sobolev-Hyun/2-MembTempredict/testing/
+            #pdb_database: (For patch) /Scr/arango/Sobolev-Hyun/2-MembTempredict/testing/ (For indiv) /Scr/arango/Sobolev-Hyun/2-MembTempredict/indiv_lips_H/
             self.coords_ref = []
             self.coords_traj = []
             self.temperatures = []
