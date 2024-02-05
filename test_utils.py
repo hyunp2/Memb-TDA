@@ -185,7 +185,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
 
         (confmat, acc_global, acc, iu), (temps_all, predictions_all) = self.get_statistics(dataloader)
         print("HERE")
-        print(confmat.mat, acc_global.non_zero(), acc, iu, temps_all, predictions_all
+        print(confmat.mat, acc_global.nonzero(), acc, iu, temps_all, predictions_all
 	      
         temps_all = torch.cat(temps_all, dim=0) #(how_many_patches, 48)
         predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 48)
