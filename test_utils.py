@@ -183,12 +183,16 @@ class InferenceDataset(PH_Featurizer_Dataset):
 #         dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
         dataloader = get_dataloader(dataset, shuffle=False, collate_fn=None, batch_size=self.batch_size, **kwargs)
 
-        confmat, temps_all, predictions_all = self.get_statistics(dataloader)
-
-        print(confmat.mat, confmat)
+        (confmat, acc_global, acc, iu), (temps_all, predictions_all) = self.get_statistics(dataloader)
+        print("HERE")
+        print(confmat.mat, acc_global, acc, iu, temps_all, predictions_all)
 	
         predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 48)
         if dist.is_initialized():
+            temps_all = torch.tensor(temps_all, dtype=torch.float, device=self.device) #(B,num_classes)
+            temps_all_list = [temps_all.new_zeros(temps_all.size()).to(temps_all) for _ in range(self.world_size)] #list of (B,num_classes)
+            torch.distributed.all_gather(temps_all_list, temps_all) #Gather to empty list!
+            temps_all = torch.cat([temps for temps in temps_all_list], dim=0) #(Bs, num_classes)
             predictions_all = torch.tensor(predictions_all, dtype=torch.float, device=self.device) #(B,num_classes)
             predictions_all_list = [predictions_all.new_zeros(predictions_all.size()).to(predictions_all) for _ in range(self.world_size)] #list of (B,num_classes)
             torch.distributed.all_gather(predictions_all_list, predictions_all) #Gather to empty list!
