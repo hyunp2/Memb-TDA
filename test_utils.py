@@ -388,6 +388,7 @@ if __name__ == "__main__":
 #     infer_all_temperatures()
     from main import get_args
     args = get_args()
-    data = os.path.join(pathlib.Path(args.save_dir).parent, "inference_save", f"{args.backbone}_all_temps.npz")
+    data = np.load(os.path.join(pathlib.Path(args.save_dir).parent, "inference_save", f"{args.backbone}_all_temps.npz"))
     gt, pred = data["gt"], data["pred"]
     compute_confusion(gt, pred)
+    ## git pull && python -m test_utils --save_dir pickled_indiv --backbone convnext
