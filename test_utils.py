@@ -393,5 +393,7 @@ if __name__ == "__main__":
     gt = gt - TEMP_RANGES[0]
     ranges = np.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).astype(float) #temperatures
     pred = np.searchsorted(ranges, pred) #Method 1; (Method 2) try on classification!
+    gt_low, gt_mid, gt_high = gt[gt]
+    pred_low, pred_mid, pred_high = 
     compute_confusion(gt, pred)
     ## git pull && python -m test_utils --save_dir pickled_indiv --backbone convnext
