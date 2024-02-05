@@ -382,7 +382,7 @@ def compute_statistics(gt, pred, labels=np.arange(TEMP_RANGES[2])) -> None:
     acc = np.diag(h) / h.sum(1)
     iu = np.diag(h) / (h.sum(1) + h.sum(0) - np.diag(h))
 
-    rocauc, f1 = roc_auc_score(gt, pred, labels=labels, multi_class="ovo", average="macro"), f1_score(gt, pred, labels=labels, average="macro")	
+    rocauc, f1 = roc_auc_score(gt, pred, labels=labels, multi_class="ovr", average="weighted"), f1_score(gt, pred, labels=labels, average="macro")	
 	
     print("Confusion matrix: ", confmat)
     print("Accuracy: ", acc_global * 100)
