@@ -226,7 +226,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
                 save_as[key] = val
             # save_as["METADATA"] = (confmat.mat, *confmat.compute())
             pickle.dump(save_as, f)   
-        confmat.reset()
+        # confmat.reset()
 
         if dist.is_initialized():
     	    dist.destroy_process_group()
