@@ -237,7 +237,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
                 temps = batch[1].to(self.device) - TEMP_RANGES[0] #confmat must have a range from 0-47
 #                 temps = batch[1].to(self.device) - 283 #confmat must have a range from 0-47
 #                 print(batch.size(), predictions.size())
-                # confmat.update(temps.flatten().long(), predictions.argmax(1).flatten())
+                confmat.update(temps.flatten().long(), predictions.argmax(1).flatten())
                 temps_all.append(temps)
                 predictions_all.append(predictions)
 	    
