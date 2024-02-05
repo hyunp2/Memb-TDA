@@ -71,9 +71,6 @@ def merge(images, size):
 
     return img
 
-def get_statistics(filename: str, ):
-    pass
-
 class InferenceDataset(PH_Featurizer_Dataset):
     #python -m main --which_mode infer_custom --name convnext_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 512 --ce_re_ratio 1 0.1 --backbone convnext --resume --pdb_database inference_folder --save_dir inference_save --search_temp 307
     def __init__(self, args: argparse.ArgumentParser, model: torch.nn.Module):
@@ -185,21 +182,9 @@ class InferenceDataset(PH_Featurizer_Dataset):
         kwargs = {'pin_memory': True, 'persistent_workers': False}
 #         dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
         dataloader = get_dataloader(dataset, shuffle=False, collate_fn=None, batch_size=self.batch_size, **kwargs)
-	
-        predictions_all = []
-        confmat = ConfusionMatrix(num_classes=TEMP_RANGES[2])
-#         confmat = ConfusionMatrix(num_classes=48)
 
-        with torch.inference_mode():
-            for batch in dataloader:
-                imgs = batch[0].to(self.device)
-                predictions = self.model(imgs)
-                temps = batch[1].to(self.device) - TEMP_RANGES[0] #confmat must have a range from 0-47
-#                 temps = batch[1].to(self.device) - 283 #confmat must have a range from 0-47
-#                 print(batch.size(), predictions.size())
-                confmat.update(temps.flatten().long(), predictions.argmax(1).flatten())
-                predictions_all.append(predictions)
-        confmat.reduce_from_all_processes()
+        confmat, temps_all, predictions_all = self.get_statistics(dataloader)
+
         print(confmat.mat, confmat)
 	
         predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 48)
@@ -234,7 +219,27 @@ class InferenceDataset(PH_Featurizer_Dataset):
 	
     def __call__(self):
         self.infer_all_temperatures
-	
+
+    def get_statistics(self, dataloader: torch.utils.data.DataLoader):
+        """Compute confusion matrix"""
+        temps_all = []
+        predictions_all = []
+        confmat = ConfusionMatrix(num_classes=TEMP_RANGES[2])
+	    
+        with torch.inference_mode():
+            for batch in dataloader:
+                imgs = batch[0].to(self.device)
+                predictions = self.model(imgs)
+                temps = batch[1].to(self.device) - TEMP_RANGES[0] #confmat must have a range from 0-47
+#                 temps = batch[1].to(self.device) - 283 #confmat must have a range from 0-47
+#                 print(batch.size(), predictions.size())
+                # confmat.update(temps.flatten().long(), predictions.argmax(1).flatten())
+                temps_all.append(temps)
+                predictions_all.append(predictions)
+	    
+        confmat.reduce_from_all_processes()
+        return confmat, temps_all, predictions_all
+
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
           train_dataloader: DataLoader,
