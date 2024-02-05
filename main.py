@@ -418,11 +418,12 @@ def get_ml_metrics(args):
     gt = gt - TEMP_RANGES[0]
     ranges = np.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).astype(float) #temperatures
     pred = np.searchsorted(ranges, pred) #Method 1; (Method 2) try on classification!
-	
-    for_sorting = np.array([306, 312]) - TEMP_RANGES[0] #Three classes: 0, 1, 2 for LOW/MID/HIGH
+
+    thresh = np.array([306])	
+    for_sorting = thresh - TEMP_RANGES[0] #Three classes: 0, 1, 2 for LOW/MID/HIGH
     gts = np.searchsorted(for_sorting, gt)
     preds = np.searchsorted(for_sorting, pred)
-    compute_confusion(gts, preds, labels=np.arange(3)) #Three classes: 0, 1, 2 for LOW/MID/HIGH
+    compute_confusion(gts, preds, labels=np.arange(len(thresh) + 1)) #Three classes: 0, 1, 2 for LOW/MID/HIGH
 
 if __name__ == "__main__":
     args = get_args()
