@@ -47,7 +47,7 @@ from kd_train_utils import train as distill_train_function
 from model import MPNN, Vision
 from gpu_utils import *
 from loss_utils import * #TEMP_RANGES
-from test_utils import compute_confusion, validate_and_test, InferenceDataset
+from test_utils import compute_statistics, validate_and_test, InferenceDataset
 from interpret_utils import xai
 from math_utils import wasserstein_difference
 from train_utils import load_state, single_val, single_test
@@ -424,7 +424,7 @@ def get_ml_metrics(args):
     for_sorting = thresh - TEMP_RANGES[0] #Three classes: 0, 1, 2 for LOW/MID/HIGH
     gts = np.searchsorted(for_sorting, gt)
     preds = np.searchsorted(for_sorting, pred)
-    compute_confusion(gts, preds, labels=np.arange(len(thresh) + 1)) #Three classes: 0, 1, 2 for LOW/MID/HIGH
+    compute_statistics(gts, preds, labels=np.arange(len(thresh) + 1)) #Three classes: 0, 1, 2 for LOW/MID/HIGH
 
 if __name__ == "__main__":
     args = get_args()
