@@ -374,10 +374,10 @@ def validate_and_test(model: nn.Module,
     if dist.is_initialized():
     	dist.destroy_process_group()
 
-def compute_confusion(gt, pred) -> None:
+def compute_confusion(gt, pred, labels=np.arange(TEMP_RANGES[2])) -> None:
     temps_all = gt
     predictions_all = pred
-    h = confmat = confusion_matrix(temps_all, predictions_all, labels=np.arange(TEMP_RANGES[2]))	
+    h = confmat = confusion_matrix(temps_all, predictions_all, labels=labels)	
     acc_global = np.diag(h).sum() / h.sum()
     acc = np.diag(h) / h.sum(1)
     iu = np.diag(h) / (h.sum(1) + h.sum(0) - np.diag(h))
@@ -386,6 +386,8 @@ def compute_confusion(gt, pred) -> None:
 if __name__ == "__main__":
     # plot_analysis("PH_all_test.npz")
 #     infer_all_temperatures()
+
+    ###BELOW as of Feb 4th 2024
     from main import get_args
     args = get_args()
     data = np.load(os.path.join(pathlib.Path(args.save_dir).parent, "inference_save", f"{args.backbone}_all_temps.npz"))
@@ -393,7 +395,9 @@ if __name__ == "__main__":
     gt = gt - TEMP_RANGES[0]
     ranges = np.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).astype(float) #temperatures
     pred = np.searchsorted(ranges, pred) #Method 1; (Method 2) try on classification!
-    gt_low, gt_mid, gt_high = gt[gt]
-    pred_low, pred_mid, pred_high = 
-    compute_confusion(gt, pred)
+	
+    for_sorting = np.array([306, 310]) - TEMP_RANGES[0] #Three classes: 0, 1, 2 for LOW/MID/HIGH
+    gts = np.searchsorted(for_sorting, gt)
+    preds = np.searchsorted(for_sorting, pred)
+    compute_confusion(gts, preds, labels=np.arange(3)) #Three classes: 0, 1, 2 for LOW/MID/HIGH
     ## git pull && python -m test_utils --save_dir pickled_indiv --backbone convnext
