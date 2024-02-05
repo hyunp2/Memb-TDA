@@ -17,7 +17,7 @@ try:
     from apex.optimizers import FusedAdam, FusedLAMB
 except Exception as e:
     pass
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score, classification_report
 from torch.nn.modules.loss import _Loss
 from torch.nn.parallel import DistributedDataParallel
 from torch.optim import Optimizer
@@ -374,18 +374,27 @@ def validate_and_test(model: nn.Module,
     if dist.is_initialized():
     	dist.destroy_process_group()
 
-def compute_confusion(gt, pred, labels=np.arange(TEMP_RANGES[2])) -> None:
+def compute_statistics(gt, pred, labels=np.arange(TEMP_RANGES[2])) -> None:
     temps_all = gt
     predictions_all = pred
     h = confmat = confusion_matrix(temps_all, predictions_all, labels=labels)	
     acc_global = np.diag(h).sum() / h.sum()
     acc = np.diag(h) / h.sum(1)
     iu = np.diag(h) / (h.sum(1) + h.sum(0) - np.diag(h))
+
+    rocauc, f1 = roc_auc_score(gt, pred, labels=labels, multi_class="ovr", average="macro"), f1_score(gt, pred, labels=labels, average="macro")	
+	
     print("Confusion matrix: ", confmat)
     print("Accuracy: ", acc_global * 100)
     print("Balanced Accuracy: ", np.mean(acc) * 100)
     print("True Positive: ", acc)
     print("IU: ", iu)
+    print("IU: ", iu)
+    print("ROCAUC: ", rocauc)
+    print("F1: ", f1)
+
+    report = classification_report(gt, pred, labels=labels)
+    print(report)
 	
 if __name__ == "__main__":
     # plot_analysis("PH_all_test.npz")
