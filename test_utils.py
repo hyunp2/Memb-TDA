@@ -192,8 +192,11 @@ class InferenceDataset(PH_Featurizer_Dataset):
 	      
         temps_all = torch.cat(temps_all, dim=0) #(how_many_patches, 48)
         predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 48)
-        confmat = confusion_matrix(temps_all.detach().cpu().numpy(), predictions_all.detach().cpu().numpy())	
-        print()	    
+        h = confmat = confusion_matrix(temps_all.detach().cpu().numpy(), predictions_all.detach().cpu().numpy())	
+        acc_global = np.diag(h).sum() / h.sum()
+        acc = np.diag(h) / h.sum(1)
+        iu = np.diag(h) / (h.sum(1) + h.sum(0) - torch.np(h))
+        print(confmat, acc_global, acc, iu)	    
 	    
         if dist.is_initialized():
             temps_all = torch.tensor(temps_all, dtype=torch.float, device=self.device) #(B,num_classes)
