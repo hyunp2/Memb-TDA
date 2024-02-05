@@ -385,7 +385,7 @@ def compute_statistics(gt, pred, labels=np.arange(TEMP_RANGES[2])) -> None:
     # rocauc = roc_auc_score(gt, pred, labels=labels, multi_class="ovr", average="weighted")
     f1 =  f1_score(gt, pred, labels=labels, average="macro")	
     matt = matthews_corrcoef(gt, pred)
-    kappa = cohen_kappa_score(gt, pred)
+    kappa = cohen_kappa_score(gt, pred, labels=labels)
 	
     print("Confusion matrix: ", confmat)
     print("Accuracy: ", acc_global * 100)
