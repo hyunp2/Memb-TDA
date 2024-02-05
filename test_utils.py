@@ -238,7 +238,8 @@ class InferenceDataset(PH_Featurizer_Dataset):
                 predictions_all.append(predictions)
 	    
         confmat.reduce_from_all_processes()
-        return confmat, temps_all, predictions_all
+        acc_global, acc, iu = confmat.compute()
+        return (confmat, acc_global, acc, iu), (temps_all, predictions_all)
 
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
