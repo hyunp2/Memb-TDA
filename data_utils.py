@@ -296,10 +296,10 @@ class PH_Featurizer_Dataset(Dataset):
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
         else:
             print(f"Multiple CPU Persistent Diagram... with {os.cpu_count()} CPUs")
-            if not ( os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_PH_" + self.filename)) 
-                    and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_coords_" + self.filename)) 
-                    and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_Im_" + self.filename)) 
-                    and os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_temperature_" + self.filename))  ):
+            if not ( os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) if self.search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_PH_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) if self.search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_coords_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename)) if self.search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_Im_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)) if self.search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_temperature_" + self.filename))  ):
                 print("I am here!")
                 s=time.time()
 #                 futures = [get_coordinates_mp.remote(i) for i in self.files_to_pg] 
