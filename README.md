@@ -67,3 +67,7 @@ Available multiprocessing backends are "ray", "multiprocessing", "dask" or "jobl
 ## STEP H. Plot distributions
 To get our paper's temperature distirubtion plot<br>
 <code>git pull && python -m main --which_mode eff_temp --save_dir inference_save --multiprocessing --log --gpu </code>
+
+## STEP H. Get ML metrics
+To get our paper's ML metrics<br>
+<code>git pull && python -m main --which_mode ml_metrics --save_dir pickled_indiv  </code>
