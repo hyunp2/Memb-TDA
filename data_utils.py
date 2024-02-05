@@ -216,7 +216,7 @@ def sanity_check_mdtraj(directory: str, pdbs: List[str]) -> List[int]:
     
 # @dataclasses.dataclass
 class PH_Featurizer_Dataset(Dataset):
-    def __init__(self, args: argparse.ArgumentParser, directories: str=None, image_stats: collections.namedtuple=None):
+    def __init__(self, args: argparse.ArgumentParser, directories: str=None, image_stats: collections.namedtuple=None, search_system: str=None):
         super().__init__()
         [setattr(self, key, val) for key, val in args.__dict__.items()]
 #         self.files_to_pg = list(map(lambda inp: os.path.join(self.data_dir, inp), os.listdir(self.data_dir)))
@@ -237,10 +237,12 @@ class PH_Featurizer_Dataset(Dataset):
             
             directories = sorted(glob.glob(os.path.join(self.pdb_database, "T.*"))) if directories is None else directories #For a specific directory during inference!
             self.image_stats = image_stats
-            if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) 
-                    and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) 
-                    and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename)) 
-                    and os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)) ):
+            self.search_system = search_system
+            
+            if not ( os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, search_system + "_PH_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, search_system + "_coords_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, search_system + "_Im_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, search_system + "_temperature_" + self.filename))  ):
                 for direct in directories:
                     pdbs = os.listdir(direct) #all PDBs inside a directory
     #                 print(os.path.join(direct,pdbs[0]))
@@ -249,15 +251,18 @@ class PH_Featurizer_Dataset(Dataset):
                     valid_pdbs = sanity_check_mdtraj(direct, pdbs) #List[str]
                     self.coords_traj += [ mdtraj.load(os.path.join(direct,top)).xyz[0] for top in valid_pdbs ] if not self.multiprocessing else ray.get([mdtraj_loading.remote(root, top) for root, top in zip([direct]*len(valid_pdbs), valid_pdbs)])
                     self.temperatures += [int(os.path.split(direct)[1].split(".")[1])] * len(valid_pdbs)
-                f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "wb")
+                f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "wb") if search_system is None else open(os.path.join(self.save_dir, search_system + "_temperature_" + self.filename), "wb") 
                 pickle.dump(self.temperatures, f)   
                 assert len(self.coords_traj) == len(self.temperatures), "coords traj and temperatures must have the same data length..."
                 print(cf.on_blue("STEP 0: Saved temperature!"))
             else:
-                f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "rb") if not self.truncated else open(os.path.join(self.save_dir, "truncated_temperature_" + self.filename), "rb")
+                if not self.truncated:
+                    f = open(os.path.join(self.save_dir, "temperature_" + self.filename), "rb") if search_system is None else open(os.path.join(self.save_dir, search_system + "_temperature_" + self.filename), "rb") 
+                else:
+                    f = open(os.path.join(self.save_dir, "truncated_temperature_" + self.filename), "rb") if search_system is None else open(os.path.join(self.save_dir, search_system + "_truncated_temperature_" + self.filename), "rb")
                 self.temperatures = pickle.load(f)
                 print(cf.on_blue("STEP0: Loaded temperature!"))
-                
+            
 #         self.graph_input_list, self.Rs_total, self.Rs_list_tensor = self.get_values()
         
         self.feature_extractor = ViTFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False) if self.backbone in ["vit", "swin", "swinv2"] else ConvNextFeatureExtractor(do_resize=False, size=Vision.IMAGE_SIZE, do_normalize=True, image_mean=Vision.IMAGE_MEAN, image_std=Vision.IMAGE_STD, do_rescale=False)
@@ -291,17 +296,17 @@ class PH_Featurizer_Dataset(Dataset):
                 Rs_total = pickle.load(f) #List of structures: each structure has maxdim PHs
         else:
             print(f"Multiple CPU Persistent Diagram... with {os.cpu_count()} CPUs")
-            if not (os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) 
-                    and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) 
-                    and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename)) 
-                    and os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)) ):
+            if not ( os.path.exists(os.path.join(self.save_dir, "PH_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_PH_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "coords_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_coords_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "Im_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_Im_" + self.filename)) 
+                    and os.path.exists(os.path.join(self.save_dir, "temperature_" + self.filename)) if search_system is None else os.path.exists(os.path.join(self.save_dir, self.search_system + "_temperature_" + self.filename))  ):
                 print("I am here!")
                 s=time.time()
 #                 futures = [get_coordinates_mp.remote(i) for i in self.files_to_pg] 
 #                 graph_input_list = ray.get(futures) #List of structures: each structure has maxdim PHs
                 graph_input_list = self.coords_ref + self.coords_traj
                 graph_input_list = list(map(lambda inp: torch.tensor(inp), graph_input_list )) #List of (L,3) Arrays
-                f = open(os.path.join(self.save_dir, "coords_" + self.filename), "wb")
+                f = open(os.path.join(self.save_dir, "coords_" + self.filename), "wb") if self.search_system is None else open(os.path.join(self.save_dir, self.search_system + "_coords_" + self.filename), "wb")
                 pickle.dump(graph_input_list, f) 
                 print(cf.on_yellow("STEP 1: Coordinate extraction done!"))
                 
@@ -315,7 +320,7 @@ class PH_Featurizer_Dataset(Dataset):
                     Rs_total = [persistent_diagram(i, maxdim) for i, maxdim in tqdm.tqdm(zip(graph_input_list, maxdims), total=len(maxdims))] 
 #                 print(len(Rs_total), len(Rs_total[0]))
 
-                f = open(os.path.join(self.save_dir, "PH_" + self.filename), "wb")
+                f = open(os.path.join(self.save_dir, "PH_" + self.filename), "wb") if self.search_system is None else open(os.path.join(self.save_dir, self.search_system + "_PH_" + self.filename), "wb")
                 pickle.dump(Rs_total, f)   
                 print(cf.on_yellow("STEP 2: Persistent diagram extraction done!"))
 
@@ -355,14 +360,14 @@ class PH_Featurizer_Dataset(Dataset):
                     img_list = list(map(lambda inp: (inp - mins) / (maxs - mins), img_list )) #range [0,1]
                     pers_images_total[i] += img_list
                 Images_total = pers_images_total
-                f = open(os.path.join(self.save_dir, "Im_" + self.filename), "wb")
+                f = open(os.path.join(self.save_dir, "Im_" + self.filename), "wb") if self.search_system is None else open(os.path.join(self.save_dir, self.search_system + "_Im_" + self.filename), "wb")
                 pickle.dump(pers_images_total, f)   
                 print(cf.on_yellow("STEP 3: Persistent image extraction done!"))
                 
                 pbar = tqdm.tqdm(range(len(Images_total[0])))
                 imgs = [images_processing(Images_total, index=ind) for ind in pbar]
                 Processed_images_total = imgs
-                f = open(os.path.join(self.save_dir, "ProcessedIm_" + self.filename), "wb")
+                f = open(os.path.join(self.save_dir, "ProcessedIm_" + self.filename), "wb") if self.search_system is None else open(os.path.join(self.save_dir, self.search_system + "_ProcessedIm_" + self.filename), "wb")
                 pickle.dump(imgs, f)
                 e=time.time()
                 print(cf.on_yellow("STEP 4: PIL resized images done!"))
@@ -383,7 +388,10 @@ class PH_Featurizer_Dataset(Dataset):
 #                 if not self.preprocessing_only: Rs_list_tensor = list(map(alphalayer_computer_coords, graph_input_list, maxdims ))
 #                 f = open(os.path.join(self.save_dir, "Im_" + self.filename), "rb")
 #                 Images_total = pickle.load(f) #List of structures: each structure has maxdim PHs #######IGNORE!
-                f = open(os.path.join(self.save_dir, "ProcessedIm_" + self.filename), "rb") if not self.truncated else open(os.path.join(self.save_dir, "truncated_ProcessedIm_" + self.filename), "rb")
+                if not self.truncated:
+                    f = open(os.path.join(self.save_dir, "ProcessedIm_" + self.filename), "rb") if self.search_system is None else open(os.path.join(self.save_dir, self.search_system + "_ProcessedIm_" + self.filename), "rb") 
+                else:
+                    f = open(os.path.join(self.save_dir, "truncated_ProcessedIm_" + self.filename), "rb") if self.search_system is None else open(os.path.join(self.save_dir, self.search_system + "_truncated_ProcessedIm_" + self.filename), "rb")
                 Processed_images_total = pickle.load(f) #List of structures: each structure has maxdim PHs
                 
         if self.preprocessing_only or self.ignore_topologicallayer:
