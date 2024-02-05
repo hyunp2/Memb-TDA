@@ -390,7 +390,8 @@ if __name__ == "__main__":
     args = get_args()
     data = np.load(os.path.join(pathlib.Path(args.save_dir).parent, "inference_save", f"{args.backbone}_all_temps.npz"))
     gt, pred = data["gt"], data["pred"]
+    gt = gt - TEMP_RANGES[0]
     ranges = np.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).astype(float) #temperatures
-    pred = np.searchsorted(ranges, pred) #Method 1; try on classification!
+    pred = np.searchsorted(ranges, pred) #Method 1; (Method 2) try on classification!
     compute_confusion(gt, pred)
     ## git pull && python -m test_utils --save_dir pickled_indiv --backbone convnext
