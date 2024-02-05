@@ -17,6 +17,7 @@ try:
     from apex.optimizers import FusedAdam, FusedLAMB
 except Exception as e:
     pass
+from sklearn.metrics import confusion_matrix
 from torch.nn.modules.loss import _Loss
 from torch.nn.parallel import DistributedDataParallel
 from torch.optim import Optimizer
