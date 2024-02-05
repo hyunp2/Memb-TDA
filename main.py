@@ -421,10 +421,10 @@ def get_ml_metrics(args):
     pred = np.searchsorted(ranges, pred) #Method 1; (Method 2) try on classification!
 
     thresh = np.array(args.confusion_thresh)	
-    print(thresh[0])
+    # print(thresh[0])
     for_sorting = thresh - TEMP_RANGES[0] #Three classes: 0, 1, 2 for LOW/MID/HIGH
-    gts = np.searchsorted(for_sorting, gt)
-    preds = np.searchsorted(for_sorting, pred)
+    gts = np.searchsorted(for_sorting, gt).reshape(-1, )
+    preds = np.searchsorted(for_sorting, pred).reshape(-1, )
     compute_statistics(gts, preds, labels=np.arange(len(thresh) + 1)) #Three classes: 0, 1, 2 for LOW/MID/HIGH
 
 if __name__ == "__main__":
