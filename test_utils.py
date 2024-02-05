@@ -185,6 +185,8 @@ class InferenceDataset(PH_Featurizer_Dataset):
         dataloader = get_dataloader(dataset, shuffle=False, collate_fn=None, batch_size=self.batch_size, **kwargs)
 
         # (confmat, acc_global, acc, iu), (temps_all, predictions_all) = self.get_statistics(dataloader)
+        _, (temps_all, predictions_all) = self.get_statistics_sklearn(dataloader)
+
         print("HERE")
         # print(confmat.mat, acc_global.nonzero(), acc, iu, temps_all, predictions_all)
 	      
