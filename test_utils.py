@@ -184,12 +184,15 @@ class InferenceDataset(PH_Featurizer_Dataset):
 #         dataloader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=False, **kwargs)
         dataloader = get_dataloader(dataset, shuffle=False, collate_fn=None, batch_size=self.batch_size, **kwargs)
 
-        (confmat, acc_global, acc, iu), (temps_all, predictions_all) = self.get_statistics(dataloader)
+        # (confmat, acc_global, acc, iu), (temps_all, predictions_all) = self.get_statistics(dataloader)
         print("HERE")
-        print(confmat.mat, acc_global.nonzero(), acc, iu, temps_all, predictions_all)
+        # print(confmat.mat, acc_global.nonzero(), acc, iu, temps_all, predictions_all)
 	      
         temps_all = torch.cat(temps_all, dim=0) #(how_many_patches, 48)
         predictions_all = torch.cat(predictions_all, dim=0) #(how_many_patches, 48)
+        confmat = confusion_matrix(temps_all.detach().cpu().numpy(), predictions_all.detach().cpu().numpy())	
+        print()	    
+	    
         if dist.is_initialized():
             temps_all = torch.tensor(temps_all, dtype=torch.float, device=self.device) #(B,num_classes)
             temps_all_list = [temps_all.new_zeros(temps_all.size()).to(temps_all) for _ in range(self.world_size)] #list of (B,num_classes)
@@ -246,6 +249,23 @@ class InferenceDataset(PH_Featurizer_Dataset):
         confmat.reduce_from_all_processes()
         acc_global, acc, iu = confmat.compute()
         return (confmat, acc_global, acc, iu), (temps_all, predictions_all)
+
+    def get_statistics_sklearn(self, dataloader: torch.utils.data.DataLoader):
+        """Compute confusion matrix"""
+        temps_all = []
+        predictions_all = []
+	    
+        with torch.inference_mode():
+            for batch in dataloader:
+                imgs = batch[0].to(self.device)
+                predictions = self.model(imgs)
+                temps = batch[1].to(self.device) - TEMP_RANGES[0] #confmat must have a range from 0-47
+#                 temps = batch[1].to(self.device) - 283 #confmat must have a range from 0-47
+#                 print(batch.size(), predictions.size())
+                temps_all.append(temps)
+                predictions_all.append(predictions)
+	    
+        return None, (temps_all, predictions_all)
 
 def validate_and_test(model: nn.Module,
           get_loss_func: _Loss,
