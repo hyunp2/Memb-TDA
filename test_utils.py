@@ -381,7 +381,11 @@ def compute_confusion(gt, pred, labels=np.arange(TEMP_RANGES[2])) -> None:
     acc_global = np.diag(h).sum() / h.sum()
     acc = np.diag(h) / h.sum(1)
     iu = np.diag(h) / (h.sum(1) + h.sum(0) - np.diag(h))
-    print(confmat, acc_global, acc, iu)	    
+    print("Confusion matrix: ", confmat)
+    print("Accuracy: ", acc_global * 100)
+    print("Balanced Accuracy: ", np.mean(acc) * 100)
+    print("True Positive: ", acc)
+    print("IU: ", iu)
 	
 if __name__ == "__main__":
     # plot_analysis("PH_all_test.npz")
