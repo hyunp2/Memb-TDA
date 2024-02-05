@@ -124,6 +124,7 @@ def get_args():
     #Mode utils
     parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "distill", "infer", "infer_custom", "xai", "eff_temp", "ml_metrics"], default="preprocessing")  
     parser.add_argument('--which_xai', type=str, choices=["saliency", "gradcam", "lime", "attention"], default="saliency")  
+    parser.add_argument('--confusion_thresh', nargs="*", default=[306, 310], type=float, help="threshold for classification")
 
     args = parser.parse_args()
     return args
