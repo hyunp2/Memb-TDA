@@ -195,7 +195,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         h = confmat = confusion_matrix(temps_all.detach().cpu().numpy(), predictions_all.argmax(1).detach().cpu().numpy())	
         acc_global = np.diag(h).sum() / h.sum()
         acc = np.diag(h) / h.sum(1)
-        iu = np.diag(h) / (h.sum(1) + h.sum(0) - torch.np(h))
+        iu = np.diag(h) / (h.sum(1) + h.sum(0) - np.diag(h))
         print(confmat, acc_global, acc, iu)	    
 	    
         if dist.is_initialized():
