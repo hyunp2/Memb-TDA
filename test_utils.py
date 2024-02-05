@@ -109,7 +109,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
         self.model = model #To call a pretrained model!
         self.model.eval()
-	self.search_system = args.search_system
+        self.search_system = args.search_system
         self.directories = [os.path.join(args.pdb_database, f"T.{args.search_temp}")] #e.g. List of str dir ... ["inference_pdbdatabase/T.123"]
         #index_for_searchTemp is NO LONGER NECESSARY!
 	
