@@ -373,7 +373,19 @@ def validate_and_test(model: nn.Module,
     print(cf.on_yellow("Validation and test are OVER..."))
     if dist.is_initialized():
     	dist.destroy_process_group()
+
+def compute_confusion(gt, pred) -> None:
+    temps_all = gt
+    predictions_all = pred
+    h = confmat = confusion_matrix(temps_all, predictions_all, labels=np.arange(TEMP_RANGES[2]))	
+    acc_global = np.diag(h).sum() / h.sum()
+    acc = np.diag(h) / h.sum(1)
+    iu = np.diag(h) / (h.sum(1) + h.sum(0) - np.diag(h))
+    print(confmat, acc_global, acc, iu)	    
 	
 if __name__ == "__main__":
-    plot_analysis("PH_all_test.npz")
+    # plot_analysis("PH_all_test.npz")
 #     infer_all_temperatures()
+	from main import get_args
+    data = os.path.join(pathlib.Path(args.save_dir).parent, "inference_save", f"{args.backbone}_all_temps.npz")
+    compute_confusion(gt, pred)
