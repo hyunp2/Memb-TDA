@@ -17,7 +17,7 @@ try:
     from apex.optimizers import FusedAdam, FusedLAMB
 except Exception as e:
     pass
-from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score, classification_report
+from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score, classification_report, matthews_corrcoef, cohen_kappa_score
 from torch.nn.modules.loss import _Loss
 from torch.nn.parallel import DistributedDataParallel
 from torch.optim import Optimizer
@@ -382,7 +382,10 @@ def compute_statistics(gt, pred, labels=np.arange(TEMP_RANGES[2])) -> None:
     acc = np.diag(h) / h.sum(1)
     iu = np.diag(h) / (h.sum(1) + h.sum(0) - np.diag(h))
 
-    rocauc, f1 = roc_auc_score(gt, pred, labels=labels, multi_class="ovr", average="weighted"), f1_score(gt, pred, labels=labels, average="macro")	
+    # rocauc = roc_auc_score(gt, pred, labels=labels, multi_class="ovr", average="weighted")
+    f1 =  f1_score(gt, pred, labels=labels, average="macro")	
+    matt = matthews_corrcoef(gt, pred)
+    kappa = cohen_kappa_score(gt, pred)
 	
     print("Confusion matrix: ", confmat)
     print("Accuracy: ", acc_global * 100)
@@ -390,9 +393,11 @@ def compute_statistics(gt, pred, labels=np.arange(TEMP_RANGES[2])) -> None:
     print("True Positive: ", acc)
     print("IU: ", iu)
     print("IU: ", iu)
-    print("ROCAUC: ", rocauc)
+    # print("ROCAUC: ", rocauc)
     print("F1: ", f1)
-
+    print("Matthews: ", matt)
+    print("Kappa: ", kappa)
+	
     report = classification_report(gt, pred, labels=labels)
     print(report)
 	
