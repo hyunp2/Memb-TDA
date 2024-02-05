@@ -47,7 +47,7 @@ from kd_train_utils import train as distill_train_function
 from model import MPNN, Vision
 from gpu_utils import *
 from loss_utils import * #TEMP_RANGES
-from test_utils import validate_and_test, InferenceDataset
+from test_utils import compute_confusion, validate_and_test, InferenceDataset
 from interpret_utils import xai
 from math_utils import wasserstein_difference
 from train_utils import load_state, single_val, single_test
@@ -122,7 +122,7 @@ def get_args():
     parser.add_argument('--teacher_name', type=str, default="mpnn", help="saved torch model name...")
 
     #Mode utils
-    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "distill", "infer", "infer_custom", "xai", "eff_temp"], default="preprocessing")  
+    parser.add_argument('--which_mode', type=str, choices=["preprocessing", "train", "distill", "infer", "infer_custom", "xai", "eff_temp", "ml_metrics"], default="preprocessing")  
     parser.add_argument('--which_xai', type=str, choices=["saliency", "gradcam", "lime", "attention"], default="saliency")  
 
     args = parser.parse_args()
@@ -411,6 +411,19 @@ def plot_effective_temperatures(args):
     plot_total_temps(os.path.join(args.save_dir, "convnext_all_temps.npz")) ###As of Feb 3rd 2024: needs npz file in "inference_save"
     plot_one_temp_parallel(args) ###As of Feb 3rd 2024: needs pickle files in "inference_save"
 
+def get_ml_metrics(args):
+    ###BELOW as of Feb 4th 2024
+    data = np.load(os.path.join(pathlib.Path(args.save_dir).parent, "inference_save", f"{args.backbone}_all_temps.npz"))
+    gt, pred = data["gt"], data["pred"]
+    gt = gt - TEMP_RANGES[0]
+    ranges = np.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).astype(float) #temperatures
+    pred = np.searchsorted(ranges, pred) #Method 1; (Method 2) try on classification!
+	
+    for_sorting = np.array([306, 310]) - TEMP_RANGES[0] #Three classes: 0, 1, 2 for LOW/MID/HIGH
+    gts = np.searchsorted(for_sorting, gt)
+    preds = np.searchsorted(for_sorting, pred)
+    compute_confusion(gts, preds, labels=np.arange(3)) #Three classes: 0, 1, 2 for LOW/MID/HIGH
+
 if __name__ == "__main__":
     args = get_args()
     print(args.__dict__)
@@ -432,4 +445,6 @@ if __name__ == "__main__":
         #[Oct. 3, 2023] python -m main --which_mode xai --name swinv2_model_indiv --backbone swinv2 --filename dppc.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --which_xai gradcam --resume
     elif args.which_mode == "eff_temp":
         plot_effective_temperatures(args)
+    elif args.which_mode == "ml_metrics":
+        get_ml_metrics(args)
     #python -m main --which_mode train --name vit_model --filename vit.pickle --multiprocessing --optimizer torch_adam --log --gpu --epoches 1000 --batch_size 16 --ce_re_ratio "[1, 0.1]"
