@@ -136,7 +136,7 @@ class ConfusionMatrix:
         return acc_global, acc, iu
 
     def reduce_from_all_processes(self):
-        reduce_across_processes(self.mat)
+        self.mat = reduce_across_processes(self.mat)
     
     def __str__(self):
         acc_global, acc, iu = self.compute()
