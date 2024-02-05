@@ -109,7 +109,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
         epoch_start, best_loss = load_state(model, None, None, path_and_name, use_artifacts=args.use_artifacts, logger=None, name=args.name, model_only=True) 
         self.model = model #To call a pretrained model!
         self.model.eval()
-	
+	self.search_system = args.search_system
         self.directories = [os.path.join(args.pdb_database, f"T.{args.search_temp}")] #e.g. List of str dir ... ["inference_pdbdatabase/T.123"]
         #index_for_searchTemp is NO LONGER NECESSARY!
 	
@@ -148,7 +148,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
 						############################################
 						############################################
 	
-        super().__init__(args=args, directories=self.directories, image_stats=image_stats) #Get all the values from inheritance!
+        super().__init__(args=args, directories=self.directories, image_stats=image_stats, search_system=self.search_system) #Get all the values from inheritance!
         print(cf.on_red(f"Argument args.search_temp {self.search_temp} is an integer keyword to find the correct directory e.g. inference_pdbdatabase/T.128/*.pdb"))
         self.index_for_searchTemp = np.where(np.array(self.temperatures) == int(self.search_temp))[0] #Index to get only the correponding temperature-related data!
 #         self.graph_input_list, self.Rs_total, self.Images_total, self.temperature = self.graph_input_list[self.index_for_searchTemp], self.Rs_total[self.index_for_searchTemp], self.Images_total[self.index_for_searchTemp], self.temperature[self.index_for_searchTemp]
