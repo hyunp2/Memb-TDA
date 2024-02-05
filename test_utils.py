@@ -224,7 +224,7 @@ class InferenceDataset(PH_Featurizer_Dataset):
             save_as = collections.defaultdict(list)
             for key, val in zip(["predictions", "predictions_std", "images", "pdbnames"], [predictions_all_probs_T, predictions_all_probs_T_std, self.Images_total, self.pdb2str]):
                 save_as[key] = val
-            save_as["METADATA"] = (confmat.mat, *confmat.compute())
+            # save_as["METADATA"] = (confmat.mat, *confmat.compute())
             pickle.dump(save_as, f)   
         confmat.reset()
 
