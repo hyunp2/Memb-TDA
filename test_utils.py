@@ -390,5 +390,7 @@ if __name__ == "__main__":
     args = get_args()
     data = np.load(os.path.join(pathlib.Path(args.save_dir).parent, "inference_save", f"{args.backbone}_all_temps.npz"))
     gt, pred = data["gt"], data["pred"]
+    ranges = torch.arange(TEMP_RANGES[0], TEMP_RANGES[1] + 1).to(predictions_all).float() #temperatures
+    pred = np.searchsorted(ranges, pred) #Method 1; try on classification!
     compute_confusion(gt, pred)
     ## git pull && python -m test_utils --save_dir pickled_indiv --backbone convnext
