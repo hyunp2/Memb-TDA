@@ -37,15 +37,15 @@ from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everythin
 from torch.utils.data import DistributedSampler, Subset
 from torch._utils import _accumulate
 from typing import *
-from topologylayer.nn import RipsLayer, AlphaLayer
-import ripserplusplus as rpp_py
+# from topologylayer.nn import RipsLayer, AlphaLayer
+# import ripserplusplus as rpp_py
 import gc
 from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
 from math_utils import wasserstein
 import mdtraj
-from gudhi_ripser import RipsLayer as RipsLayerGudhi 
+# from gudhi_ripser import RipsLayer as RipsLayerGudhi 
 from model import Vision
 from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
 
