@@ -25,7 +25,7 @@ from plotly.graph_objs import graph_objs as go
 import ipywidgets as widgets
 # plotly.offline.init_notebook_mode(connected=True)
 from plotly.offline import iplot
-# import gudhi, gudhi.hera, gudhi.wasserstein, persim
+import gudhi, gudhi.hera, gudhi.wasserstein, persim
 import mdtraj
 import psutil
 import argparse
