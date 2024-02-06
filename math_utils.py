@@ -8,7 +8,7 @@ from scipy.linalg import sqrtm
 import persim
 # from gudhi.wasserstein import wasserstein_distance
 from persim import wasserstein as wasserstein_distance
-# from gudhi.wasserstein.barycenter import lagrangian_barycenter
+from gudhi.wasserstein.barycenter import lagrangian_barycenter
 from typing import *
 # from persim import plot_diagrams
 from visual_utils import plot_diagrams
