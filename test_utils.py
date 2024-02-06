@@ -382,7 +382,7 @@ def compute_statistics(gt, pred, labels=np.arange(TEMP_RANGES[2])) -> None:
     acc = np.diag(h) / h.sum(1)
     iu = np.diag(h) / (h.sum(1) + h.sum(0) - np.diag(h))
 
-    rocauc = roc_auc_score(gt, pred, labels=labels, multi_class="ovr", average="weighted")
+    rocauc = roc_auc_score(gt, pred, labels=labels, multi_class="ovr", average="macro")
     f1 =  f1_score(gt, pred, labels=labels, average="macro")	
     matt = matthews_corrcoef(gt, pred)
     kappa = cohen_kappa_score(gt, pred, labels=labels)
