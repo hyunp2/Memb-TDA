@@ -33,7 +33,7 @@ from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everythin
     using_tensor_cores, increase_l2_fetch_granularity
 from torch.utils.data import DistributedSampler
 from typing import *
-from topologylayer.nn import RipsLayer, AlphaLayer
+# from topologylayer.nn import RipsLayer, AlphaLayer
 import gc
 from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
