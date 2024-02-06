@@ -45,7 +45,7 @@ from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
 from math_utils import wasserstein
 import mdtraj
-# from gudhi_ripser import RipsLayer as RipsLayerGudhi 
+from gudhi_ripser import RipsLayer as RipsLayerGudhi 
 from model import Vision
 from transformers import ViTFeatureExtractor, ConvNextFeatureExtractor, ViTModel, SwinModel, Swinv2Model, ConvNextModel, ViTConfig, SwinConfig, Swinv2Config, ConvNextConfig
 
