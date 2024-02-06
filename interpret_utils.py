@@ -16,7 +16,7 @@ Credit:
 
 from typing import Dict, Optional
 
-from topologylayer.nn import RipsLayer, AlphaLayer
+# from topologylayer.nn import RipsLayer, AlphaLayer
 
 import cv2
 import numpy as np
