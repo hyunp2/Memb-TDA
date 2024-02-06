@@ -39,11 +39,11 @@ from MDAnalysis.analysis.base import AnalysisFromFunction
 from MDAnalysis.analysis.align import AlignTraj
 from MDAnalysis import transformations
 import data_utils
-import data_utils_mem 
+# import data_utils_mem 
 from dist_utils import to_cuda, get_local_rank, init_distributed, seed_everything, \
     using_tensor_cores, increase_l2_fetch_granularity, WandbLogger
 from train_utils import train as train_function
-from kd_train_utils import train as distill_train_function
+# from kd_train_utils import train as distill_train_function
 from model import MPNN, Vision
 from gpu_utils import *
 from loss_utils import * #TEMP_RANGES
